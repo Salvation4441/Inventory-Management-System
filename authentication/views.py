@@ -7,3 +7,7 @@ def signin(request):
 # lock screen
 def lock_screen(request):
     return render(request,'screens/auth/lock-screen.html')
+
+# logout
+def logout(request):
+    return render(request,'screens/auth/login.html')

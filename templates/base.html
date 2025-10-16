@@ -15,41 +15,41 @@
 	<meta name="robots" content="index, follow">
 	<title>Dreams POS - Inventory Management & Admin Dashboard Template</title>
 
-	<script src="assets/js/theme-script.js" type="cd007c541775819addf05c22-text/javascript"></script>	
+	<script src="{%static 'assets/js/theme-script.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>	
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+	<link rel="shortcut icon" type="image/x-icon" href="{%static 'assets/img/favicon.png' %}">
 
 	<!-- Apple Touch Icon -->
-	<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="{%static 'assets/img/apple-touch-icon.png' %}">
 
 	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{%static 'assets/css/bootstrap.min.css' %}">
 
 	<!-- Datetimepicker CSS -->
-	<link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
 
 	<!-- animation CSS -->
-	<link rel="stylesheet" href="assets/css/animate.css">
+	<link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
 
 	<!-- Select2 CSS -->
-	<link rel="stylesheet" href="assets/plugins/select2/css/select2.min.css">
+	<link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
 
 	<!-- Daterangepikcer CSS -->
-	<link rel="stylesheet" href="assets/plugins/daterangepicker/daterangepicker.css">
+	<link rel="stylesheet" href="{% static 'assets/plugins/daterangepicker/daterangepicker.css' %}">
 
 	<!-- Tabler Icon CSS -->
-	<link rel="stylesheet" href="assets/plugins/tabler-icons/tabler-icons.min.css">
+	<link rel="stylesheet" href="{%static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
 
 	<!-- Fontawesome CSS -->
-	<link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
-	<link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
 
 	<!-- Color Picker Css -->
-	<link rel="stylesheet" href="assets/plugins/%40simonwep/pickr/themes/nano.min.css">
+	<link rel="stylesheet" href="{% static 'assets/plugins/%40simonwep/pickr/themes/nano.min.css' %}">
 
 	<!-- Main CSS -->
-	<link rel="stylesheet" href="assets/css/style.css">
+	<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
 
 </head>
 
@@ -57,9 +57,58 @@
 	<div id="global-loader">
 		<div class="whirly-loader"> </div>
 	</div>
-    <!-- {% include 'components/navbar.html' %} -->
+    <div class="main-wrapper">
+        <!-- header -->
+        {% include 'components/header.html' %}
+
+        <!-- sidebar -->
+         {% include 'components/sidebar.html' %}
+
         {%block content%}
 
         {%endblock%}
+    </div>
+    
+
+<!-- jQuery -->
+	<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Feather Icon JS -->
+	<script src="{% static 'assets/js/feather.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Slimscroll JS -->
+	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Bootstrap Core JS -->
+	<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- ApexChart JS -->
+	<script src="{%static 'assets/plugins/apexchart/apexcharts.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+	<script src="{%static 'assets/plugins/apexchart/chart-data.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Chart JS -->
+	<script src="{%static 'assets/plugins/chartjs/chart.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+	<script src="{%static 'assets/plugins/chartjs/chart-data.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Daterangepikcer JS -->
+	<script src="{%static 'assets/js/moment.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+	<script src="{%static 'assets/plugins/daterangepicker/daterangepicker.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Select2 JS -->
+	<script src="{%static 'assets/plugins/select2/js/select2.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Color Picker JS -->
+	<script src="{% static 'assets/plugins/%40simonwep/pickr/pickr.es5.min.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	<!-- Custom JS -->
+	<script src="{% static 'assets/js/theme-colorpicker.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+	<script src="{% static 'assets/js/script.js' %}" type="cd007c541775819addf05c22-text/javascript"></script>
+
+	
+<script src="{% static 'assets/js/rocket-loader.min.js' %}" data-cf-settings="cd007c541775819addf05c22-|49" defer></script>
+<!-- <script defer src="../../../static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"3ca157e612a14eccbb30cf6db6691c29","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script> -->
 </body>
+
+
+<!-- Mirrored from dreamspos.dreamstechnologies.com/html/template/ by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 13 Oct 2025 17:33:09 GMT -->
 </html>
