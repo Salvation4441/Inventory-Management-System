@@ -1,4 +1,5 @@
 {%load static%}
+
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <!-- Logo -->
@@ -17,20 +18,13 @@
   <div class="modern-profile p-3 pb-0">
     <div class="text-center rounded bg-light p-3 mb-4 user-profile">
       <div class="avatar avatar-lg online mb-3">
-        <img
-          src="{%static 'assets/img/customer/customer15.jpg'%}"
-          alt="Img"
-          class="img-fluid rounded-circle"
-        />
+        <img src="{%static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
       </div>
       <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
       <p class="fs-12 mb-0">System Admin</p>
     </div>
     <div class="sidebar-nav mb-3">
-      <ul
-        class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent"
-        role="tablist"
-      >
+      <ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent" role="tablist">
         <li class="nav-item">
           <a class="nav-link active border-0" href="#">Menu</a>
         </li>
@@ -44,24 +38,16 @@
     </div>
   </div>
   <div class="sidebar-header p-3 pb-0 pt-2">
-    <div
-      class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center"
-    >
+    <div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
       <div class="avatar avatar-md onlin">
-        <img
-          src="{% static 'assets/img/customer/customer15.jpg'%}"
-          alt="Img"
-          class="img-fluid rounded-circle"
-        />
+        <img src="{% static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
       </div>
       <div class="text-start sidebar-profile-info ms-2">
         <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
         <p class="fs-12">System Admin</p>
       </div>
     </div>
-    <div
-      class="d-flex align-items-center justify-content-between menu-item mb-3"
-    >
+    <div class="d-flex align-items-center justify-content-between menu-item mb-3">
       <div>
         <a href="" class="btn btn-sm btn-icon bg-light">
           <i class="ti ti-layout-grid-remove"></i>
@@ -73,18 +59,12 @@
         </a>
       </div>
       <div>
-        <a
-          href="email.html"
-          class="btn btn-sm btn-icon bg-light position-relative"
-        >
+        <a href="email.html" class="btn btn-sm btn-icon bg-light position-relative">
           <i class="ti ti-message"></i>
         </a>
       </div>
       <div class="notification-item">
-        <a
-          href="activities.html"
-          class="btn btn-sm btn-icon bg-light position-relative"
-        >
+        <a href="activities.html" class="btn btn-sm btn-icon bg-light position-relative">
           <i class="ti ti-bell"></i>
           <span class="notification-status-dot"></span>
         </a>
@@ -103,15 +83,11 @@
           <h6 class="submenu-hdr">Main</h6>
           <ul>
             <li class="submenu">
-              <a href="javascript:void(0);" class="subdrop active"
-                ><i class="ti ti-layout-grid fs-16 me-2"></i
-                ><span>Dashboard</span><span class="menu-arrow"></span
-              ></a>
+              <a href="javascript:void(0);" class="subdrop active"><i
+                  class="ti ti-layout-grid fs-16 me-2"></i><span>Dashboard</span><span class="menu-arrow"></span></a>
               <ul>
                 <li>
-                  <a href="{%url 'admin-dashboard' %}" class="active"
-                    >Admin Dashboard</a
-                  >
+                  <a href="{%url 'admin-dashboard' %}" class="active">Admin Dashboard</a>
                 </li>
 
                 <li>
@@ -125,16 +101,11 @@
           <h6 class="submenu-hdr">Inventory</h6>
           <ul>
             <li>
-              <a href="{%url 'products' %}"
-                ><i data-feather="box"></i><span>Products</span></a
-              >
+              <a href="{%url 'products' %}"><i data-feather="box"></i><span>Products</span></a>
             </li>
 
             <li>
-              <a href="{%url 'category' %}"
-                ><i class="ti ti-list-details fs-16 me-2"></i
-                ><span>Category</span></a
-              >
+              <a href="{%url 'category' %}"><i class="ti ti-list-details fs-16 me-2"></i><span>Category</span></a>
             </li>
           </ul>
         </li>
@@ -142,10 +113,7 @@
           <h6 class="submenu-hdr">Stock</h6>
           <ul>
             <li>
-              <a href="{%url 'manage-stocks' %}"
-                ><i class="ti ti-stack-3 fs-16 me-2"></i
-                ><span>Manage Stock</span></a
-              >
+              <a href="{%url 'manage-stocks' %}"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a>
             </li>
           </ul>
         </li>
@@ -160,10 +128,7 @@
           <h6 class="submenu-hdr">Peoples</h6>
           <ul>
             <li>
-              <a href="{%url 'customers'%}"
-                ><i class="ti ti-users-group fs-16 me-2"></i
-                ><span>Customers</span></a
-              >
+              <a href="{%url 'customers'%}"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a>
             </li>
           </ul>
         </li>
@@ -172,10 +137,8 @@
           <h6 class="submenu-hdr">Reports</h6>
           <ul>
             <li class="submenu">
-              <a href="javascript:void(0);"
-                ><i class="ti ti-chart-bar fs-16 me-2"></i
-                ><span>Sales Report</span><span class="menu-arrow"></span
-              ></a>
+              <a href="javascript:void(0);"><i class="ti ti-chart-bar fs-16 me-2"></i><span>Sales Report</span><span
+                  class="menu-arrow"></span></a>
               <ul>
                 <li><a href="sales-report.html">Sales Report</a></li>
                 <li><a href="best-seller.html">Best Seller</a></li>
@@ -183,16 +146,12 @@
             </li>
 
             <li>
-              <a href="{%url 'profit-and-loss'%}"
-                ><i class="ti ti-chart-donut fs-16 me-2"></i
-                ><span>Profit & Loss</span></a
-              >
+              <a href="{%url 'profit-and-loss'%}"><i class="ti ti-chart-donut fs-16 me-2"></i><span>Profit &
+                  Loss</span></a>
             </li>
             <li>
-              <a href="{%url 'annual-report'%}"
-                ><i class="ti ti-report-search fs-16 me-2"></i
-                ><span>Annual Report</span></a
-              >
+              <a href="{%url 'annual-report'%}"><i class="ti ti-report-search fs-16 me-2"></i><span>Annual
+                  Report</span></a>
             </li>
           </ul>
         </li>
@@ -201,9 +160,7 @@
           <h6 class="submenu-hdr">User Management</h6>
           <ul>
             <li>
-              <a href="{%url 'users'%}"
-                ><i class="ti ti-shield-up fs-16 me-2"></i><span>Users</span></a
-              >
+              <a href="{%url 'users'%}"><i class="ti ti-shield-up fs-16 me-2"></i><span>Users</span></a>
             </li>
           </ul>
         </li>
@@ -212,8 +169,7 @@
           <h6 class="submenu-hdr">Settings</h6>
           <ul>
             <li>
-              <a href="signin.html"
-                ><i class="ti ti-logout fs-16 me-2"></i><span>Logout</span>
+              <a href="signin.html"><i class="ti ti-logout fs-16 me-2"></i><span>Logout</span>
               </a>
             </li>
           </ul>
