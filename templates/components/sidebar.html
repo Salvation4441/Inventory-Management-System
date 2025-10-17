@@ -20,7 +20,7 @@
   <div class="modern-profile p-3 pb-0">
     <div class="text-center rounded bg-light p-3 mb-4 user-profile">
       <div class="avatar avatar-lg online mb-3">
-        <img src="assets/img/customer/customer15.jpg" alt="Img" class="img-fluid rounded-circle" />
+        <img src="{%static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
       </div>
       <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
       <p class="fs-12 mb-0">System Admin</p>
@@ -42,7 +42,7 @@
   <div class="sidebar-header p-3 pb-0 pt-2">
     <div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
       <div class="avatar avatar-md onlin">
-        <img src="assets/img/customer/customer15.jpg" alt="Img" class="img-fluid rounded-circle" />
+        <img src="{% static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
       </div>
       <div class="text-start sidebar-profile-info ms-2">
         <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
@@ -137,7 +137,7 @@
           <h6 class="submenu-hdr">Peoples</h6>
           <ul>
             <li>
-              <a href="customers.html"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a>
+              <a href="{%url 'customers'%}"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a>
           </ul>
         </li>
         <li class="submenu-open">
@@ -184,18 +184,7 @@
                 </li>
               </ul>
             </li>
-            <li class="submenu">
-              <a href="javascript:void(0);"><i class="ti ti-report fs-16 me-2"></i><span>Customer Report</span><span
-                  class="menu-arrow"></span></a>
-              <ul>
-                <li>
-                  <a href="customer-report.html">Customer Report</a>
-                </li>
-                <li>
-                  <a href="customer-due-report.html">Customer Due Report</a>
-                </li>
-              </ul>
-            </li>
+            
             <li class="submenu">
               <a href="javascript:void(0);"><i class="ti ti-report-analytics fs-16 me-2"></i><span>Product
                   Report</span><span class="menu-arrow"></span></a>
@@ -231,15 +220,7 @@
           <h6 class="submenu-hdr">User Management</h6>
           <ul>
             <li>
-              <a href="users.html"><i class="ti ti-shield-up fs-16 me-2"></i><span>Users</span></a>
-            </li>
-            <li>
-              <a href="roles-permissions.html"><i class="ti ti-jump-rope fs-16 me-2"></i><span>Roles &
-                  Permissions</span></a>
-            </li>
-            <li>
-              <a href="delete-account.html"><i class="ti ti-trash-x fs-16 me-2"></i><span>Delete Account
-                  Request</span></a>
+              <a href="{%url 'users'%}"><i class="ti ti-shield-up fs-16 me-2"></i><span>Users</span></a>
             </li>
           </ul>
         </li>

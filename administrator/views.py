@@ -24,3 +24,11 @@ def settings(request):
 # products page
 def products(request):
     return render(request,'screens/administrator/products.html')
+
+# users page
+def users(request):
+    return render(request,'screens/administrator/users.html')
+
+# customers page
+def customers(request):
+    return render(request,'screens/administrator/customers.html')
