@@ -48,3 +48,7 @@ def add_product(request):
 # category page
 def category(request):
     return render(request,'screens/administrator/category.html')
+
+# manage stocks page
+def manage_stocks(request):
+    return render(request,'screens/administrator/manage-stocks.html')
