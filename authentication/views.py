@@ -11,3 +11,7 @@ def lock_screen(request):
 # logout
 def logout(request):
     return render(request,'screens/auth/login.html')
+
+# forgot-pasword
+def forgot_password(request):
+    return render(request,'screens/auth/forgot-password.html')
