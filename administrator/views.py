@@ -4,9 +4,9 @@ from django.shortcuts import render
 def admin_dashboard(request):
     return render(request,'screens/administrator/dashboard.html')
 
-# purchase page
-def purchases(request):
-    return render(request,'screens/core/purchase.html')
+# sales page
+def sales(request):
+    return render(request,'screens/administrator/sales.html')
 
 # profile
 def profile(request):
