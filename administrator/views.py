@@ -52,3 +52,11 @@ def category(request):
 # manage stocks page
 def manage_stocks(request):
     return render(request,'screens/administrator/manage-stocks.html')
+
+# annual report page
+def annual_report(request):
+    return render(request,'screens/administrator/annual-report.html')
+
+# profit and loss page
+def profit_and_loss(request):
+    return render(request,'screens/administrator/profit-and-loss.html')

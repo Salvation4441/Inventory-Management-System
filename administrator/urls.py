@@ -16,4 +16,6 @@ urlpatterns = [
     path('add-product/', views.add_product, name='add-product'),
     path('category/', views.category, name='category'),
     path('manage-stocks/', views.manage_stocks, name='manage-stocks'),
+    path('annual-report/', views.manage_stocks, name='annual-report'),
+    path('profit-and-loss/', views.profit_and_loss, name='profit-and-loss'),
 ]
