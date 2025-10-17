@@ -21,5 +21,6 @@ def sales_report(request):
 def settings(request):
     return render(request,'screens/administrator/settings.html')
 
+# products page
 def products(request):
     return render(request,'screens/administrator/products.html')
