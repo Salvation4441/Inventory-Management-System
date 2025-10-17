@@ -3,3 +3,6 @@ from django.shortcuts import render
 # Create your views here.
 def admin_dashboard(request):
     return render(request,'screens/administrator/dashboard.html')
+
+def products(request):
+    return render(request,'screens/administrator/products.html')
