@@ -24,3 +24,11 @@ def settings(request):
 # products page
 def products(request):
     return render(request,'screens/administrator/products.html')
+
+# product details page
+def product_details(request):
+    return render(request,'screens/administrator/product-details.html')
+
+# edit products page
+def edit_product(request):
+    return render(request,'screens/administrator/edit-product.html')
