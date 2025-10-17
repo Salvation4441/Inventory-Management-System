@@ -40,3 +40,11 @@ def product_details(request):
 # edit products page
 def edit_product(request):
     return render(request,'screens/administrator/edit-product.html')
+
+# add products page
+def add_product(request):
+    return render(request,'screens/administrator/add-product.html')
+
+# category page
+def category(request):
+    return render(request,'screens/administrator/category.html')
