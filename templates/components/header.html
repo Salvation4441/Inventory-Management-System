@@ -4,13 +4,13 @@
   <div class="main-header">
     <!-- Logo -->
     <div class="header-left active">
-      <a href="index-2.html" class="logo logo-normal">
+      <a href="" class="logo logo-normal">
         <img src="{%static  'assets/img/logo.svg' %}" alt="Img" />
       </a>
-      <a href="index-2.html" class="logo logo-white">
+      <a href="" class="logo logo-white">
         <img src="{%static  'assets/img/logo-white.svg' %}" alt="Img" />
       </a>
-      <a href="index-2.html" class="logo-small">
+      <a href="" class="logo-small">
         <img src="{%static  'assets/img/logo-small.png' %}" alt="Img" />
       </a>
     </div>
@@ -87,36 +87,6 @@
           </form>
         </div>
       </li>
-      <!-- /Search -->
-
-      <!-- Select Store -->
-      <li class="nav-item dropdown has-arrow main-drop select-store-dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle nav-link select-store" data-bs-toggle="dropdown">
-          <span class="user-info">
-            <span class="user-letter">
-              <img src="{%static  'assets/img/store/store-01.png' %}" alt="Store Logo" class="img-fluid" />
-            </span>
-            <span class="user-detail">
-              <span class="user-name">Freshmart</span>
-            </span>
-          </span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a href="javascript:void(0);" class="dropdown-item">
-            <img src="{%static  'assets/img/store/store-01.png' %}" alt="Store Logo" class="img-fluid" />Freshmart
-          </a>
-          <a href="javascript:void(0);" class="dropdown-item">
-            <img src="{%static  'assets/img/store/store-02.png' %}" alt="Store Logo" class="img-fluid" />Grocery Apex
-          </a>
-          <a href="javascript:void(0);" class="dropdown-item">
-            <img src="{%static  'assets/img/store/store-03.png' %}" alt="Store Logo" class="img-fluid" />Grocery Bevy
-          </a>
-          <a href="javascript:void(0);" class="dropdown-item">
-            <img src="{%static  'assets/img/store/store-04.png' %}" alt="Store Logo" class="img-fluid" />Grocery Eden
-          </a>
-        </div>
-      </li>
-      <!-- /Select Store -->
 
       <li class="nav-item dropdown link-nav">
         <a href="javascript:void(0);" class="btn btn-primary btn-md d-inline-flex align-items-center"
@@ -142,7 +112,7 @@
               </a>
             </div>
             <div class="col-md-2">
-              <a href="category-list.html" class="link-item">
+              <a href="{%url 'purchases' %}" class="link-item">
                 <span class="link-icon">
                   <i class="ti ti-shopping-bag"></i>
                 </span>
@@ -155,22 +125,6 @@
                   <i class="ti ti-shopping-cart"></i>
                 </span>
                 <p>Sale</p>
-              </a>
-            </div>
-            <div class="col-md-2">
-              <a href="expense-list.html" class="link-item">
-                <span class="link-icon">
-                  <i class="ti ti-file-text"></i>
-                </span>
-                <p>Expense</p>
-              </a>
-            </div>
-            <div class="col-md-2">
-              <a href="quotation-list.html" class="link-item">
-                <span class="link-icon">
-                  <i class="ti ti-device-floppy"></i>
-                </span>
-                <p>Quotation</p>
               </a>
             </div>
             <div class="col-md-2">
@@ -198,27 +152,11 @@
               </a>
             </div>
             <div class="col-md-2">
-              <a href="sales-report.html" class="link-item">
-                <span class="link-icon">
-                  <i class="ti ti-shield"></i>
-                </span>
-                <p>Biller</p>
-              </a>
-            </div>
-            <div class="col-md-2">
               <a href="suppliers.html" class="link-item">
                 <span class="link-icon">
                   <i class="ti ti-user-check"></i>
                 </span>
                 <p>Supplier</p>
-              </a>
-            </div>
-            <div class="col-md-2">
-              <a href="stock-transfer.html" class="link-item">
-                <span class="link-icon">
-                  <i class="ti ti-truck"></i>
-                </span>
-                <p>Transfer</p>
               </a>
             </div>
           </div>
@@ -325,9 +263,9 @@
       </li>
       <!-- /Notifications -->
 
-      <li class="nav-item nav-item-box">
-        <a href="general-settings.html"><i class="ti ti-settings"></i></a>
-      </li>
+      <!-- <li class="nav-item nav-item-box">
+        <a href="{% url 'settings' %}"><i class="ti ti-settings"></i></a>
+      </li> -->
       <li class="nav-item dropdown has-arrow main-drop profile-nav">
         <a href="javascript:void(0);" class="nav-link userset" data-bs-toggle="dropdown">
           <span class="user-info p-0">
@@ -346,9 +284,9 @@
               <p>Admin</p>
             </div>
           </div>
-          <a class="dropdown-item" href="profile.html"><i class="ti ti-user-circle me-2"></i>Profile</a>
-          <a class="dropdown-item" href="sales-report.html"><i class="ti ti-file-text me-2"></i>Reports</a>
-          <a class="dropdown-item" href="general-settings.html"><i class="ti ti-settings-2 me-2"></i>Settings</a>
+          <a class="dropdown-item" href="{% url 'profile' %}"><i class="ti ti-user-circle me-2"></i>Profile</a>
+          <a class="dropdown-item" href="{% url 'sales-report' %}"><i class="ti ti-file-text me-2"></i>Reports</a>
+          <a class="dropdown-item" href="{% url 'settings' %}"><i class="ti ti-settings-2 me-2"></i>Settings</a>
           <hr class="my-2" />
           <a class="dropdown-item logout pb-0" href="{%url 'login' %}"><i class="ti ti-logout me-2"></i>Logout</a>
         </div>
@@ -361,9 +299,9 @@
       <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i
           class="fa fa-ellipsis-v"></i></a>
       <div class="dropdown-menu dropdown-menu-right">
-        <a class="dropdown-item" href="profile.html">My Profile</a>
-        <a class="dropdown-item" href="general-settings.html">Settings</a>
-        <a class="dropdown-item" href="{%url 'login' %}">Logout</a>
+        <a class="dropdown-item" href="{% url 'profile' %}">My Profile</a>
+        <a class="dropdown-item" href="{% url 'settings' %}">Settings</a>
+        <a class="dropdown-item" href="{% url 'login' %}">Logout</a>
       </div>
     </div>
     <!-- /Mobile Menu -->
