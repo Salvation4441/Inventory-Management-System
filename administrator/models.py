@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from authentication.models import User
 from django.db.models import Sum, F, FloatField
@@ -100,7 +101,8 @@ class Sales(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sale_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    reference = models.CharField(max_length=20, unique=True, null=True, editable=False)
+    # reference = models.CharField(max_length=20, null=True, editable=False)
+    reference = models.CharField(max_length=16, unique=True, default=lambda: f"SAL{uuid.uuid4().hex[:8].upper()}", editable=False)
     total_amount = models.FloatField(default=0.0, editable=False)
 
     def save(self, *args, **kwargs):
