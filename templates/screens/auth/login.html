@@ -15,7 +15,8 @@
                 <img src="{%static 'assets/img/logo-white.svg'%}" alt="Img" />
               </a>
             </div>
-            <form action="">
+            <form action="" method="POST">
+              {% csrf_token %}
               <div class="card col-lg-8 mx-auto">
                 <div class="card-body p-5">
                   <div class="login-userheading">
@@ -23,9 +24,9 @@
                     <h4>Login with email and  password.</h4>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Email <span class="text-danger"> *</span></label>
+                    <label class="form-label">Username <span class="text-danger"> *</span></label>
                     <div class="input-group">
-                      <input type="text" value="" class="form-control border-end-0" required />
+                      <input type="text" name="username" class="form-control border-end-0" required />
                       <span class="input-group-text border-start-0">
                         <i class="ti ti-mail"></i>
                       </span>
@@ -34,7 +35,7 @@
                   <div class="mb-3">
                     <label class="form-label">Password <span class="text-danger"> *</span></label>
                     <div class="pass-group">
-                      <input type="password" class="pass-input form-control" required />
+                      <input type="password" name="password" class="pass-input form-control" required />
                       <span class="ti toggle-password ti-eye-off text-gray-9"></span>
                     </div>
                   </div>

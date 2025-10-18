@@ -324,8 +324,8 @@
               />
             </span>
             <div>
-              <h6 class="fw-medium">John Smilga</h6>
-              <p>Admin</p>
+              <h6 class="fw-medium" >{{ request.user.first_name|upper }} {{ request.user.last_name|upper }}</h6>
+              <p>{{request.user.role}}</p>
             </div>
           </div>
           <a class="dropdown-item" href="{% url 'profile' %}"
@@ -338,7 +338,7 @@
             ><i class="ti ti-settings-2 me-2"></i>Settings</a
           >
           <hr class="my-2" />
-          <a class="dropdown-item logout pb-0" href="{%url 'login' %}"
+          <a class="dropdown-item logout pb-0" href="{%url 'logout' %}"
             ><i class="ti ti-logout me-2"></i>Logout</a
           >
         </div>

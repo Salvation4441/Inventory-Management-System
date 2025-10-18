@@ -1,4 +1,5 @@
 from pathlib import Path
+from authentication.middleware import RoleRedirectMiddleware
 import os
 from dotenv import load_dotenv
 
@@ -41,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'authentication.middleware.RoleRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'inventory.urls'
@@ -128,8 +130,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # for authentication
-# AUTH_USER_MODEL = 'authentication.CustomUser'
-# AUTHTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
+# Use the custom User model defined in the authentication app
+AUTH_USER_MODEL = 'authentication.User'
+AUTHTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 
 
 # use console email backend for development

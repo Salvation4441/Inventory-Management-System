@@ -1,35 +1,43 @@
 from django.shortcuts import render
+from authentication.decorators import admin_only
 
 # Create your views here.
+@admin_only
 def admin_dashboard(request):
     return render(request,'screens/administrator/dashboard.html')
 
 # sales page
+@admin_only
 def sales(request):
     return render(request,'screens/administrator/sales.html')
 
 # profile
+@admin_only
 def profile(request):
     return render(request,'screens/core/profile.html')
 
-
 # sales report
+@admin_only
 def sales_report(request):
     return render(request,'screens/administrator/sales-report.html')
 
 # settings page
+@admin_only
 def settings(request):
     return render(request,'screens/administrator/settings.html')
 
 # products page
+@admin_only
 def products(request):
     return render(request,'screens/administrator/products.html')
 
 # users page
+@admin_only
 def users(request):
     return render(request,'screens/administrator/users.html')
 
 # customers page
+@admin_only
 def customers(request):
     return render(request,'screens/administrator/customers.html')
 
@@ -60,3 +68,8 @@ def annual_report(request):
 # profit and loss page
 def profit_and_loss(request):
     return render(request,'screens/administrator/profit-and-loss.html')
+
+
+# error - 404
+def error_404(request):
+    return render(request,'screens/core/error-404.html')
