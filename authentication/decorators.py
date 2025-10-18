@@ -44,5 +44,5 @@ def admin_only(view_func):
             return view_func(request, *args, **kwargs)
         elif group == 'SALESPERSON':
             return redirect('employee-dashboard')
-        return redirect('error-404')
+        return redirect('login')
     return wrapper_func
