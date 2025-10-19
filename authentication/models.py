@@ -7,6 +7,7 @@ from django.utils import timezone
 
 # Create your user models
 class CustomUser(AbstractUser):
+   
     ROLE_CHOICES = [
         ('ADMIN', 'ADMIN'),
         ('SALESPERSON', 'SALESPERSON'),

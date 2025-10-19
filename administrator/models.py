@@ -54,19 +54,19 @@ class Product(models.Model):
 
             if last_product:
                 try:
-                    last_number = int(last_product.sku[-3:])
+                    last_number = int(last_product.product_sku[-3:])
                 except ValueError:
                     last_number = 0
                 new_number = last_number + 1
             else:
                 new_number = 1
 
-            self.sku = f"{cat_code}-{prefix}{new_number:03d}"
+            self.product_sku = f"{cat_code}-{prefix}{new_number:03d}"
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} ({self.sku})"
+        return f"{self.product_name} ({self.product_sku})"
 
 
 # --------------------------
@@ -141,14 +141,14 @@ class SalesItem(models.Model):
     def save(self, *args, **kwargs):
         # Auto-set unit price from Product
         if not self.unit_price:
-            self.unit_price = self.product.selling_price
+            self.unit_price = self.product.product_selling_price
 
         # Validate stock
         if not self.pk:  # new item only
-            if self.product.quantity < self.quantity:
-                raise ValueError(f"Not enough stock for {self.product.name}. Available: {self.product.quantity}")
-            self.product.quantity -= self.quantity
-            self.product.save(update_fields=["quantity"])
+            if self.product.product_quantity < self.quantity:
+                raise ValueError(f"Not enough stock for {self.product.product_name}. Available: {self.product.product_quantity}")
+            self.product.product_quantity -= self.quantity
+            self.product.save(update_fields=["product_quantity"])
 
         # Calculate total after discount
         subtotal = self.quantity * self.unit_price
@@ -157,4 +157,4 @@ class SalesItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.product.name} x {self.quantity}"
+        return f"{self.product.product_name} x {self.quantity}"
