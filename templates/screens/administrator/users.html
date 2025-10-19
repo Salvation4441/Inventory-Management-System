@@ -105,10 +105,18 @@
 													<a class="me-2 p-2 mb-0" href="javascript:void(0);">
 														<i data-feather="eye" class="action-eye"></i>
 													</a>
-													<a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-user">
+													<a class="me-2 p-2 mb-0 btn-edit-user" data-bs-toggle="modal" data-bs-target="#edit-user"
+													   data-user-id="{{ user.id }}"
+													   data-username="{{ user.username }}"
+													   data-first_name="{{ user.first_name }}"
+													   data-last_name="{{ user.last_name }}"
+													   data-email="{{ user.email }}"
+													   data-phone="{{ user.phone }}"
+													   data-role="{{ user.role }}"
+													   href="javascript:void(0);">
 														<i data-feather="edit" class="feather-edit"></i>
 													</a>
-													<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0" href="javascript:void(0);">
+													<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0 btn-delete-user" href="javascript:void(0);" data-user-id="{{ user.id }}">
 														<i data-feather="trash-2" class="feather-trash-2"></i>
 													</a>
 												</div>
@@ -254,7 +262,7 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
-							<form method="POST" enctype="multipart/form-data">
+							<form id="edit-user-form" method="POST" enctype="multipart/form-data" action="">
 								{% csrf_token %}
 								<div class="modal-body">
 									<div class="row">
@@ -262,14 +270,14 @@
 											<div class="new-employee-field">
 												<div class="profile-pic-upload image-field">
 													<div class="profile-pic p-2">
-														<img src="assets/img/users/user-49.png" class="object-fit-cover h-100 rounded-1" alt="user">
+														<img src="{% static 'assets/img/users/user-49.png' %}" class="object-fit-cover h-100 rounded-1" alt="user">
 														<button type="button" class="close rounded-1">
 															<span aria-hidden="true">&times;</span>
 														</button>
 													</div>
 													<div class="mb-3">
 														<div class="image-upload mb-0">
-															<input type="file">
+															<input type="file" name="photo" accept="image/*">
 															<div class="image-uploads">
 																<h4>Change Image</h4>
 															</div>
@@ -281,30 +289,41 @@
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
-												<label class="form-label">User<span class="text-danger ms-1">*</span></label>
-												<input type="text" class="form-control" value="Henry Bryant">
+												<label class="form-label">Username<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="username" value="{{ user.username }}">
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">First Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">Last Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Role<span class="text-danger ms-1">*</span></label>
-												<select class="select">
-													<option>Admin</option>
-													<option>Manager</option>
-													<option>Salesman</option>
+												<select class="select" name="role">
+													<option value="ADMIN" {%if user.role == "ADMIN" %}selected{% endif %}>Admin</option>
+													<option value="SALESPERSON" {%if user.role == "SALESPERSON" %}selected{% endif %}>Salesperson</option>
 												</select>
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
-												<input type="email" class="form-control" value="henry@example.com">
+												<input type="email" class="form-control" name="email" value="{{user.email}}">
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
-												<input type="tel" class="form-control" value="+12498345785">
+												<input type="tel" class="form-control" name="phone" value="{{ user.phone }}">
 											</div>
 										</div>
 									
@@ -312,7 +331,7 @@
 											<div class="mb-3">
 												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" value="********">
+													<input type="password" class="pass-input form-control" name="password" value="{{user.password}}">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
@@ -321,16 +340,9 @@
 											<div class="mb-3">
 												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" value="********">
+													<input type="password" class="pass-input form-control" value="{{user.password}}">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-												<span class="status-label">Status</span>
-												<input type="checkbox" id="user2" class="check" checked="">
-												<label for="user2" class="checktoggle">	</label>
 											</div>
 										</div>
 									</div>
@@ -348,7 +360,7 @@
 		<!-- /Edit User -->
 
 		<!-- delete modal -->
-			<div class="modal fade" id="delete-modal">
+		<div class="modal fade" id="delete-modal">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="page-wrapper-new p-0">
@@ -358,11 +370,60 @@
 								<p class="mb-0 fs-16">Are you sure you want to delete user?</p>
 								<div class="modal-footer-btn mt-3 d-flex justify-content-center">
 									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
-									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Delete</button>
+									<form id="delete-user-form" method="POST" action="">
+										{% csrf_token %}
+										<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Delete</button>
+									</form>
 								</div>						
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-    {%endblock%}
+
+		<!-- Delete User Modal -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+		// Set user id on delete modal form
+		document.querySelectorAll('.btn-delete-user').forEach(function(btn) {
+			btn.addEventListener('click', function() {
+				var userId = btn.getAttribute('data-user-id');
+				var form = document.getElementById('delete-user-form');
+				if (form) {
+					form.action = '/delete-user/' + userId + '/';
+				}
+			});
+		});
+	});
+		</script>
+
+		<!-- Edit User Modal -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+			// Edit User modal logic
+			document.querySelectorAll('.btn-edit-user').forEach(function(btn) {
+				btn.addEventListener('click', function() {
+					var modal = document.getElementById('edit-user');
+					var form = document.getElementById('edit-user-form');
+					var userId = btn.getAttribute('data-user-id');
+					if (form && userId) {
+						form.action = '/edit-user/' + userId + '/';
+					}
+					modal.querySelector('input[name="username"]').value = btn.getAttribute('data-username') || '';
+					modal.querySelector('input[name="first_name"]').value = btn.getAttribute('data-first_name') || '';
+					modal.querySelector('input[name="last_name"]').value = btn.getAttribute('data-last_name') || '';
+					modal.querySelector('input[name="email"]').value = btn.getAttribute('data-email') || '';
+					modal.querySelector('input[name="phone"]').value = btn.getAttribute('data-phone') || '';
+					// Set role
+					var role = btn.getAttribute('data-role') || '';
+					var roleSelect = modal.querySelector('select[name="role"]');
+					if (roleSelect) {
+						for (let i = 0; i < roleSelect.options.length; i++) {
+							roleSelect.options[i].selected = (roleSelect.options[i].value === role);
+						}
+					}
+				});
+			});
+		});
+		</script>
+	{%endblock%}

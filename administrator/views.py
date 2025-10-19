@@ -101,6 +101,7 @@ def users(request):
 # --------------------------
 # ADD USER
 # --------------------------
+@login_required(login_url='login')
 @admin_only
 def addUser(request):
     if request.method == 'POST':
@@ -166,6 +167,95 @@ def addUser(request):
 
     return render(request, 'screens/administrator/users.html')
 
+
+# --------------------------
+# EDIT USER
+# --------------------------
+@login_required(login_url='login')
+@admin_only
+def editUser(request, user_id):
+    
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    print('Editing User:', user)
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        photo = request.FILES.get('photo')
+        role = request.POST.get('role')
+
+        # Basic validations
+        if not all([username, email]):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('users')
+
+        if CustomUser.objects.filter(username=username).exclude(id=user_id).exists():
+            messages.error(request, "Username already exists.")
+            return redirect('users')
+
+        if CustomUser.objects.filter(email=email).exclude(id=user_id).exists():
+            messages.error(request, "Email already registered.")
+            return redirect('users')
+
+        # Update user details
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.phone = phone
+        if photo:
+            user.photo = photo
+        user.role = role
+
+        if role == 'ADMIN':
+            user.is_admin = True
+            user.is_staff = True
+            user.is_superuser = True
+        elif role == 'SALESPERSON':
+            user.is_staff = True
+            user.is_superuser = False
+        else:
+            user.is_staff = False
+            user.is_superuser = False
+
+        user.save()
+        messages.success(request, f"User '{user.username}' updated successfully.")
+        return redirect('users')
+
+    context = {'user': user}
+    return render(request, 'screens/administrator/users.html', context)
+
+
+
+#------------------------------
+# USER DELETE
+#------------------------------
+@login_required(login_url='login')
+@admin_only
+def deleteUser(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    print('Deleting User:', user)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, f"User '{user.username}' deleted successfully.")
+        return redirect('users')
+    context = {'user': user}
+    return render(request, 'screens/administrator/users.html', context)
+
+
+#------------------------------
+# USER DETAILS
+#------------------------------
+@login_required(login_url='login')
+@admin_only
+def viewUser(request,user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    context = {'user': user}
+    return render(request, 'screens/administrator/users.html', context)
 
         
 # notification

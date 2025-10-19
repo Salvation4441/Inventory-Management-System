@@ -18,5 +18,12 @@ urlpatterns = [
     path('manage-stocks/', views.manage_stocks, name='manage-stocks'),
     path('annual-report/', views.manage_stocks, name='annual-report'),
     path('profit-and-loss/', views.profit_and_loss, name='profit-and-loss'),
+    
+    # --------------------------
+    # USER
+    # --------------------------
     path('add-user/', views.addUser, name='addUser'),
+    path('edit-user/<int:user_id>/', views.editUser, name='editUser'),
+    path('delete-user/<int:user_id>/', views.deleteUser, name='deleteUser'),
+    # path('view-user/<int:user_id>/', views.viewUser, name='viewUser'),
 ]
