@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from authentication.models import User
+from authentication.models import CustomUser
 from django.db.models import Sum, F, FloatField
 
 # --------------------------
@@ -98,16 +98,16 @@ class Sales(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="sales")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     payment_mode = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='Cash')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     sale_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # reference = models.CharField(max_length=20, null=True, editable=False)
-    reference = models.CharField(max_length=16, unique=True, default=lambda: f"SAL{uuid.uuid4().hex[:8].upper()}", editable=False)
+    reference = models.CharField(max_length=16, unique=True, null=True, editable=False)
     total_amount = models.FloatField(default=0.0, editable=False)
 
     def save(self, *args, **kwargs):
         # Auto-generate reference number
         if not self.reference:
+            self.reference = f"SAL{uuid.uuid4().hex[:8].upper()}"
             prefix = "SAL"
             last_sale = Sales.objects.order_by("id").last()
             next_number = 1 if not last_sale else last_sale.id + 1

@@ -1,5 +1,19 @@
 from django.shortcuts import render
 from authentication.decorators import admin_only
+from authentication.models import CustomUser
+
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import *
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
+from django.contrib.auth import authenticate, login, logout
+
+
+
+
+
 
 # Create your views here.
 @admin_only
@@ -31,10 +45,6 @@ def settings(request):
 def products(request):
     return render(request,'screens/administrator/products.html')
 
-# users page
-@admin_only
-def users(request):
-    return render(request,'screens/administrator/users.html')
 
 # customers page
 @admin_only
@@ -73,3 +83,91 @@ def profit_and_loss(request):
 # error - 404
 def error_404(request):
     return render(request,'screens/core/error-404.html')
+
+
+
+# --------------------------------------------
+# USER MANAGEMENT (Admin Only)
+# --------------------------------------------
+@login_required(login_url='login')
+@admin_only
+def users(request):
+    users = CustomUser.objects.all()
+    context={
+        'users':users
+    }
+    return render(request, 'screens/administrator/users.html', context)
+
+# --------------------------
+# ADD USER
+# --------------------------
+@admin_only
+def addUser(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        photo = request.FILES.get('photo')
+        role = request.POST.get('role')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('password')
+
+        # ----------------------------------------
+        # Basic validations
+        # ----------------------------------------
+        if not all([username, email, password, confirm_password]):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('users')
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect('users')
+
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect('users')
+
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered.")
+            return redirect('users')
+        
+        try:
+            customUser = CustomUser.objects.create_user(
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone,
+                photo=photo,
+                role=role,
+                password=password
+            )
+            if role == 'ADMIN':
+                customUser.is_admin = True
+                customUser.is_staff = True
+                customUser.is_superuser = True
+            elif role == 'SALESPERSON':
+                customUser.is_staff = True
+            else:
+                customUser.is_staff = False
+                customUser.is_superuser = False
+            customUser.save()
+
+            # login(request, user)
+            print('User created:', customUser)
+            messages.success(request, f"User '{customUser.username}' added successfully.")
+            return redirect('users')
+
+        except IntegrityError:
+            messages.error(request, "Error: could not create user. Please try again.")
+            return redirect('users')
+
+    return render(request, 'screens/administrator/users.html')
+
+
+        
+# notification
+def create_notification(user, message):
+    raise NotImplementedError
