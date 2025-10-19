@@ -7,34 +7,34 @@ from django.db.models import Sum, F, FloatField
 # CATEGORY
 # --------------------------
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    code = models.CharField(max_length=3, unique=True, blank=True, null=True)
+    category_name = models.CharField(max_length=100, blank=True, null=True)
+    category_code = models.CharField(max_length=3, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = self.name[:2].upper()
+        if not self.category_code:
+            self.category_code = self.category_name[:2].upper()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.category_name or "(No Name)"
 
 
 # --------------------------
 # PRODUCT
 # --------------------------
 class Product(models.Model):
-    name = models.CharField(max_length=255)
-    sku = models.CharField(max_length=100, unique=True, editable=False)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
-    brand = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    quantity = models.PositiveIntegerField()
-    selling_price = models.FloatField(help_text="How much the owner sells to customers")
-    buying_price = models.FloatField(help_text="How much the owner bought the product for")
-    discount = models.FloatField(default=0.0, help_text="Discount per item")
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    product_name = models.CharField(max_length=255)
+    product_sku = models.CharField(max_length=100, unique=True, editable=False)
+    product_category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="products")
+    product_brand = models.CharField(max_length=100, blank=True, null=True)
+    product_description = models.TextField(blank=True, null=True)
+    product_quantity = models.PositiveIntegerField()
+    product_selling_price = models.FloatField(help_text="How much the owner sells to customers")
+    product_buying_price = models.FloatField(help_text="How much the owner bought the product for")
+    product_discount = models.FloatField(default=0.0, help_text="Discount per item")
+    product_image = models.ImageField(upload_to='products/', blank=True, null=True)
     manufacture_name = models.CharField(max_length=100, blank=True, null=True)
     manufacture_date = models.DateField(blank=True, null=True)
     expiry_date = models.DateField(blank=True, null=True)
@@ -42,13 +42,13 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.sku:
-            prefix = self.name[:2].upper()
-            cat_code = self.category.code.upper() if self.category.code else "XX"
+        if not self.product_sku:
+            prefix = self.product_name[:2].upper()
+            cat_code = self.product_category.category_code.upper() if self.product_category.category_code else "XX"
 
             last_product = (
-                Product.objects.filter(sku__startswith=f"{cat_code}-{prefix}")
-                .order_by('-sku')
+                Product.objects.filter(product_sku__startswith=f"{cat_code}-{prefix}")
+                .order_by('-product_sku')
                 .first()
             )
 

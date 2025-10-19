@@ -1,3 +1,5 @@
+import code
+from os import name
 from django.shortcuts import render
 from authentication.decorators import admin_only
 from authentication.models import CustomUser
@@ -9,6 +11,9 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
+
+from .models import Category
+
 
 
 
@@ -46,10 +51,7 @@ def products(request):
     return render(request,'screens/administrator/products.html')
 
 
-# customers page
-@admin_only
-def customers(request):
-    return render(request,'screens/administrator/customers.html')
+
 
 # product details page
 def product_details(request):
@@ -63,9 +65,7 @@ def edit_product(request):
 def add_product(request):
     return render(request,'screens/administrator/add-product.html')
 
-# category page
-def category(request):
-    return render(request,'screens/administrator/category.html')
+
 
 # manage stocks page
 def manage_stocks(request):
@@ -99,7 +99,7 @@ def users(request):
     return render(request, 'screens/administrator/users.html', context)
 
 # --------------------------
-# ADD USER
+# CREATE NEW USER
 # --------------------------
 @login_required(login_url='login')
 @admin_only
@@ -261,6 +261,66 @@ def viewUser(request,user_id):
     return render(request, 'screens/administrator/users.html', context)
 
         
+        
+        
+#----------------------------------
+# PRODUCT CATEGORY
+#----------------------------------
+
+# GET ALL CATEGORIES
+@login_required(login_url='login')
+@admin_only
+def allCategory(request):
+    categories = Category.objects.all()
+    context = {'categories': categories}
+    return render(request, 'screens/administrator/category.html', context)
+
+# ADD NEW CATEGORY
+@login_required(login_url='login')
+@admin_only
+def addCategory(request):
+    if request.method == 'POST':
+        category_name = request.POST.get('category_name')
+        category_code = request.POST.get('category_code')
+        # If code is not provided, generate from category_name
+        if not category_code and category_name:
+            category_code = category_name[:2].upper()
+
+        if Category.objects.filter(category_name=category_name).exists():
+            messages.error(request, "Category with this name already exists.")
+            return redirect('category')
+
+        if Category.objects.filter(category_code=category_code).exists():
+            messages.error(request, "Category with this code already exists.")
+            return redirect('category')
+
+        category = Category(category_name=category_name, category_code=category_code)
+        category.save()
+        messages.success(request, "Category added successfully.")
+        return redirect('category')
+
+    return render(request, 'screens/administrator/category.html')
+
+
+# DELETE CATEGORY
+@login_required(login_url='login')
+@admin_only
+def deleteCategory(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, "Category deleted successfully.")
+        return redirect('category')
+    context = {'category': category}
+    return render(request, 'screens/administrator/category.html', context)
+
+
+@login_required(login_url='login')
+@admin_only
+def customers(request):
+    return render(request,'screens/administrator/customers.html')
+
+
 # notification
 def create_notification(user, message):
     raise NotImplementedError
