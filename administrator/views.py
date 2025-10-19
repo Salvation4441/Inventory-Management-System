@@ -240,6 +240,9 @@ def deleteUser(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     print('Deleting User:', user)
     if request.method == 'POST':
+        if user.role == 'ADMIN':
+            messages.error(request, "Admin users cannot be deleted.")
+            return redirect('users')
         user.delete()
         messages.success(request, f"User '{user.username}' deleted successfully.")
         return redirect('users')
