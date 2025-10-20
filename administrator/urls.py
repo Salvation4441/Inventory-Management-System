@@ -42,4 +42,12 @@ urlpatterns = [
     path('product/<int:product_id>/', views.productDetails, name='productDetails'),
     path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
     # path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
+
+
+    # CUSTOMERS
+    # --------------------------
+    path('customers/create/', views.customerCreate, name='customer_create'),
+    path('customers/<str:id>/edit/', views.customerEdit, name='customer_edit'),
+    path('customers/<str:id>/delete/', views.customerDelete, name='customer_delete'),
+
 ]

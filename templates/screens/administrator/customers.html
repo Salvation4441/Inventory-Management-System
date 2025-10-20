@@ -115,53 +115,62 @@
                   <div class="d-flex align-items-center">
                     <a href="javascript:void(0);" class="avatar avatar-md me-2">
                       <img
-                        src="{%static 'assets/img/users/user-33.png' %}"
-                        alt="product"
+                        src="{% static 'assets/img/users/user-33.png' %}"
+                        alt="user"
                       />
                     </a>
                     <a href="javascript:void(0);"
-                      >{{customer.first_name}} {{customer.last_name}}</a
+                      >{{ customer.first_name }} {{ customer.last_name}}</a
                     >
                   </div>
                 </td>
-                <td>{{customer.gender}}</td>
-                <td>{{customer.email}}</td>
-                <td>{{customer.phone}}</td>
-                <td>{{customer.address}}</td>
+                <td>{{ customer.gender }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.address }}</td>
                 <td>
                   <span
                     class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"
-                    ><i class="ti ti-point-filled me-1 fs-11"></i>Active</span
                   >
+                    <i class="ti ti-point-filled me-1 fs-11"></i>Active
+                  </span>
                 </td>
                 <td class="d-flex">
                   <div class="edit-delete-action d-flex align-items-center">
+                    <!-- Edit -->
                     <a
-                      class="me-2 p-2 d-flex align-items-center border rounded"
-                      href="#"
-                    >
-                      <i data-feather="eye" class="feather-eye"></i>
-                    </a>
-                    <a
-                      class="me-2 p-2 d-flex align-items-center border rounded"
-                      href="#"
+                      href="javascript:void(0);"
+                      class="me-2 p-2 btn-edit-customer"
                       data-bs-toggle="modal"
                       data-bs-target="#edit-customer"
+                      data-customer-id="{{ customer.id }}"
+                      data-customer-first_name="{{ customer.first_name }}"
+                      data-customer-last_name="{{ customer.last_name }}"
+                      data-customer-email="{{ customer.email }}"
+                      data-customer-phone="{{ customer.phone }}"
+                      data-customer-address="{{ customer.address }}"
+                      data-customer-status="{{ customer.is_active }}"
                     >
                       <i data-feather="edit" class="feather-edit"></i>
                     </a>
+
+                    <!-- Delete -->
                     <a
+                      href="javascript:void(0);"
+                      class="p-2 d-flex btn-delete-customer align-items-center border rounded delete-btn"
+                      data-customer-id="{{ customer.id }}"
+                      data-name="{{ customer.first_name }} {{ customer.last_name }}"
                       data-bs-toggle="modal"
                       data-bs-target="#delete-modal"
-                      class="p-2 d-flex align-items-center border rounded"
-                      href="javascript:void(0);"
                     >
                       <i data-feather="trash-2" class="feather-trash-2"></i>
                     </a>
                   </div>
                 </td>
               </tr>
-              {% endfor %}</tbody>
+
+              {% endfor %}
+            </tbody>
           </table>
         </div>
       </div>
@@ -186,136 +195,74 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="page-title">
-          <h4>Add Customer</h4>
-        </div>
+        <h4>Add Customer</h4>
         <button
           type="button"
           class="close"
           data-bs-dismiss="modal"
           aria-label="Close"
         >
-          <span aria-hidden="true">&times;</span>
+          <span>&times;</span>
         </button>
       </div>
+
       <form
-        action="https://dreamspos.dreamstechnologies.com/html/template/customers.html"
+        id="addCustomerForm"
+        method="post"
+        action="{% url 'customer_create' %}"
       >
+        {% csrf_token %}
         <div class="modal-body">
-          <div class="new-employee-field">
-            <div class="profile-pic-upload">
-              <div class="profile-pic">
-                <span
-                  ><i data-feather="plus-circle" class="plus-down-add"></i> Add
-                  Image</span
-                >
-              </div>
-              <div class="mb-3">
-                <div class="image-upload mb-0">
-                  <input type="file" />
-                  <div class="image-uploads">
-                    <h4>Upload Image</h4>
-                  </div>
-                </div>
-                <p class="mt-2">JPEG, PNG up to 2 MB</p>
-              </div>
-            </div>
-          </div>
           <div class="row">
             <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >First Name<span class="text-danger ms-1">*</span></label
-              >
-              <input type="text" class="form-control" />
+              <label>First Name<span class="text-danger">*</span></label>
+              <input
+                type="text"
+                name="first_name"
+                class="form-control"
+                required
+              />
             </div>
             <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >Last Name<span class="text-danger ms-1">*</span></label
-              >
-              <input type="text" class="form-control" />
+              <label>Last Name<span class="text-danger">*</span></label>
+              <input
+                type="text"
+                name="last_name"
+                class="form-control"
+                required
+              />
             </div>
             <div class="col-lg-12 mb-3">
-              <label class="form-label"
-                >Email<span class="text-danger ms-1">*</span></label
-              >
-              <input type="email" class="form-control" />
+              <label>Email<span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" required />
             </div>
             <div class="col-lg-12 mb-3">
-              <label class="form-label"
-                >Phone<span class="text-danger ms-1">*</span></label
-              >
-              <input type="tel" class="form-control" />
+              <label>Phone</label>
+              <input type="tel" name="phone" class="form-control" />
             </div>
             <div class="col-lg-12 mb-3">
-              <label class="form-label"
-                >Address<span class="text-danger ms-1">*</span></label
-              >
-              <input type="text" class="form-control" />
+              <label>Address</label>
+              <input type="text" name="address" class="form-control" />
             </div>
-            <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >City<span class="text-danger ms-1">*</span></label
-              >
-              <select class="select">
-                <option>Select</option>
-                <option>Los Angles</option>
-                <option>New York City</option>
-                <option>Houston</option>
+            <div class="col-lg-12 mb-3">
+              <label>Gender</label>
+              <select name="gender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
-            </div>
-            <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >State<span class="text-danger ms-1">*</span></label
-              >
-              <select class="select">
-                <option>Select</option>
-                <option>California</option>
-                <option>New York</option>
-                <option>Texas</option>
-              </select>
-            </div>
-            <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >Country<span class="text-danger ms-1">*</span></label
-              >
-              <select class="select">
-                <option>Select</option>
-                <option>United States</option>
-                <option>Canada</option>
-                <option>Germany</option>
-              </select>
-            </div>
-            <div class="col-lg-6 mb-3">
-              <label class="form-label"
-                >Postal Code<span class="text-danger ms-1">*</span></label
-              >
-              <input type="text" class="form-control" />
-            </div>
-            <div class="col-lg-12">
-              <div
-                class="status-toggle modal-status d-flex justify-content-between align-items-center"
-              >
-                <span class="status-label">Status</span>
-                <input type="checkbox" id="user1" class="check" checked="" />
-                <label for="user1" class="checktoggle"> </label>
-              </div>
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
           <button
             type="button"
-            class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
+            class="btn btn-secondary"
             data-bs-dismiss="modal"
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            class="btn btn-primary fs-13 fw-medium p-2 px-3"
-          >
-            Add Customer
-          </button>
+          <button type="submit" class="btn btn-primary">Add Customer</button>
         </div>
       </form>
     </div>
@@ -323,172 +270,95 @@
 </div>
 <!-- /Add Customer -->
 
-<!-- Edit Customer -->
-<div class="modal fade" id="edit-customer">
+<!-- Edit Customer Modal -->
+<div class="modal fade" id="edit-customer" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="page-wrapper-new p-0">
-        <div class="content">
-          <div class="modal-header">
-            <div class="page-title">
-              <h4>Edit Customer</h4>
+      <form
+        id="edit-customer-form-modal"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-6 mb-3">
+              <label class="form-label"
+                >First Name<span class="text-danger ms-1">*</span></label
+              >
+              <input
+                type="text"
+                name="first_name"
+                id="edit-first-name"
+                class="form-control"
+                required
+              />
             </div>
-            <button
-              type="button"
-              class="close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label"
+                >Last Name<span class="text-danger ms-1">*</span></label
+              >
+              <input
+                type="text"
+                name="last_name"
+                id="edit-last-name"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="col-lg-12 mb-3">
+              <label class="form-label"
+                >Email<span class="text-danger ms-1">*</span></label
+              >
+              <input
+                type="email"
+                name="email"
+                id="edit-email"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="col-lg-12 mb-3">
+              <label class="form-label">Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                id="edit-phone"
+                class="form-control"
+              />
+            </div>
+            <div class="col-lg-12 mb-3">
+              <label class="form-label">Address</label>
+              <textarea
+                name="address"
+                id="edit-address"
+                class="form-control"
+              ></textarea>
+            </div>
+            <div class="col-lg-6 mb-3">
+              <label class="form-label">Gender</label>
+              <select name="gender" id="edit-gender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
           </div>
-          <form
-            action="https://dreamspos.dreamstechnologies.com/html/template/customers.html"
-          >
-            <div class="modal-body">
-              <div class="new-employee-field">
-                <div class="profile-pic-upload image-field">
-                  <div class="profile-pic p-2">
-                    <img
-                      src="assets/img/users/user-41.jpg"
-                      class="object-fit-cover h-100 rounded-1"
-                      alt="user"
-                    />
-                    <button type="button" class="close rounded-1">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="mb-3">
-                    <div class="image-upload mb-0">
-                      <input type="file" />
-                      <div class="image-uploads">
-                        <h4>Change Image</h4>
-                      </div>
-                    </div>
-                    <p class="mt-2">JPEG, PNG up to 2 MB</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >First Name<span class="text-danger ms-1">*</span></label
-                  >
-                  <input type="text" class="form-control" value="Carl" />
-                </div>
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >Last Name<span class="text-danger ms-1">*</span></label
-                  >
-                  <input type="text" class="form-control" value="Evans" />
-                </div>
-                <div class="col-lg-12 mb-3">
-                  <label class="form-label"
-                    >Email<span class="text-danger ms-1">*</span></label
-                  >
-                  <input
-                    type="email"
-                    class="form-control"
-                    value="carlevans@example.com"
-                  />
-                </div>
-                <div class="col-lg-12 mb-3">
-                  <label class="form-label"
-                    >Phone<span class="text-danger ms-1">*</span></label
-                  >
-                  <input
-                    type="tel"
-                    class="form-control"
-                    value="+12163547758 "
-                  />
-                </div>
-                <div class="col-lg-12 mb-3">
-                  <label class="form-label"
-                    >Address<span class="text-danger ms-1">*</span></label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    value="87 Griffin Street"
-                  />
-                </div>
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >City<span class="text-danger ms-1">*</span></label
-                  >
-                  <select class="select">
-                    <option>Select</option>
-                    <option selected>Los Angles</option>
-                    <option>New York City</option>
-                    <option>Houston</option>
-                  </select>
-                </div>
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >State<span class="text-danger ms-1">*</span></label
-                  >
-                  <select class="select">
-                    <option>Select</option>
-                    <option selected>California</option>
-                    <option>New York</option>
-                    <option>Texas</option>
-                  </select>
-                </div>
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >Country<span class="text-danger ms-1">*</span></label
-                  >
-                  <select class="select">
-                    <option>Select</option>
-                    <option selected>United States</option>
-                    <option>Canada</option>
-                    <option>Germany</option>
-                  </select>
-                </div>
-                <div class="col-lg-6 mb-3">
-                  <label class="form-label"
-                    >Postal Code<span class="text-danger ms-1">*</span></label
-                  >
-                  <input type="text" class="form-control" value="90001" />
-                </div>
-                <div class="col-lg-12">
-                  <div
-                    class="status-toggle modal-status d-flex justify-content-between align-items-center"
-                  >
-                    <span class="status-label">Status</span>
-                    <input
-                      type="checkbox"
-                      id="user2"
-                      class="check"
-                      checked=""
-                    />
-                    <label for="user2" class="checktoggle"> </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="btn btn-primary fs-13 fw-medium p-2 px-3"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn me-2 btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-<!-- /Edit Customer -->
+<!-- /Edit Customer Modal -->
 
 <!-- delete modal -->
 <div class="modal fade" id="delete-modal">
@@ -510,16 +380,75 @@
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              class="btn btn-primary fs-13 fw-medium p-2 px-3"
-            >
-              Yes Delete
-            </button>
+            <form id="delete-customer-form" method="POST">
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="btn btn-primary fs-13 fw-medium p-2 px-3"
+              >
+                Yes Delete
+              </button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Edit Customer -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Edit Customer modal logic
+    document.querySelectorAll(".btn-edit-customer").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var modal = document.getElementById("edit-customer");
+        var form = document.getElementById("edit-customer-form-modal");
+        var customerId = btn.getAttribute("data-customer-id");
+
+        if (form && customerId) {
+          form.action = "/customers/" + customerId + "/edit/";
+        }
+
+        if (modal) {
+          modal.querySelector('input[name="first_name"]').value =
+            btn.getAttribute("data-customer-first_name") || "";
+          modal.querySelector('input[name="last_name"]').value =
+            btn.getAttribute("data-customer-last_name") || "";
+          modal.querySelector('input[name="email"]').value =
+            btn.getAttribute("data-customer-email") || "";
+          modal.querySelector('input[name="phone"]').value =
+            btn.getAttribute("data-customer-phone") || "";
+          modal.querySelector('input[name="address"]').value =
+            btn.getAttribute("data-customer-address") || "";
+
+          // Optional: handle active/inactive toggle if applicable
+          const statusCheckbox = modal.querySelector('input[name="is_active"]');
+          if (statusCheckbox) {
+            statusCheckbox.checked =
+              btn.getAttribute("data-customer-status") === "True";
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<!-- Delete Customer Modal -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Set customer id on delete modal form
+    document.querySelectorAll(".btn-delete-customer").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var customerId = btn.getAttribute("data-customer-id");
+        var form = document.getElementById("delete-customer-form");
+        if (form && customerId) {
+          form.action = "/customers/" + customerId + "/delete/";
+        }
+      });
+    });
+  });
+</script>
+
 {% endblock %}
