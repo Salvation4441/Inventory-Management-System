@@ -7,9 +7,9 @@ from .models import Category, Product, Customer, Sales, SalesItem
 # --------------------------
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'created_at', 'updated_at')
-    search_fields = ('name', 'code')
-    ordering = ('name',)
+    list_display = ('category_name', 'category_code', 'created_at', 'updated_at')
+    search_fields = ('category_name', 'category_code')
+    ordering = ('category_name',)
 
 
 # --------------------------
@@ -17,11 +17,11 @@ class CategoryAdmin(admin.ModelAdmin):
 # --------------------------
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sku', 'category', 'quantity', 'selling_price', 'buying_price', 'discount')
-    list_filter = ('category', 'manufacture_date', 'expiry_date')
-    search_fields = ('name', 'sku', 'brand')
-    readonly_fields = ('sku', 'created_at', 'updated_at')
-    ordering = ('name',)
+    list_display = ('product_name', 'product_sku', 'product_category', 'product_quantity', 'product_selling_price', 'product_buying_price', 'product_discount')
+    list_filter = ('product_category', 'manufacture_date', 'expiry_date')
+    search_fields = ('product_name', 'product_sku', 'product_brand')
+    readonly_fields = ('product_sku', 'created_at', 'updated_at')
+    ordering = ('product_name',)
 
 
 # --------------------------

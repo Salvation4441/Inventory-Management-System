@@ -76,6 +76,7 @@
 										</tr>
 									</thead>
 									<tbody>
+									{% for user in users %}
 										<tr>
 											<td>
 												<label class="checkboxs">
@@ -86,65 +87,44 @@
 											<td>
 												<div class="d-flex align-items-center">
 													<a href="javascript:void(0);" class="avatar avatar-md me-2">
-														<img src="{%static 'assets/img/users/user-47.png' %}" alt="product">
+														<img src="{% if user.photo %}{{ user.photo.url }}{% else %}{% static 'assets/img/users/user-47.png' %}{% endif %}" alt="user">
 													</a>
-													<a href="javascript:void(0);">Henry Bryant</a>
+													<a href="javascript:void(0);">{{ user.get_full_name|default:user.username }}</a>
 												</div>
 											</td>
-											<td>+12498345785</td>
-											<td><a href="" class="__cf_email__" data-cfemail="345c515a464d74514c55594458511a575b59">[email&#160;protected]</a></td>
-											<td>Admin</td>
-											<td><span class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"><i class="ti ti-point-filled me-1 fs-11"></i>Active</span></td>
+											<td>{{ user.phone }}</td>
+											<td>{{ user.email }}</td>
+											<td>{{ user.role|title }}</td>
+											<td>
+												<span class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white fs-10 {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+													<i class="ti ti-point-filled me-1 fs-11"></i>{{ user.is_active|yesno:"Active,Inactive" }}
+												</span>
+											</td>
 											<td class="action-table-data">
 												<div class="edit-delete-action">
 													<a class="me-2 p-2 mb-0" href="javascript:void(0);">
 														<i data-feather="eye" class="action-eye"></i>
 													</a>
-													<a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-user">
+													<a class="me-2 p-2 mb-0 btn-edit-user" data-bs-toggle="modal" data-bs-target="#edit-user"
+													   data-user-id="{{ user.id }}"
+													   data-username="{{ user.username }}"
+													   data-first_name="{{ user.first_name }}"
+													   data-last_name="{{ user.last_name }}"
+													   data-email="{{ user.email }}"
+													   data-phone="{{ user.phone }}"
+													   data-role="{{ user.role }}"
+													   href="javascript:void(0);">
 														<i data-feather="edit" class="feather-edit"></i>
 													</a>
-													<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0" href="javascript:void(0);">
+													<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0 btn-delete-user" href="javascript:void(0);" data-user-id="{{ user.id }}">
 														<i data-feather="trash-2" class="feather-trash-2"></i>
 													</a>
 												</div>
 											</td>
 										</tr>
-										<tr>
-											<td>
-												<label class="checkboxs">
-													<input type="checkbox">
-													<span class="checkmarks"></span>
-												</label>
-											</td>
-											<td>
-												<div class="d-flex align-items-center">
-													<a href="javascript:void(0);" class="avatar avatar-md me-2">
-														<img src="{%static 'assets/img/users/user-02.jpg' %}" alt="product">
-													</a>
-													<div>
-														<a href="javascript:void(0);">Jenny Ellis</a>
-													</div>
-													
-												</div>
-											</td>
-											<td>+13178964582</td>
-											<td><a href="" class="__cf_email__" data-cfemail="d9b3bcb7b7a099bca1b8b4a9b5bcf7bab6b4">[email&#160;protected]</a></td>
-											<td>Manager</td>
-											<td><span class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"><i class="ti ti-point-filled me-1 fs-11"></i>Active</span></td>
-											<td class="action-table-data">
-												<div class="edit-delete-action">
-													<a class="me-2 p-2 mb-0" href="javascript:void(0);">
-														<i data-feather="eye" class="action-eye"></i>
-													</a>
-													<a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-user">
-														<i data-feather="edit" class="feather-edit"></i>
-													</a>
-													<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0" href="javascript:void(0);">
-														<i data-feather="trash-2" class="feather-trash-2"></i>
-													</a>
-												</div>
-											</td>
-																	
+									{% empty %}
+										<tr><td colspan="7" class="text-center">No users found.</td></tr>
+									{% endfor %}
 									</tbody>
 								</table>
 							</div>
@@ -171,7 +151,8 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
-							<form action="https://dreamspos.dreamstechnologies.com/html/template/users.html">
+							<form action="{% url 'addUser' %}" method="POST" enctype="multipart/form-data">
+								{% csrf_token %}
 								<div class="modal-body">
 									<div class="row">
 										<div class="col-lg-12">
@@ -183,7 +164,7 @@
 													</div>
 													<div class="mb-0">
 														<div class="image-upload mb-0">
-															<input type="file">
+															<input type="file" name="photo" accept="image/*">
 															<div class="image-uploads">
 																<h4>Upload Image</h4>
 															</div>
@@ -195,31 +176,42 @@
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
-												<label class="form-label">User<span class="text-danger ms-1">*</span></label>
-												<input type="text" class="form-control">
+												<label class="form-label">Username<span class="text-danger ms-1">*</span></label>
+												<input type="text" name="username" class="form-control" required>
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">First Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" name="first_name" class="form-control" required>
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">Last Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" name="last_name" class="form-control" required>
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Role<span class="text-danger ms-1">*</span></label>
-												<select class="select">
-													<option>Select</option>
-													<option>Admin</option>
-													<option>Manager</option>
-													<option>Salesman</option>
+												<select class="select" name="role" required>
+													<option value="">Select</option>
+													<option value="ADMIN">Admin</option>
+													<option value="SALESPERSON">Salesperson</option>
 												</select>
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
-												<input type="email" class="form-control">
+												<input type="email" name="email" class="form-control" required>
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
-												<input type="tel" class="form-control">
+												<input type="tel" name="phone" class="form-control" required>
 											</div>
 										</div>
 									
@@ -227,7 +219,7 @@
 											<div class="mb-3">
 												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control">
+													<input type="password" name="password" class="pass-input form-control" required>
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
@@ -236,18 +228,12 @@
 											<div class="mb-3">
 												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control">
+													<input type="password" name="password" class="pass-input form-control">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
 										</div>
-										<div class="col-lg-12">
-											<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-												<span class="status-label">Status</span>
-												<input type="checkbox" id="user1" class="check" checked="">
-												<label for="user1" class="checktoggle">	</label>
-											</div>
-										</div>
+									
 									</div>
 								</div>
 								<div class="modal-footer">
@@ -276,21 +262,22 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>
-							<form action="https://dreamspos.dreamstechnologies.com/html/template/users.html">
+							<form id="edit-user-form" method="POST" enctype="multipart/form-data" action="">
+								{% csrf_token %}
 								<div class="modal-body">
 									<div class="row">
 										<div class="col-lg-12">
 											<div class="new-employee-field">
 												<div class="profile-pic-upload image-field">
 													<div class="profile-pic p-2">
-														<img src="assets/img/users/user-49.png" class="object-fit-cover h-100 rounded-1" alt="user">
+														<img src="{% static 'assets/img/users/user-49.png' %}" class="object-fit-cover h-100 rounded-1" alt="user">
 														<button type="button" class="close rounded-1">
 															<span aria-hidden="true">&times;</span>
 														</button>
 													</div>
 													<div class="mb-3">
 														<div class="image-upload mb-0">
-															<input type="file">
+															<input type="file" name="photo" accept="image/*">
 															<div class="image-uploads">
 																<h4>Change Image</h4>
 															</div>
@@ -302,30 +289,41 @@
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
-												<label class="form-label">User<span class="text-danger ms-1">*</span></label>
-												<input type="text" class="form-control" value="Henry Bryant">
+												<label class="form-label">Username<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="username" value="{{ user.username }}">
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">First Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="mb-3">
+												<label class="form-label">Last Name<span class="text-danger ms-1">*</span></label>
+												<input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Role<span class="text-danger ms-1">*</span></label>
-												<select class="select">
-													<option>Admin</option>
-													<option>Manager</option>
-													<option>Salesman</option>
+												<select class="select" name="role">
+													<option value="ADMIN" {%if user.role == "ADMIN" %}selected{% endif %}>Admin</option>
+													<option value="SALESPERSON" {%if user.role == "SALESPERSON" %}selected{% endif %}>Salesperson</option>
 												</select>
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
-												<input type="email" class="form-control" value="henry@example.com">
+												<input type="email" class="form-control" name="email" value="{{user.email}}">
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="mb-3">
 												<label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
-												<input type="tel" class="form-control" value="+12498345785">
+												<input type="tel" class="form-control" name="phone" value="{{ user.phone }}">
 											</div>
 										</div>
 									
@@ -333,7 +331,7 @@
 											<div class="mb-3">
 												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" value="********">
+													<input type="password" class="pass-input form-control" name="password" value="{{user.password}}">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
@@ -342,16 +340,18 @@
 											<div class="mb-3">
 												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" value="********">
+													<input type="password" class="pass-input form-control" value="{{user.password}}">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
 										</div>
 										<div class="col-lg-12">
-											<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-												<span class="status-label">Status</span>
-												<input type="checkbox" id="user2" class="check" checked="">
-												<label for="user2" class="checktoggle">	</label>
+											<div class="mb-3">
+												<label class="form-label">Status<span class="text-danger ms-1">*</span></label>
+												<select class="select" name="status">
+													<option value="ACTIVE" {%if user.is_active %}selected{% endif %}>Active</option>
+													<option value="INACTIVE" {%if not user.is_active %}selected{% endif %}>Inactive</option>
+												</select>
 											</div>
 										</div>
 									</div>
@@ -369,7 +369,7 @@
 		<!-- /Edit User -->
 
 		<!-- delete modal -->
-			<div class="modal fade" id="delete-modal">
+		<div class="modal fade" id="delete-modal">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="page-wrapper-new p-0">
@@ -379,11 +379,60 @@
 								<p class="mb-0 fs-16">Are you sure you want to delete user?</p>
 								<div class="modal-footer-btn mt-3 d-flex justify-content-center">
 									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
-									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Delete</button>
+									<form id="delete-user-form" method="POST" action="">
+										{% csrf_token %}
+										<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Delete</button>
+									</form>
 								</div>						
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-    {%endblock%}
+
+		<!-- Delete User Modal -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+		// Set user id on delete modal form
+		document.querySelectorAll('.btn-delete-user').forEach(function(btn) {
+			btn.addEventListener('click', function() {
+				var userId = btn.getAttribute('data-user-id');
+				var form = document.getElementById('delete-user-form');
+				if (form) {
+					form.action = '/delete-user/' + userId + '/';
+				}
+			});
+		});
+	});
+		</script>
+
+		<!-- Edit User Modal -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+			// Edit User modal logic
+			document.querySelectorAll('.btn-edit-user').forEach(function(btn) {
+				btn.addEventListener('click', function() {
+					var modal = document.getElementById('edit-user');
+					var form = document.getElementById('edit-user-form');
+					var userId = btn.getAttribute('data-user-id');
+					if (form && userId) {
+						form.action = '/edit-user/' + userId + '/';
+					}
+					modal.querySelector('input[name="username"]').value = btn.getAttribute('data-username') || '';
+					modal.querySelector('input[name="first_name"]').value = btn.getAttribute('data-first_name') || '';
+					modal.querySelector('input[name="last_name"]').value = btn.getAttribute('data-last_name') || '';
+					modal.querySelector('input[name="email"]').value = btn.getAttribute('data-email') || '';
+					modal.querySelector('input[name="phone"]').value = btn.getAttribute('data-phone') || '';
+					// Set role
+					var role = btn.getAttribute('data-role') || '';
+					var roleSelect = modal.querySelector('select[name="role"]');
+					if (roleSelect) {
+						for (let i = 0; i < roleSelect.options.length; i++) {
+							roleSelect.options[i].selected = (roleSelect.options[i].value === role);
+						}
+					}
+				});
+			});
+		});
+		</script>
+	{%endblock%}

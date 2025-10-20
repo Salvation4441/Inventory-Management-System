@@ -6,17 +6,20 @@ from django.utils.crypto import get_random_string
 from django.utils import timezone
 
 # Create your user models
-class User(AbstractUser):
+class CustomUser(AbstractUser):
+   
     ROLE_CHOICES = [
         ('ADMIN', 'ADMIN'),
         ('SALESPERSON', 'SALESPERSON'),
     ]
+    
+    
     username = models.CharField(max_length=50,unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=30,null=True,blank=True)
+    last_name = models.CharField(max_length=30,null=True,blank=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
-    phone  = models.CharField(max_length=15)
-    photo = models.ImageField(upload_to='profile/%Y/%m/%d/',blank=True)
+    phone  = models.CharField(max_length=15,null=True,blank=True)
+    photo = models.ImageField(upload_to='profile/%Y/%m/%d/',null=True,blank=True)
     login_token = models.CharField(max_length=6, blank=True, null=True)
     role = models.CharField(max_length=30, choices=ROLE_CHOICES, default='ADMIN')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -30,7 +33,7 @@ class User(AbstractUser):
     
 # reset password
 class PasswordResetRequest(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     email = models.EmailField()
     token = models.CharField(max_length=32, default=get_random_string, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

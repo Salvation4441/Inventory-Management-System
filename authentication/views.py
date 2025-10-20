@@ -11,7 +11,11 @@ def signin(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
+        if not password:
+            messages.error(request, 'Password cannot be empty.')
+            return render(request,'screens/auth/login.html')
         user = authenticate(request,username=username,password=password)
+        
         if user:
             login(request,user)
             if user.role == 'ADMIN' or user.is_superuser:
@@ -23,7 +27,6 @@ def signin(request):
         else:
             print('Login Request :',messages.error(request, 'Invalid username or password.'))
             messages.error(request, 'Invalid username or password.')
-        
     return render(request,'screens/auth/login.html')
 
 def lock_screen(request):
