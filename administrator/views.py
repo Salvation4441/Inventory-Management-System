@@ -120,11 +120,82 @@ def productDetails(request, product_id):
     context = {'product': product}
     return render(request,'screens/administrator/product-details.html', context)
 
-# edit products page
+# EDIT PRODUCT
 @admin_only
+@login_required(login_url='login')
 def editProduct(request, product_id):
-    return render(request,'screens/administrator/edit-product.html')
+    product = get_object_or_404(Product, id=product_id)
+    categories = Category.objects.all()
 
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        product_category_id = request.POST.get('product_category')
+        product_brand = request.POST.get('product_brand')
+        product_description = request.POST.get('product_description')
+        product_quantity = request.POST.get('product_quantity')
+        product_selling_price = request.POST.get('product_selling_price')
+        product_buying_price = request.POST.get('product_buying_price')
+        product_discount = request.POST.get('product_discount')
+        product_image = request.FILES.get('product_image')
+        manufacture_name = request.POST.get('manufacture_name')
+        manufacture_date = parse_date(request.POST.get('manufacture_date'))
+        expiry_date = parse_date(request.POST.get('expiry_date'))
+
+        # Validation
+        required_fields = [product_name, product_category_id, product_quantity, product_selling_price, product_buying_price]
+        if not all(required_fields):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('editProduct', product_id=product.id)
+
+        try:
+            category = get_object_or_404(Category, id=product_category_id)
+            product_quantity = int(product_quantity)
+            product_selling_price = float(product_selling_price)
+            product_buying_price = float(product_buying_price)
+            product_discount = float(product_discount) if product_discount else 0.0
+        except ValueError:
+            messages.error(request, "Quantity, prices, and discount must be valid numbers.")
+            return redirect('editProduct', product_id=product.id)
+
+        # Update fields
+        product.product_name = product_name
+        product.product_category = category
+        product.product_brand = product_brand
+        product.product_description = product_description
+        product.product_quantity = product_quantity
+        product.product_selling_price = product_selling_price
+        product.product_buying_price = product_buying_price
+        product.product_discount = product_discount
+        product.manufacture_name = manufacture_name
+        product.manufacture_date = manufacture_date
+        product.expiry_date = expiry_date
+
+        if product_image:
+            product.product_image = product_image  # Only update if a new image is uploaded
+
+        product.save()
+        messages.success(request, f"Product '{product.product_name}' updated successfully.")
+        return redirect('products')
+
+    context = {
+        'product': product,
+        'categories': categories,
+    }
+    return render(request, 'screens/administrator/edit-product.html', context)
+
+# DELETE PRODUCT
+@admin_only
+@login_required(login_url='login')
+def deleteProduct(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, f"Product '{product.product_name}' deleted successfully.")
+        return redirect('products')
+    context = {
+        'product': product
+    }
+    return render(request, 'screens/administrator/products.html', context)
 
 # manage stocks page
 def manage_stocks(request):
