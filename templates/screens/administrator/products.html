@@ -120,16 +120,16 @@
                 <td>{{ product.product_name }}</td>
                 <td>{{ product.product_category.category_name }}</td>
                 <td>{{ product.product_brand }}</td>
-                <td>${{ product.product_selling_price }}</td>
-                <td>${{ product.product_buying_price }}</td>
+                <td>GHC {{ product.product_selling_price }}</td>
+                <td>GHC {{ product.product_buying_price }}</td>
                 <td>{{ product.product_quantity }}</td>
                 <td>{{ product.product_discount }}</td>
                 <td class="action-table-data">
                   <div class="edit-delete-action">
-                    <a class="me-2 edit-icon p-2" data-bs-toggle="modal" data-bs-target="#product-details-new">
+                    <a class="me-2 edit-icon p-2" href="{% url 'productDetails' product.id %}" title="View Details">
                       <i data-feather="eye" class="feather-eye"></i>
                     </a>
-                    <a class="me-2 p-2" href="">
+                    <a class="me-2 p-2" href="{% url 'editProduct' product.id %}" title="Edit">
                       <i data-feather="edit" class="feather-edit"></i>
                     </a>
                     <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2" href="javascript:void(0);">

@@ -12,7 +12,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
-
+from django.utils.dateparse import parse_date
 from .models import Category
 
 
@@ -54,13 +54,71 @@ def products(request):
     context = {'products': products}
     return render(request,'screens/administrator/products.html', context)
 
-
+# ADD PRODUCTS
 def addProduct(request):
-    return render(request,'screens/administrator/add-product.html')
+    categories = Category.objects.all()
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        product_category = request.POST.get('product_category')
+        product_brand = request.POST.get('product_brand')
+        product_description = request.POST.get('product_description')
+        product_quantity = request.POST.get('product_quantity')
+        product_selling_price = request.POST.get('product_selling_price')
+        product_buying_price = request.POST.get('product_buying_price')
+        product_discount = request.POST.get('product_discount')
+        product_image = request.FILES.get('product_image')
+        manufacture_name = request.POST.get('manufacture_name')
+        manufacture_date = parse_date(request.POST.get('manufacture_date'))
+        expiry_date = parse_date(request.POST.get('expiry_date'))
+        
+        # Basic validation (required fields)
+        if not all([product_name, product_category, product_quantity, product_selling_price, product_buying_price]):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('addProduct')
+
+
+        try:
+            product_quantity = int(product_quantity)
+            product_selling_price = float(product_selling_price)
+            product_buying_price = float(product_buying_price)
+            product_discount = float(product_discount) if product_discount else 0.0
+        except ValueError:
+            messages.error(request, "Quantity, prices, and discount must be valid numbers.")
+            return redirect('addProduct')
+
+        try:
+            category = Category.objects.get(id=product_category)
+        except Category.DoesNotExist:
+            messages.error(request, "Selected category does not exist.")
+            return redirect('addProduct')
+
+        product = Product.objects.create(
+                product_name=product_name,
+                product_category=category,
+                product_brand=product_brand,
+                product_description=product_description,
+                product_quantity=int(product_quantity),
+                product_selling_price=float(product_selling_price),
+                product_buying_price=float(product_buying_price),
+                product_discount=float(product_discount) if product_discount else 0.0,
+                product_image=product_image,
+                manufacture_name=manufacture_name,
+                manufacture_date=manufacture_date,
+                expiry_date=expiry_date,
+        )
+        product.save()
+        messages.success(request, "Product added successfully.")
+        return redirect('products')
+    else:
+        print('Product did not add')
+    context = {'categories': categories}
+    return render(request,'screens/administrator/add-product.html', context)
 
 # product details page
-def product_details(request):
-    return render(request,'screens/administrator/product-details.html')
+def productDetails(request, product_id):
+    product = Product.objects.get(id=product_id)
+    context = {'product': product}
+    return render(request,'screens/administrator/product-details.html', context)
 
 # edit products page
 @admin_only
