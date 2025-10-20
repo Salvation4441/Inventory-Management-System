@@ -16,10 +16,6 @@ from .models import Category
 
 
 
-
-
-
-
 # Create your views here.
 @admin_only
 def admin_dashboard(request):
@@ -45,25 +41,104 @@ def sales_report(request):
 def settings(request):
     return render(request,'screens/administrator/settings.html')
 
-# products page
+#----------------------------------
+# PRODUCTS
+#----------------------------------
+
+# ALL PRODUCTS
+@login_required(login_url='login')
 @admin_only
 def products(request):
-    return render(request,'screens/administrator/products.html')
+    products = Product.objects.all()
+    context={'products':products}
+    return render(request,'screens/administrator/products.html',context)
+
+
+# ADD NEW PRODUCT
+@login_required(login_url='login')
+@admin_only
+def addProduct(request):
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        product_sku = request.POST.get('product_sku')
+        product_category = request.POST.get('product_category')
+        product_brand = request.POST.get('product_brand')
+        product_description = request.POST.get('product_description')
+        product_quantity = request.POST.get('product_quantity')
+        product_selling_price = request.POST.get('product_selling_price')
+        product_buying_price = request.POST.get('product_buying_price')
+        product_discount = request.POST.get('product_discount')
+        product_image = request.FILES.get('product_image')
+        manufacture_name = request.POST.get('manufacture_name')
+        manufacture_date = request.POST.get('manufacture_date')
+        expiry_date = request.POST.get('expiry_date')
+
+        # Improved basic validation
+        required_fields = [product_name, product_sku, product_category, product_brand, product_description, product_quantity, product_selling_price, product_buying_price]
+        if not all(required_fields):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('add-product')
+
+        # Validate numeric fields
+        try:
+            product_quantity = int(product_quantity)
+            product_selling_price = float(product_selling_price)
+            product_buying_price = float(product_buying_price)
+            product_discount = float(product_discount) if product_discount else 0.0
+        except ValueError:
+            messages.error(request, "Quantity, prices, and discount must be valid numbers.")
+            return redirect('add-product')
+
+        if product_quantity < 0:
+            messages.error(request, "Product quantity cannot be negative.")
+            return redirect('add-product')
+        if product_selling_price < 0 or product_buying_price < 0:
+            messages.error(request, "Prices cannot be negative.")
+            return redirect('add-product')
+
+        if Product.objects.filter(product_sku=product_sku).exists():
+            messages.error(request, "Product with this SKU already exists.")
+            return redirect('add-product')
+
+        try:
+            category = Category.objects.get(id=product_category)
+        except Category.DoesNotExist:
+            messages.error(request, "Selected category does not exist.")
+            return redirect('add-product')
+
+        product = Product(
+            product_name=product_name,
+            product_sku=product_sku,
+            product_category=category,
+            product_brand=product_brand,
+            product_description=product_description,
+            product_quantity=product_quantity,
+            product_selling_price=product_selling_price,
+            product_buying_price=product_buying_price,
+            product_discount=product_discount,
+            product_image=product_image,
+            manufacture_name=manufacture_name,
+            manufacture_date=manufacture_date if manufacture_date else None,
+            expiry_date=expiry_date if expiry_date else None
+        )
+        product.save()
+        messages.success(request, "Product added successfully.")
+        return redirect('products')
+    return render(request,'screens/administrator/add-product.html')
 
 
 
-
-# product details page
-def product_details(request):
+# PRODUCT DETAILS
+@login_required(login_url='login')
+@admin_only
+def productDetails(request):
     return render(request,'screens/administrator/product-details.html')
 
 # edit products page
-def edit_product(request):
+@admin_only
+def editProduct(request, product_id):
     return render(request,'screens/administrator/edit-product.html')
 
-# add products page
-def add_product(request):
-    return render(request,'screens/administrator/add-product.html')
 
 
 

@@ -26,7 +26,7 @@
         </li>
       </ul>
       <div class="page-btn">
-        <a href="{%url 'add-product' %}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Product</a>
+        <a href="{%url 'addProduct' %}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Product</a>
       </div>
       <div class="page-btn import">
         <a href="#" class="btn btn-secondary color" data-bs-toggle="modal" data-bs-target="#view-notes"><i
@@ -100,10 +100,10 @@
                 <th>Product Name</th>
                 <th>Category</th>
                 <th>Brand</th>
-                <th>Price</th>
-                <th>Unit</th>
+                <th>Selling Price</th>
+                <th>Buying Price</th>
                 <th>Qty</th>
-                <th>Created By</th>
+                <th>Discount</th>
                 <th class="no-sort"></th>
               </tr>
             </thead>
@@ -116,36 +116,20 @@
                     <span class="checkmarks"></span>
                   </label>
                 </td>
-                <td>{{product.sku}}</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      {% if product.image %}
-                      <img src="{{product.image}}" alt="product" />
-                      {% endif %}
-                    </a>
-                    <a href="javascript:void(0);">{{product.name}}</a>
-                  </div>
-                </td>
-                <td>{{product.category}}</td>
-                <td>{{product.manufacture_name}}</td>
-                <td>${{product.selling_price}}</td>
-                <td>Pc</td>
-                <td>100</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-sm me-2">
-                      <img src="{% static 'assets/img/users/user-30.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">James Kirwin</a>
-                  </div>
-                </td>
+                <td>{{ product.product_sku }}</td>
+                <td>{{ product.product_name }}</td>
+                <td>{{ product.product_category.category_name }}</td>
+                <td>{{ product.product_brand }}</td>
+                <td>${{ product.product_selling_price }}</td>
+                <td>${{ product.product_buying_price }}</td>
+                <td>{{ product.product_quantity }}</td>
+                <td>{{ product.product_discount }}</td>
                 <td class="action-table-data">
                   <div class="edit-delete-action">
                     <a class="me-2 edit-icon p-2" data-bs-toggle="modal" data-bs-target="#product-details-new">
                       <i data-feather="eye" class="feather-eye"></i>
                     </a>
-                    <a class="me-2 p-2" href="{%url 'edit-product' %}">
+                    <a class="me-2 p-2" href="">
                       <i data-feather="edit" class="feather-edit"></i>
                     </a>
                     <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2" href="javascript:void(0);">
