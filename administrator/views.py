@@ -49,7 +49,7 @@ def settings(request):
 # products page
 @admin_only
 def products(request):
-    products = Product.objects.select_related('category').all().order_by('-id')  # pylint: disable=no-member
+    products = Product.objects.select_related('product_category').all().order_by('-id')  # pylint: disable=no-member
     return render(request,'screens/administrator/products.html',{'products': products})
 
 
