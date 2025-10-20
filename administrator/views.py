@@ -177,7 +177,6 @@ def editUser(request, user_id):
     
     user = get_object_or_404(CustomUser, id=user_id)
 
-    print('Editing User:', user)
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -300,6 +299,43 @@ def addCategory(request):
         return redirect('category')
 
     return render(request, 'screens/administrator/category.html')
+
+# EDIT CATEGORY
+# --------------------------
+@login_required(login_url='login')
+@admin_only
+def editCategory(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+
+    if request.method == 'POST':
+        category_name = request.POST.get('category_name')
+        category_code = request.POST.get('category_code')
+
+        if not category_name or not category_code:
+            messages.error(request, "All fields are required.")
+            return redirect('category')
+
+        if Category.objects.filter(category_name=category_name).exclude(id=category_id).exists():
+            messages.error(request, "Category with this name already exists.")
+            return redirect('category')
+
+        if Category.objects.filter(category_code=category_code).exclude(id=category_id).exists():
+            messages.error(request, "Category with this code already exists.")
+            return redirect('category')
+
+        category.category_name = category_name
+        category.category_code = category_code
+        
+        category.save()
+        messages.success(request, "Category updated successfully.")
+        return redirect('category')
+
+    context = {'category': category}
+    return render(request, 'screens/administrator/category.html', context)
+
+
+
+    
 
 
 # DELETE CATEGORY

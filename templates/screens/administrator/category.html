@@ -91,10 +91,11 @@
                 </td>
                 <td class="action-table-data">
                   <div class="edit-delete-action">
-                    <a class="me-2 p-2" href="#" data-bs-toggle="modal" data-bs-target="#edit-category">
+                    <a class="me-2 p-2 btn-edit-category" href="#" data-bs-toggle="modal" data-bs-target="#edit-category" 
+                       data-category-id="{{cat.id}}" data-category-name="{{cat.category_name}}" data-category-code="{{cat.category_code}}">
                       <i data-feather="edit" class="feather-edit"></i>
                     </a>
-                    <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2" href="javascript:void(0);" data-category-id="{{cat.id}}">
+                    <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 btn-delete-category" href="javascript:void(0);" data-category-id="{{cat.id}}">
                       <i data-feather="trash-2" class="feather-trash-2"></i>
                     </a>
                   </div>
@@ -132,12 +133,12 @@
         </button>
       </div>
 
-      <form action="{% url 'addCategory' %}"  method="POST" enctype="multipart/form-data">
+      <form id="edit-category-form" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Category<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="category_name" />
+            <input type="text" class="form-control" name="category_name"  value="{{category.category_name}}"/>
           </div>
           <!-- <div class="mb-3">
             <label class="form-label">Category Code<span class="text-danger ms-1">*</span></label>
@@ -158,6 +159,7 @@
           <button type="submit" class="btn btn-primary">Add Category</button>
         </div>
       </form>
+      </form>
     </div>
   </div>
 </div>
@@ -175,15 +177,16 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="" method="POST">
+  <form action="" id="edit-category-form-modal" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Category<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" value="Computers" />
+            <input type="text" name="category_name" id="edit-category-name" class="form-control" value="" />
           </div>
           <div class="mb-3">
-            <label class="form-label">Category Slug<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" value="computers" />
+            <label class="form-label">Category Code<span class="text-danger ms-1">*</span></label>
+            <input type="text" name="category_code" id="edit-category-code" class="form-control" value="" />
           </div>
           <div class="mb-0">
             <div class="status-toggle modal-status d-flex justify-content-between align-items-center">
@@ -230,7 +233,26 @@
   </div>
 </div>
 
-<!-- /Edit Category -->
+<!-- Edit Category -->
+ <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Edit Category modal logic (robust, scoped to modal, unique form id)
+    document.querySelectorAll('.btn-edit-category').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var modal = document.getElementById('edit-category');
+        var form = document.getElementById('edit-category-form-modal');
+        var categoryId = btn.getAttribute('data-category-id');
+        if (form && categoryId) {
+          form.action = '/edit-category/' + categoryId + '/';
+        }
+        if (modal) {
+          modal.querySelector('input[name="category_name"]').value = btn.getAttribute('data-category-name') || '';
+          modal.querySelector('input[name="category_code"]').value = btn.getAttribute('data-category-code') || '';
+        }
+      });
+    });
+  });
+ </script>
 
 
 <!-- Delete User Modal -->

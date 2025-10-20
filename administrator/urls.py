@@ -32,7 +32,7 @@ urlpatterns = [
     # --------------------------
     path('category/', views.allCategory, name='category'),
     path('add-category/', views.addCategory, name='addCategory'),
-    # path('edit-category/<int:category_id>/', views.editCategory, name='editCategory'),
-    path('delete-category/<int:category_id>/', views.deleteCategory, name='deleteCategory'),
+    path('edit-category/<str:category_id>/', views.editCategory, name='editCategory'),
+    path('delete-category/<str:category_id>/', views.deleteCategory, name='deleteCategory'),
     # path('view-category/<int:category_id>/', views.viewCategory, name='viewCategory'),
 ]
