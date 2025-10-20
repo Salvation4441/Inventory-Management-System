@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from administrator.models import Category, Customer, Product
 from authentication.decorators import admin_only
 
 # Create your views here.
@@ -29,7 +30,8 @@ def settings(request):
 # products page
 @admin_only
 def products(request):
-    return render(request,'screens/administrator/products.html')
+    products = Product.objects.select_related('category').all().order_by('-id')  # pylint: disable=no-member
+    return render(request,'screens/administrator/products.html',{'products': products})
 
 # users page
 @admin_only
@@ -39,7 +41,8 @@ def users(request):
 # customers page
 @admin_only
 def customers(request):
-    return render(request,'screens/administrator/customers.html')
+    cutomers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
+    return render(request,'screens/administrator/customers.html',{'cutomers':cutomers})
 
 # product details page
 def product_details(request):
@@ -55,7 +58,8 @@ def add_product(request):
 
 # category page
 def category(request):
-    return render(request,'screens/administrator/category.html')
+    category = Category.objects.all().order_by('-id')  # pylint: disable=no-member
+    return render(request,'screens/administrator/category.html',{'category':category})
 
 # manage stocks page
 def manage_stocks(request):
