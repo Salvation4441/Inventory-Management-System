@@ -27,10 +27,12 @@ def admin_dashboard(request):
 def sales(request):
     return render(request,'screens/administrator/sales.html')
 
-# profile
+# USER PROFILE
 @admin_only
 def profile(request):
-    return render(request,'screens/core/profile.html')
+    user = CustomUser.objects.get(id=request.user.id)
+    context = {'user': user}
+    return render(request,'screens/core/profile.html', context)
 
 # sales report
 @admin_only

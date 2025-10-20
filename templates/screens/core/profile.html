@@ -9,6 +9,10 @@
 							<h4>Profile</h4>
 							<h6>User Profile</h6>
 						</div>
+						<div class="page-btn mt-0">
+							<a href="{%url 'admin-dashboard' %}" class="btn btn-secondary"><i data-feather="arrow-left" class="me-2"></i>Back to
+							Dashboard</a>
+						</div>
 					</div>
 					<!-- /product list -->
 					<div class="card">
@@ -36,38 +40,38 @@
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label class="form-label">First Name<span class="text-danger ms-1">*</span></label>
-										<input type="text" class="form-control" value="Jeffry">
+										<input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
 									</div>
 								</div>
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label class="form-label">Last Name<span class="text-danger ms-1">*</span></label>
-										<input type="text" class="form-control" value="Jordan">
+										<input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
 									</div>
 								</div>
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label>Email<span class="text-danger ms-1">*</span></label>
-										<input type="email" class="form-control" value="jeffry@example.com">
+										<input type="email" name="email" class="form-control" value="{{ user.email }}">
 									</div>
 								</div>
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label class="form-label">Phone Number<span class="text-danger ms-1">*</span></label>
-										<input type="text" value="+17468314286" class="form-control">
+										<input type="text" name="phone" class="form-control" value="{{ user.phone }}">
 									</div>
 								</div>
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label class="form-label">User Name<span class="text-danger ms-1">*</span></label>
-										<input type="text" class="form-control" value="Jeffry Jordan">
+										<input type="text" name="username" class="form-control" value="{{ user.username }}">
 									</div>
 								</div>
 								<div class="col-lg-6 col-sm-12">
 									<div class="mb-3">
 										<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
 										<div class="pass-group">
-											<input type="password" class="pass-input form-control" value="********">
+											<input type="password" name="password" class="pass-input form-control" value="{{ user.password }}">
 											<i class="ti ti-eye-off toggle-password"></i>
 										</div>
 									</div>
