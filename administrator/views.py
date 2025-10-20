@@ -18,10 +18,6 @@ from .models import Category
 
 
 
-
-
-
-
 # Create your views here.
 @admin_only
 def admin_dashboard(request):
@@ -47,24 +43,31 @@ def sales_report(request):
 def settings(request):
     return render(request,'screens/administrator/settings.html')
 
-# products page
+#----------------------------------
+# PRODUCTS
+#----------------------------------
+
+# ALL PRODUCTS
+@login_required(login_url='login')
 @admin_only
 def products(request):
-    products = Product.objects.select_related('product_category').all().order_by('-id')  # pylint: disable=no-member
-    return render(request,'screens/administrator/products.html',{'products': products})
+    products = Product.objects.all()
+    context = {'products': products}
+    return render(request,'screens/administrator/products.html', context)
 
+
+def addProduct(request):
+    return render(request,'screens/administrator/add-product.html')
 
 # product details page
 def product_details(request):
     return render(request,'screens/administrator/product-details.html')
 
 # edit products page
-def edit_product(request):
+@admin_only
+def editProduct(request, product_id):
     return render(request,'screens/administrator/edit-product.html')
 
-# add products page
-def add_product(request):
-    return render(request,'screens/administrator/add-product.html')
 
 # manage stocks page
 def manage_stocks(request):
@@ -332,9 +335,6 @@ def editCategory(request, category_id):
     context = {'category': category}
     return render(request, 'screens/administrator/category.html', context)
 
-
-
-    
 
 
 # DELETE CATEGORY

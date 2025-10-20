@@ -8,12 +8,10 @@ urlpatterns = [
     path('sales-report/',views.sales_report,name='sales-report'),
     path('settings/',views.settings,name='settings'),
     path('sales/',views.sales,name='sales'),
-    path('products/', views.products, name='products'),
+    
     path('users/',views.users,name='users'),
     path('customers/',views.customers,name='customers'),
-    path('product-details/', views.product_details, name='products-detail'),
-    path('edit-product/', views.edit_product, name='edit-product'),
-    path('add-product/', views.add_product, name='add-product'),
+    
     path('manage-stocks/', views.manage_stocks, name='manage-stocks'),
     path('annual-report/', views.manage_stocks, name='annual-report'),
     path('profit-and-loss/', views.profit_and_loss, name='profit-and-loss'),
@@ -34,7 +32,16 @@ urlpatterns = [
     path('add-category/', views.addCategory, name='addCategory'),
     path('edit-category/<str:category_id>/', views.editCategory, name='editCategory'),
     path('delete-category/<str:category_id>/', views.deleteCategory, name='deleteCategory'),
-    # path('view-category/<int:category_id>/', views.viewCategory, name='viewCategory'),
+    
+    
+     # PRODUCTS
+    # --------------------------
+    path('products/', views.products, name='products'),
+    path('add-product/', views.addProduct, name='addProduct'),
+    # path('product-details/', views.productDetails, name='products-detail'),
+    path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
+    # path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
+    # path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
 
 
     # CUSTOMERS
