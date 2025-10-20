@@ -91,10 +91,18 @@
                 </td>
                 <td class="action-table-data">
                   <div class="edit-delete-action">
-                    <a class="me-2 p-2 btn-edit-category" href="#" data-bs-toggle="modal" data-bs-target="#edit-category" 
-                       data-category-id="{{cat.id}}" data-category-name="{{cat.category_name}}" data-category-code="{{cat.category_code}}">
+                    <a
+                      href="javascript:void(0);"
+                      class="me-2 p-2 d-flex align-items-center border rounded btn-edit-category"
+                      data-category-id="{{ cat.id }}"
+                      data-category-name="{{ cat.category_name }}"
+                      data-category-code="{{ cat.category_code }}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#edit-category"
+                    >
                       <i data-feather="edit" class="feather-edit"></i>
                     </a>
+
                     <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 btn-delete-category" href="javascript:void(0);" data-category-id="{{cat.id}}">
                       <i data-feather="trash-2" class="feather-trash-2"></i>
                     </a>

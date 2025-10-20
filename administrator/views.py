@@ -1,6 +1,7 @@
 import code
 from os import name
 from django.shortcuts import render
+from administrator.forms import CustomerForm
 from administrator.models import Category, Customer, Product
 from authentication.decorators import admin_only
 from authentication.models import CustomUser
@@ -355,6 +356,47 @@ def customers(request):
     customers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
     return render(request,'screens/administrator/customers.html',{'customers':customers})
 
+@login_required(login_url='login')
+@admin_only
+def customerCreate(request):
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer created successfully!')
+            return redirect('customers')
+    else:
+        form = CustomerForm()
+    customers = Customer.objects.all().order_by('-id')
+    return render(request, 'screens/administrator/customers.html', {customers})
+
+
+@login_required(login_url='login')
+@admin_only
+def customerEdit(request, id):
+    customer = get_object_or_404(Customer, id=id)
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully!')
+            return redirect('customers')
+    else:
+        form = CustomerForm(instance=customer)
+    customers = Customer.objects.all().order_by('-id')
+    return render(request, 'screens/administrator/customers.html', {'customers':customers})
+
+
+@login_required(login_url='login')
+@admin_only
+def customerDelete(request, id):
+    customer = get_object_or_404(Customer, id=id)
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, 'Customer deleted successfully!')
+        return redirect('customers')
+    customers = Customer.objects.all().order_by('-id')
+    return render(request, 'screens/administrator/customers.html', {'customers': customers})
 
 # notification
 def create_notification(user, message):

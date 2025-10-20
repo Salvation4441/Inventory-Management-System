@@ -35,4 +35,12 @@ urlpatterns = [
     path('edit-category/<str:category_id>/', views.editCategory, name='editCategory'),
     path('delete-category/<str:category_id>/', views.deleteCategory, name='deleteCategory'),
     # path('view-category/<int:category_id>/', views.viewCategory, name='viewCategory'),
+
+
+    # CUSTOMERS
+    # --------------------------
+    path('customers/create/', views.customerCreate, name='customer_create'),
+    path('customers/<str:id>/edit/', views.customerEdit, name='customer_edit'),
+    path('customers/<str:id>/delete/', views.customerDelete, name='customer_delete'),
+
 ]
