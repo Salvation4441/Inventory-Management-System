@@ -57,8 +57,8 @@ def products(request):
 # customers page
 @admin_only
 def customers(request):
-    cutomers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
-    return render(request,'screens/administrator/customers.html',{'cutomers':cutomers})
+    customers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
+    return render(request,'screens/administrator/customers.html',{'customers':customers})
 
 # product details page
 def product_details(request):
