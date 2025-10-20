@@ -1,86 +1,89 @@
 {% extends 'base.html' %} {% block content %} {% load static %}
 <div class="page-wrapper">
   <div class="content">
+  
     <div class="page-header">
-      <div class="page-title">
+      <div class="add-item d-flex">
+        <div class="page-title">
         <h4>Product Details</h4>
         <h6>Full details of a product</h6>
       </div>
+      </div>
+      <ul class="table-top-head">
+        <li>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i class="ti ti-refresh"></i></a>
+        </li>
+        <li>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
+              class="ti ti-chevron-up"></i></a>
+        </li>
+      </ul>
+      <div class="page-btn mt-0">
+        <a href="{%url 'products' %}" class="btn btn-secondary"><i data-feather="arrow-left" class="me-2"></i>Back to
+          Product</a>
+      </div>
     </div>
+
     <!-- /add -->
     <div class="row">
       <div class="col-lg-8 col-sm-12">
         <div class="card">
           <div class="card-body">
             <div class="bar-code-view">
-              <img
-                src="{%static 'assets/img/barcode/barcode1.png'%}"
-                alt="barcode"
-              />
+              <img src="{%static 'assets/img/barcode/barcode1.png'%}" alt="barcode" />
               <a class="printimg">
-                <img
-                  src="{%static 'assets/img/icons/printer.svg'%}"
-                  alt="print"
-                />
+                <img src="{%static 'assets/img/icons/printer.svg'%}" alt="print" />
               </a>
             </div>
             <div class="productdetails">
               <ul class="product-bar">
                 <li>
                   <h4>Product</h4>
-                  <h6>Macbook pro</h6>
+                  <h6>{{ product.product_name }}</h6>
                 </li>
                 <li>
                   <h4>Category</h4>
-                  <h6>Computers</h6>
-                </li>
-                <li>
-                  <h4>Sub Category</h4>
-                  <h6>None</h6>
+                  <h6>{{ product.product_category.category_name }}</h6>
                 </li>
                 <li>
                   <h4>Brand</h4>
-                  <h6>None</h6>
-                </li>
-                <li>
-                  <h4>Unit</h4>
-                  <h6>Piece</h6>
-                </li>
-                <li>
-                  <h4>SKU</h4>
-                  <h6>PT0001</h6>
-                </li>
-                <li>
-                  <h4>Minimum Qty</h4>
-                  <h6>5</h6>
+                  <h6>{{ product.product_brand }}</h6>
                 </li>
                 <li>
                   <h4>Quantity</h4>
-                  <h6>50</h6>
+                  <h6>{{ product.product_quantity }}</h6>
                 </li>
                 <li>
-                  <h4>Tax</h4>
-                  <h6>0.00 %</h6>
+                  <h4>SKU</h4>
+                  <h6>{{ product.product_sku }}</h6>
                 </li>
                 <li>
-                  <h4>Discount Type</h4>
-                  <h6>Percentage</h6>
+                  <h4>Selling Price</h4>
+                  <h6>GHC {{ product.product_selling_price|floatformat:2 }}</h6>
                 </li>
                 <li>
-                  <h4>Price</h4>
-                  <h6>1500.00</h6>
+                  <h4>Buying Price</h4>
+                  <h6>GHC {{ product.product_buying_price|floatformat:2 }}</h6>
                 </li>
                 <li>
-                  <h4>Status</h4>
-                  <h6>Active</h6>
+                  <h4>Discount</h4>
+                  <h6>GHC {{ product.product_discount|floatformat:2 }}</h6>
+                </li>
+                <li>
+                  <h4>Manufacture</h4>
+                  <h6>{{ product.manufacture_name }}</h6>
+                </li>
+                <li>
+                  <h4>Manufacture Date</h4>
+                  <h6>{{ product.manufacture_date }}</h6>
+                </li>
+                <li>
+                  <h4>Expiry Date</h4>
+                  <h6>{{ product.expiry_date }}</h6>
                 </li>
                 <li>
                   <h4>Description</h4>
-                  <h6>
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
-                    standard dummy text ever since the 1500s,
-                  </h6>
+                  <h6>{{ product.product_description }}</h6>
                 </li>
               </ul>
             </div>
@@ -91,25 +94,21 @@
         <div class="card">
           <div class="card-body">
             <div class="slider-product-details">
-              <!-- <div class="owl-carousel owl-theme product-slide">
-											<div class="slider-product">
-												<img src="assets/img/products/product69.jpg" alt="img">
-												<h4>macbookpro.jpg</h4>
-												<h6>581kb</h6>
-											</div>
-											<div class="slider-product">
-												<img src="assets/img/products/product69.jpg" alt="img">
-												<h4>macbookpro.jpg</h4>
-												<h6>581kb</h6>
-											</div>
-										</div> -->
+
+              <div class="slider-product">
+                {% if product.product_image %}
+                <img src="{{ product.product_image.url }}" alt="img"
+                  style="width:180px;height:180px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                {% else %}
+                <div class="text-muted" style="padding:40px 0;text-align:center;">No image available</div>
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- /add -->
+      <!-- /add -->
+    </div>
   </div>
-</div>
-{%endblock%}
+  {%endblock%}

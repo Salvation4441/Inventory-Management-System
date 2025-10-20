@@ -38,9 +38,9 @@ urlpatterns = [
     # --------------------------
     path('products/', views.products, name='products'),
     path('add-product/', views.addProduct, name='addProduct'),
-    # path('product-details/', views.productDetails, name='products-detail'),
+    path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
+    path('product/<int:product_id>/', views.productDetails, name='productDetails'),
     path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
-    # path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
     # path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
 
 
