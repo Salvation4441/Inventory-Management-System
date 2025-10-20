@@ -53,13 +53,6 @@ def products(request):
     return render(request,'screens/administrator/products.html',{'products': products})
 
 
-
-# customers page
-@admin_only
-def customers(request):
-    customers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
-    return render(request,'screens/administrator/customers.html',{'customers':customers})
-
 # product details page
 def product_details(request):
     return render(request,'screens/administrator/product-details.html')
@@ -71,11 +64,6 @@ def edit_product(request):
 # add products page
 def add_product(request):
     return render(request,'screens/administrator/add-product.html')
-
-# category page
-def category(request):
-    category = Category.objects.all().order_by('-id')  # pylint: disable=no-member
-    return render(request,'screens/administrator/category.html',{'category':category})
 
 # manage stocks page
 def manage_stocks(request):
@@ -364,7 +352,8 @@ def deleteCategory(request, category_id):
 @login_required(login_url='login')
 @admin_only
 def customers(request):
-    return render(request,'screens/administrator/customers.html')
+    customers = Customer.objects.all().order_by('-id')  # pylint: disable=no-member
+    return render(request,'screens/administrator/customers.html',{'customers':customers})
 
 
 # notification
