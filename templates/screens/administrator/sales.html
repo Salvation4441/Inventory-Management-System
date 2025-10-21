@@ -25,7 +25,7 @@
 							</li>
 						</ul>
 						<div class="page-btn">
-							<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-sales-new"><i class="ti ti-circle-plus me-1"></i>Add Sales</a>
+							<a href="{%url 'add-sales'%}" class="btn btn-primary" data-bs-target="#add-sales-new"><i class="ti ti-circle-plus me-1"></i>Add Sales</a>
 						</div>
 					</div>
 					
@@ -126,14 +126,13 @@
 											<th>Date</th>
 											<th>Status</th>
 											<th>Grand Total</th>
-											<th>Paid</th>
-											<th>Due</th>
 											<th>Payment Status</th>
 											<th>Biller</th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody class="sales-list">
+										{% for sale in sales %}
 										<tr>
 											<td>
 												<label class="checkboxs">
@@ -146,17 +145,15 @@
 													<a href="javascript:void(0);" class="avatar avatar-md me-2">
 														<img src="{%static 'assets/img/users/user-27.jpg' %}" alt="product">
 													</a>
-													<a href="javascript:void(0);">Carl Evans</a>
+													<a href="javascript:void(0);">{{sale.customer}}</a>
 												</div>
 											</td>
-											<td>SL001</td>
-											<td>24 Dec 2024</td>
-											<td><span class="badge badge-success">Completed</span></td>
-											<td>$1000</td>
-											<td>$1000</td>
-											<td>$0.00</td>
+											<td>{{sale.reference}}</td>
+											<td>{{sale.sale_date}}</td>
+											<td><span class="badge badge-success">{{sale.status}}</span></td>
+											<td>GH {{sale.total_amount}}</td>
 											<td><span class="badge badge-soft-success shadow-none badge-xs"><i class="ti ti-point-filled me-1"></i>Paid</span></td>
-											<td>Admin</td>
+											<td>{{sale.user}}</td>
 											<td class="text-center">
 												<a class="action-set" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="true">
 													<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
@@ -177,7 +174,8 @@
 													</li>								
 												</ul>
 											</td>
-										
+										</tr>
+										 {% endfor %}
 									</tbody>
 								</table>
 							</div>
@@ -276,15 +274,90 @@
 										</div>
 									</div>
 									<div class="col-lg-12 col-sm-6 col-12">
-										<div class="mb-3">
-											<label class="form-label">Product<span class="text-danger ms-1">*</span></label>
-											<div class="input-groupicon select-code">
-												<input type="text" class="form-control" placeholder="Please type product code and select">
-												<div class="addonset">
-													<img src="assets/img/icons/qrcode-scan.svg" alt="img">
+
+										
+										<div id="SpacingTwo" class="accordion-collapse collapse show" aria-labelledby="headingSpacingTwo">
+											<div class="accordion-body px-0">
+												<div class="tab-content" id="pills-tabContent">
+													<div class="tab-pane fade show active" id="pills-profile" role="tabpanel"
+													aria-labelledby="pills-profile-tab">
+													<div class="row select-color-add">
+														<div class="col-lg-6 col-sm-6 col-12">
+															<div class="mb-3">
+																<label class="form-label">Product <span class="text-danger ms-1">*</span></label>
+																<div class="row">
+																	<div class="col-lg-10 col-sm-10 col-10">
+																		<input type="text" class="form-control " placeholder="Please type product code and select">
+																	</div>
+																	<div class="col-lg-2 col-sm-2 col-2 ps-0">
+																		<div class="add-icon tab">
+																			<a class="btn btn-filter" data-bs-toggle="modal" data-bs-target="#add-product-category"><i  data-feather="plus-circle" class="plus"></i></a>
+																		</div>
+																	</div>
+																</div>
+															</div>
+															
+														</div>
+													</div>
+													<div class="modal-body-table border" id="variant-table">
+														<div class="table-responsive">
+															<table class="table border">
+																<thead>
+																	<tr>
+																		<th>SKU</th>
+																		<th>Name</th>
+																		<th>Unit Price</th>
+																		<th>Quantity</th>
+																		<th class="no-sort"></th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr>
+																		<td>
+																			<div class="add-product">
+																				<input type="text" class="form-control" value="1234">
+																			</div>
+																		</td>
+																		<td>
+																			<div class="add-product">
+																				<input type="text" class="form-control" value="color">
+																			</div>												
+																		</td>
+																		<td>
+																			<div class="add-product">
+																				<input type="text" class="form-control" value="50000">
+																			</div>
+																		</td>
+																		
+																		<td>
+																			<div class="product-quantity">
+																				<span class="quantity-btn"><i data-feather="minus-circle" class="feather-search"></i></span>
+																				<input type="text" class="quntity-input form-control" value="2">
+																				<span class="quantity-btn">+<i data-feather="plus-circle" class="plus-circle"></i></span>
+																			</div>
+																		</td>
+																		
+																		<td class="action-table-data">
+																			<div class="edit-delete-action">
+																				<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2" href="javascript:void(0);">
+																					<i data-feather="trash-2" class="feather-trash-2"></i>
+																				</a>
+																			</div>
+																			
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+
+													</div>	
 												</div>
 											</div>
 										</div>
+
+
+
 									</div>
 								</div>
 								<div class="row">
@@ -315,39 +388,13 @@
 								<div class="row">
 									<div class="col-lg-3 col-sm-6 col-12">
 										<div class="mb-3">
-											<label class="form-label">Order Tax<span class="text-danger ms-1">*</span></label>
-											<div class="input-groupicon select-code">
-												<input type="text" value="0" class="form-control p-2">
-											</div>
-											
-										</div>
-									</div>
-									<div class="col-lg-3 col-sm-6 col-12">
-										<div class="mb-3">
 											<label class="form-label">Discount<span class="text-danger ms-1">*</span></label>
 											<div class="input-groupicon select-code">
 												<input type="text" value="0" class="form-control p-2">
 											</div>
 										</div>
 									</div>
-									<div class="col-lg-3 col-sm-6 col-12">
-										<div class="mb-3">
-											<label class="form-label">Shipping<span class="text-danger ms-1">*</span></label>
-											<div class="input-groupicon select-code">
-												<input type="text" value="0" class="form-control p-2">
-											</div>
-										</div>
-									</div>
-									<div class="col-lg-3 col-sm-6 col-12">
-										<div class="mb-3 mb-5">
-											<label class="form-label">Status<span class="text-danger ms-1">*</span></label>
-											<select class="select">
-												<option>Select</option>
-												<option>Completed</option>
-												<option>Inprogress</option>
-											</select>
-										</div>
-									</div>
+									
 								</div>
 							</div>
 						</div>
