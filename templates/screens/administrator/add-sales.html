@@ -546,6 +546,14 @@
 <!-- /Delete -->
 
 <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    {% if not isAdmin %}
+      document.body.classList.add("menu-horizontal");
+    {% endif %}
+  });
+</script>
+
+<script>
 	document.addEventListener("DOMContentLoaded", () => {
 		const productSearch = document.querySelector("#productSearch");
 		const resultsBox = document.querySelector("#autocompleteResults");
