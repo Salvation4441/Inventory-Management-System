@@ -33,15 +33,122 @@
 
   <!-- Main CSS -->
   <link rel="stylesheet" href="{%static 'assets/css/style.css'%}" />
+
+  <!-- Custom Message Styles for Auth Pages -->
+  <style>
+    .message-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      max-width: 400px;
+      width: auto;
+      min-width: 300px;
+    }
+    
+    .message-container .alert {
+      margin-bottom: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      animation: slideInDown 0.4s ease-out;
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    
+    .alert-error, .alert-danger {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+    
+    .alert-warning {
+      background-color: #fff3cd;
+      border-color: #ffecb5;
+      color: #856404;
+    }
+    
+    .alert-info {
+      background-color: #cce7ff;
+      border-color: #b3d9ff;
+      color: #004085;
+    }
+    
+    @keyframes slideInDown {
+      from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .message-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        max-width: none;
+        min-width: auto;
+        width: auto;
+      }
+      
+      .message-container .alert {
+        animation: slideInDownMobile 0.4s ease-out;
+      }
+    }
+    
+    @keyframes slideInDownMobile {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 
 <body class="account-page bg-white">
   <div id="global-loader">
     <div class="whirly-loader"></div>
   </div>
-    {%block content%}
 
-    {%endblock%}
+  <!-- Messages Display for Auth Pages -->
+  {% if messages %}
+  <div class="message-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} d-flex align-items-center alert-dismissible fade show" role="alert">
+        {% if message.tags == 'error' or message.tags == 'danger' %}
+          <i data-feather="alert-circle" class="flex-shrink-0 me-2"></i>
+        {% elif message.tags == 'success' %}
+          <i data-feather="check-circle" class="flex-shrink-0 me-2"></i>
+        {% elif message.tags == 'warning' %}
+          <i data-feather="alert-triangle" class="flex-shrink-0 me-2"></i>
+        {% else %}
+          <i data-feather="info" class="flex-shrink-0 me-2"></i>
+        {% endif %}
+        <div>
+          {{ message }}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {%block content%}
+
+  {%endblock%}
 <!-- jQuery -->
   <script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
 
@@ -53,6 +160,34 @@
 
   <!-- Custom JS -->
   <script src="{% static 'assets/js/script.js' %}"></script>
+
+  <!-- Message Auto-dismiss Script for Auth Pages -->
+  <script>
+    $(document).ready(function() {
+      // Initialize feather icons for messages
+      if (typeof feather !== 'undefined') {
+        feather.replace();
+      }
+      
+      // Auto-dismiss messages after 5 seconds
+      $('.alert').each(function() {
+        var alert = $(this);
+        setTimeout(function() {
+          alert.fadeOut('slow', function() {
+            alert.remove();
+          });
+        }, 5000); // 5 seconds
+      });
+      
+      // Also handle manual close
+      $('.btn-close').on('click', function() {
+        $(this).closest('.alert').fadeOut('fast', function() {
+          $(this).remove();
+        });
+      });
+    });
+  </script>
+
   <script defer
     src="../../../static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
     integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="

@@ -5,6 +5,11 @@
 			<div class="page-title">
 				<h4>Add Sales</h4>
 			</div>
+			<div class="page-btn mt-0">
+			<a href="{%url 'sales' %}" class="btn btn-secondary"><i data-feather="arrow-left" class="me-2">
+				</i>Back to Sales
+			</a>
+      </div>
 		</div>
 		<form method="POST" action="{% url 'add-sales' %}">
 			{% csrf_token %}

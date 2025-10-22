@@ -43,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authentication.middleware.RoleRedirectMiddleware',
+    'authentication.middleware.SessionLockMiddleware',
 ]
 
 ROOT_URLCONF = 'inventory.urls'
@@ -133,6 +134,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use the custom User model defined in the authentication app
 AUTH_USER_MODEL = 'authentication.CustomUser'
 AUTHTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
+
+# Session settings for Remember Me functionality
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds (fallback)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Default behavior
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Security: prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
 
 
 # use console email backend for development

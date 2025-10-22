@@ -141,23 +141,12 @@
         </button>
       </div>
 
-      <form id="edit-category-form" method="POST" enctype="multipart/form-data">
+      <form action="{% url 'addCategory' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Category<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="category_name"  value="{{category.category_name}}"/>
-          </div>
-          <!-- <div class="mb-3">
-            <label class="form-label">Category Code<span class="text-danger ms-1">*</span></label>
-            <input type="text" class="form-control" name="code" />
-          </div> -->
-          <div class="mb-0">
-            <div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-              <span class="status-label">Status<span class="text-danger ms-1">*</span></span>
-              <input type="checkbox" id="user2" class="check" checked="" />
-              <label for="user2" class="checktoggle"></label>
-            </div>
+            <input type="text" class="form-control" name="category_name"  />
           </div>
         </div>
         <div class="modal-footer">
@@ -185,7 +174,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-  <form action="" id="edit-category-form-modal" method="POST" enctype="multipart/form-data">
+      <form action="" id="edit-category-form-modal" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-body">
           <div class="mb-3">
@@ -195,13 +184,6 @@
           <div class="mb-3">
             <label class="form-label">Category Code<span class="text-danger ms-1">*</span></label>
             <input type="text" name="category_code" id="edit-category-code" class="form-control" value="" />
-          </div>
-          <div class="mb-0">
-            <div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-              <span class="status-label">Status<span class="text-danger ms-1">*</span></span>
-              <input type="checkbox" id="user3" class="check" checked="" />
-              <label for="user3" class="checktoggle"></label>
-            </div>
           </div>
         </div>
         <div class="modal-footer">

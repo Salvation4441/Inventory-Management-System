@@ -80,98 +80,58 @@
     <div id="sidebar-menu" class="sidebar-menu">
       <ul>
         <li class="submenu-open">
-          <h6 class="submenu-hdr">Main</h6>
-          <ul>
-            <li class="submenu">
-              <a href="javascript:void(0);" class="subdrop active"><i
-                  class="ti ti-layout-grid fs-16 me-2"></i><span>Dashboard</span><span class="menu-arrow"></span></a>
-              <ul>
-                <li>
-                  <a href="{%url 'admin-dashboard' %}" class="active">Admin Dashboard</a>
-                </li>
 
-                <li>
-                  <a href="{%url 'employee-dashboard' %}">Sales Dashboard</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Inventory</h6>
           <ul>
             <li>
-              <a href="{%url 'products' %}"><i data-feather="box"></i><span>Products</span></a>
+              <a href="{%url 'admin-dashboard' %}"
+                class="subdrop {% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}"><i
+                  class="ti ti-layout-grid fs-16 me-2"></i>Dashboard</a>
+            </li>
+            <li>
+              <a href="{%url 'products' %}"
+                class="subdrop {% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'addProduct' or request.resolver_match.url_name == 'editProduct' or request.resolver_match.url_name == 'productDetails' %}active{% endif %}"><i
+                  data-feather="box"></i>Products</a>
             </li>
 
             <li>
-              <a href="{%url 'category' %}"><i class="ti ti-list-details fs-16 me-2"></i><span>Category</span></a>
-            </li>
-          </ul>
-        </li>
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Stock</h6>
-          <ul>
-            <li>
-              <a href="{%url 'manage-stocks' %}"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a>
-            </li>
-          </ul>
-        </li>
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Sales</h6>
-          <ul>
-            <li><a href="{%url 'sales'%}">Sales </a></li>
-          </ul>
-        </li>
-
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Peoples</h6>
-          <ul>
-            <li>
-              <a href="{%url 'customers'%}"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Reports</h6>
-          <ul>
-            <li class="submenu">
-              <a href="javascript:void(0);"><i class="ti ti-chart-bar fs-16 me-2"></i><span>Sales Report</span><span
-                  class="menu-arrow"></span></a>
-              <ul>
-                <li><a href="sales-report.html">Sales Report</a></li>
-                <li><a href="best-seller.html">Best Seller</a></li>
-              </ul>
+              <a href="{%url 'category' %}"
+                class="subdrop {% if request.resolver_match.url_name == 'category' or request.resolver_match.url_name == 'addCategory' or request.resolver_match.url_name == 'editCategory' %}active{% endif %}"><i
+                  class="ti ti-list-details fs-16 me-2"></i>Category</a>
             </li>
 
             <li>
-              <a href="{%url 'profit-and-loss'%}"><i class="ti ti-chart-donut fs-16 me-2"></i><span>Profit &
-                  Loss</span></a>
+              <a href="{%url 'sales'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'sales' or request.resolver_match.url_name == 'add-sales' %}active{% endif %}">
+                <i class="ti ti-stack-3 fs-16 me-2"></i>Sales </a>
             </li>
             <li>
-              <a href="{%url 'annual-report'%}"><i class="ti ti-report-search fs-16 me-2"></i><span>Annual
-                  Report</span></a>
+              <a href="{%url 'customers'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
+                <i class="ti ti-users-group fs-16 me-2"></i>Customers</a>
             </li>
-          </ul>
-        </li>
+            <li>
+              <a href="{%url 'sales-report'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'sales-report' %}active{% endif %}"><i
+                  class="ti ti-chart-bar fs-16 me-2"></i>Sales Report</a>
+            </li>
+            <li>
+              <a href="{%url 'profit-and-loss'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'profit-and-loss' %}active{% endif %}"><i
+                  class="ti ti-chart-donut fs-16 me-2"></i>Profit &
+                Loss</a>
+            </li>
+            <li>
+              <a href="{%url 'annual-report'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'annual-report' %}active{% endif %}"><i
+                  class="ti ti-report-search fs-16 me-2"></i>Annual
+                Report</a>
+            </li>
+            <li>
+              <a href="{%url 'users'%}"
+                class="subdrop {% if request.resolver_match.url_name == 'users' or request.resolver_match.url_name == 'addUser' or request.resolver_match.url_name == 'editUser' %}active{% endif %}"><i
+                  class="ti ti-shield-up fs-16 me-2"></i>Users</a>
+            </li>
 
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">User Management</h6>
-          <ul>
-            <li>
-              <a href="{%url 'users'%}"><i class="ti ti-shield-up fs-16 me-2"></i><span>Users</span></a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="submenu-open">
-          <h6 class="submenu-hdr">Settings</h6>
-          <ul>
-            <li>
-              <a href="{%url 'logout'%}"><i class="ti ti-logout fs-16 me-2"></i><span>Logout</span>
-              </a>
-            </li>
           </ul>
         </li>
       </ul>

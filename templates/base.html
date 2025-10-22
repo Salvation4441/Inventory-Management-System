@@ -67,6 +67,69 @@
       href="{% static 'assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css'%}"
     />
 
+    <!-- Custom Message Styles -->
+    <style>
+        .message-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .message-container .alert {
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            animation: slideInRight 0.4s ease-out;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error, .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffecb5;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background-color: #cce7ff;
+            border-color: #b3d9ff;
+            color: #004085;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .message-container {
+                top: 60px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -79,6 +142,29 @@
 
         <!-- sidebar -->
          {% include 'components/sidebar.html' %}
+
+        <!-- Messages Display -->
+        {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} d-flex align-items-center alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'error' or message.tags == 'danger' %}
+                        <i data-feather="alert-circle" class="flex-shrink-0 me-2"></i>
+                    {% elif message.tags == 'success' %}
+                        <i data-feather="check-circle" class="flex-shrink-0 me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i data-feather="alert-triangle" class="flex-shrink-0 me-2"></i>
+                    {% else %}
+                        <i data-feather="info" class="flex-shrink-0 me-2"></i>
+                    {% endif %}
+                    <div>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {%block content%}
 
@@ -135,6 +221,176 @@
 	<script src="{% static 'assets/js/theme-colorpicker.js' %}"></script>
 	<script src="{% static 'assets/js/script.js' %}"></script>
 
+    <!-- Message Auto-dismiss Script -->
+    <script>
+        $(document).ready(function() {
+            // Initialize feather icons for messages
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+            
+            // Auto-dismiss messages after 5 seconds
+            $('.alert').each(function() {
+                var alert = $(this);
+                setTimeout(function() {
+                    alert.fadeOut('slow', function() {
+                        alert.remove();
+                    });
+                }, 5000); // 5 seconds
+            });
+            
+            // Also handle manual close
+            $('.btn-close').on('click', function() {
+                $(this).closest('.alert').fadeOut('fast', function() {
+                    $(this).remove();
+                });
+            });
+        });
+    </script>
+
+    <!-- Auto Lock Screen Script -->
+    <script>
+        $(document).ready(function() {
+            // Auto-lock configuration
+            const INACTIVITY_TIMEOUT = 1 * 60 * 1000; // 1 minute in milliseconds
+            let inactivityTimer;
+            let lastActivity = Date.now();
+
+            // Events that reset the inactivity timer
+            const resetEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+
+            function resetInactivityTimer() {
+                lastActivity = Date.now();
+                clearTimeout(inactivityTimer);
+                
+                inactivityTimer = setTimeout(function() {
+                    lockScreen();
+                }, INACTIVITY_TIMEOUT);
+            }
+
+            function lockScreen() {
+                // Show custom confirmation dialog
+                showLockConfirmation();
+            }
+
+            function showLockConfirmation() {
+                // Create custom confirmation alert
+                const confirmationHtml = `
+                    <div id="lockConfirmationOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 10001;">
+                        <div class="card bg-white border-0" style="max-width: 400px; width: 90%;">
+                            <div class="alert custom-alert1 alert-primary mb-0">
+                                <div class="text-center px-5 pb-0"> 
+                                    <div class="custom-alert-icon"> 
+                                        <i data-feather="clock" class="flex-shrink-0"></i>
+                                    </div>
+                                    <h5>Session Timeout</h5>
+                                    <p>Your session will be locked due to inactivity. Do you want to continue working or lock your screen?</p>
+                                    <div>
+                                        <button id="lockDecline" class="btn btn-sm btn-outline-primary m-1">Stay Active</button>
+                                        <button id="lockAccept" class="btn btn-sm btn-primary m-1">Lock Screen</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add to DOM
+                $('body').append(confirmationHtml);
+                
+                // Initialize feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+                
+                // Handle button clicks
+                $('#lockAccept').on('click', function() {
+                    $('#lockConfirmationOverlay').remove();
+                    proceedWithLock();
+                });
+                
+                $('#lockDecline').on('click', function() {
+                    $('#lockConfirmationOverlay').remove();
+                    resetInactivityTimer();
+                });
+                
+                // Auto-lock after 30 seconds if no response
+                setTimeout(function() {
+                    if ($('#lockConfirmationOverlay').length) {
+                        $('#lockConfirmationOverlay').remove();
+                        proceedWithLock();
+                    }
+                }, 30000);
+            }
+
+            function proceedWithLock() {
+                // Make AJAX request to lock the session
+                $.ajax({
+                    url: '{% url "lock-screen" %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    data: {
+                        'lock_session': true
+                    },
+                    success: function(response) {
+                        window.location.href = '{% url "lock-screen" %}';
+                    },
+                    error: function() {
+                        // Fallback - redirect anyway
+                        window.location.href = '{% url "lock-screen" %}';
+                    }
+                });
+            }
+
+            // Add event listeners for activity detection
+            resetEvents.forEach(function(event) {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+
+            // Initialize the timer
+            resetInactivityTimer();
+
+            // Optional: Add warning before lock
+            const WARNING_TIME = 2 * 60 * 1000; // 2 minutes before lock
+            let warningShown = false;
+
+            setInterval(function() {
+                const timeSinceLastActivity = Date.now() - lastActivity;
+                const timeUntilLock = INACTIVITY_TIMEOUT - timeSinceLastActivity;
+
+                if (timeUntilLock <= WARNING_TIME && !warningShown) {
+                    warningShown = true;
+                    
+                    // Show warning notification
+                    const warningHtml = `
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 10000;">
+                            <i data-feather="clock" class="flex-shrink-0 me-2"></i>
+                            <div>
+                                <strong>Inactivity Warning!</strong><br>
+                                Your session will be locked in ${Math.ceil(timeUntilLock / 60000)} minutes due to inactivity.
+                                <br><small>Move your mouse or press any key to stay active.</small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    
+                    $('body').append(warningHtml);
+                    
+                    // Re-initialize feather icons for the new warning
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                    
+                    // Reset warning flag when user becomes active
+                    setTimeout(function() {
+                        warningShown = false;
+                    }, WARNING_TIME);
+                }
+            }, 30000); // Check every 30 seconds
+        });
+    </script>
 
 <!-- Map JS -->
 		<script src="{% static 'assets/plugins/jvectormap/jquery-jvectormap-2.0.5.min.js' %}"></script>
