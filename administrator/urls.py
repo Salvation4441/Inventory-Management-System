@@ -8,6 +8,8 @@ urlpatterns = [
     # --------------------------
     path('', views.admin_dashboard, name='admin-dashboard'),
     path('error/',views.error_404,name='error-404'),
+    path('profile/',views.profile,name='profile'),
+    path('settings/',views.settings,name='settings'),
     
     
     # --------------------------
@@ -46,6 +48,7 @@ urlpatterns = [
     path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
     path('product/<int:product_id>/', views.productDetails, name='productDetails'),
     path('edit-product/<int:product_id>/', views.editProduct, name='editProduct'),
+    path('search-products/', views.searchProducts, name='search-products'),
     # path('delete-product/<int:product_id>/', views.deleteProduct, name='deleteProduct'),
 
 
@@ -56,4 +59,8 @@ urlpatterns = [
     path('customers/<str:id>/edit/', views.customerEdit, name='customer_edit'),
     path('customers/<str:id>/delete/', views.customerDelete, name='customer_delete'),
 
+    # SALES
+    # --------------------------
+    path('sales/',views.sales,name='sales'),
+    path('add-sales/',views.addSales,name='add-sales'),
 ]

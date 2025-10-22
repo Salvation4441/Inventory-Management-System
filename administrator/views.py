@@ -1,5 +1,6 @@
 import code
 from os import name
+from django.http import JsonResponse
 from django.shortcuts import render
 from administrator.forms import CustomerForm
 from administrator.models import Category, Customer, Product
@@ -14,7 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.utils.dateparse import parse_date
-from .models import Category
+from django.db import transaction
+from .models import Category, Product, SalesItem
 from django.db.models import Sum
 
 
@@ -23,10 +25,6 @@ from django.db.models import Sum
 def admin_dashboard(request):
     return render(request,'screens/administrator/dashboard.html')
 
-# sales page
-@admin_only
-def sales(request):
-    return render(request,'screens/administrator/sales.html')
 
 
 #----------------------------------
@@ -205,6 +203,16 @@ def deleteProduct(request, product_id):
         'product': product
     }
     return render(request, 'screens/administrator/products.html', context)
+
+# SEARCH PRODUCT
+def searchProducts(request):
+    q = request.GET.get('q', '').strip()
+    products = Product.objects.filter(product_name__icontains=q)[:10]
+    results = [
+        {'id': p.id, 'name': p.product_name, 'price': float(p.product_selling_price)}
+        for p in products
+    ]
+    return JsonResponse(results, safe=False)
 
 # manage stocks page
 def manage_stocks(request):
@@ -543,6 +551,75 @@ def customerDelete(request, id):
         return redirect('customers')
     customers = Customer.objects.all().order_by('-id')
     return render(request, 'screens/administrator/customers.html', {'customers': customers})
+
+
+#----------------------------------
+# PRODUCT SALES
+#----------------------------------
+
+@admin_only
+def sales(request):
+    user = request.user  # current logged-in user
+    
+    if user.role == 'ADMIN':  
+        sales = Sales.objects.all()
+    else:
+        sales = Sales.objects.filter(user=user)  # assuming Sales has a ForeignKey to User
+
+    return render(request, 'screens/administrator/sales.html', {'sales': sales})
+@admin_only
+@login_required
+@transaction.atomic
+def addSales(request):
+    if request.method == 'POST':
+        try:
+            customer_id = request.POST.get('customer_id')
+            status = request.POST.get('status', 'Pending')
+            payment_mode = request.POST.get('payment_mode', 'Cash')
+
+            customer = Customer.objects.get(id=customer_id)
+
+            # Create sale
+            sale = Sales.objects.create(
+                customer=customer,
+                status=status,
+                payment_mode=payment_mode,
+                user=request.user
+            )
+
+            # Get all product rows
+            product_ids = request.POST.getlist('product_id[]')
+            quantities = request.POST.getlist('quantity[]')
+            unit_prices = request.POST.getlist('unit_price[]')
+            print('product_ids: ',product_ids)
+            print('quantities: ',quantities)
+            print('unit_prices: ',unit_prices)
+
+            for i in range(len(product_ids)):
+                if not product_ids[i]:
+                    continue
+                product = Product.objects.get(id=product_ids[i])
+                SalesItem.objects.create(
+                    sale=sale,
+                    product=product,
+                    quantity=int(quantities[i]),
+                    unit_price=float(unit_prices[i])
+                )
+
+            messages.success(request, "Sale added successfully!")
+
+        except Exception as e:
+            messages.error(request, f"Error adding sale: {e}")
+            print(request, f"Error adding sale: {e}")
+            return redirect('add-sales')
+
+    customers = Customer.objects.all()
+    products = Product.objects.all()
+
+    return render(request, 'screens/administrator/add-sales.html', {
+        'customers': customers,
+        'products': products,
+    })
 
 # notification
 def create_notification(user, message):
