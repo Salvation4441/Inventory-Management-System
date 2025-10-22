@@ -567,7 +567,7 @@ def sales(request):
         sales = Sales.objects.filter(user=user)  # assuming Sales has a ForeignKey to User
 
     return render(request, 'screens/administrator/sales.html', {'sales': sales})
-@admin_only
+
 @login_required
 @transaction.atomic
 def addSales(request):
@@ -615,10 +615,11 @@ def addSales(request):
 
     customers = Customer.objects.all()
     products = Product.objects.all()
-
+    isAdmin = getattr(request.user, 'role', '').upper() == 'ADMIN'
     return render(request, 'screens/administrator/add-sales.html', {
         'customers': customers,
         'products': products,
+        'isAdmin':isAdmin,
     })
 
 # notification
