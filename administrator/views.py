@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.utils.dateparse import parse_date
 from django.db import transaction
 from .models import Category, Product, SalesItem
-
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -26,15 +26,23 @@ def admin_dashboard(request):
     return render(request,'screens/administrator/dashboard.html')
 
 
-# profile
-@admin_only
-def profile(request):
-    return render(request,'screens/core/profile.html')
 
-# sales report
+#----------------------------------
+# SALES REPORT
+#----------------------------------
 @admin_only
-def sales_report(request):
-    return render(request,'screens/administrator/sales-report.html')
+def salesReport(request):
+    products = Product.objects.all()
+    sold_item = Sales.objects.all()
+    selected_product = request.POST.get('product') if request.method == 'POST' else None
+    if selected_product:
+        sold_item = sold_item.filter(items__product_id=selected_product)
+    context = {
+        'sold_item': sold_item,
+        'products': products,
+        'selected_product': selected_product,
+    }
+    return render(request,'screens/administrator/sales-report.html', context)
 
 # settings page
 @admin_only
@@ -398,7 +406,16 @@ def viewUser(request,user_id):
     context = {'user': user}
     return render(request, 'screens/administrator/users.html', context)
 
-        
+
+#------------------------------
+# PROFILE DETAILS
+#------------------------------
+@login_required(login_url='login')
+@admin_only
+def profile(request):
+    user = CustomUser.objects.get(id=request.user.id)
+    context = {'user': user}
+    return render(request,'screens/core/profile.html', context)
         
         
 #----------------------------------
