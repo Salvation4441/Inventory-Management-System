@@ -8,4 +8,5 @@ def employee_dashboard(request):
 
 @allowed_users(allowed_roles=['SALESPERSON'])
 def employee_sales(request):
-    return render(request,'screens/employee/add-sales.html')
+    isSalesPerson = getattr(request.user, 'role', '').upper() == 'SALESPERSON'
+    return render(request,'screens/employee/add-sales.html',{'isSalesPerson':True,})
