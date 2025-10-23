@@ -158,3 +158,36 @@ class SalesItem(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} x {self.quantity}"
+
+
+# --------------------------
+# MANAGE STOCKS
+# --------------------------
+class ManageStocks(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_history')
+    previous_quantity = models.PositiveIntegerField(default=0, editable=False)
+    quantity_added = models.PositiveIntegerField(help_text="Quantity to add to stock")
+    new_quantity = models.PositiveIntegerField(default=0, editable=False)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-added_at']
+        verbose_name = 'Stock Record'
+        verbose_name_plural = 'Stock Records'
+
+    def save(self, *args, **kwargs):
+        # Capture previous quantity from product and calculate new quantity
+        if not self.pk:  # Only on creation
+            # Get previous quantity from product table
+            self.previous_quantity = self.product.product_quantity
+            # Calculate new quantity
+            self.new_quantity = self.previous_quantity + self.quantity_added
+            
+            # Update product stock in product table
+            self.product.product_quantity = self.new_quantity
+            self.product.save(update_fields=["product_quantity"])
+        
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.product_name} - Added {self.quantity_added} (from {self.previous_quantity} to {self.new_quantity})"

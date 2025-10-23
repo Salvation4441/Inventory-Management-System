@@ -215,12 +215,143 @@ def searchProducts(request):
     ]
     return JsonResponse(results, safe=False)
 
-# manage stocks page
-def manage_stocks(request):
-    return render(request,'screens/administrator/manage-stocks.html')
+#----------------------------------
+# MANAGE STOCKS
+#----------------------------------
+@login_required(login_url='login')
+@admin_only
+def manageStocks(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product')
+        quantity_added = request.POST.get('quantity_added')
+        
+        # Validation
+        if not all([product_id, quantity_added]):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('manage-stocks')
+        
+        try:
+            quantity_added = int(quantity_added)
+            if quantity_added <= 0:
+                messages.error(request, "Quantity must be greater than zero.")
+                return redirect('manage-stocks')
+        except ValueError:
+            messages.error(request, "Quantity must be a valid number.")
+            return redirect('manage-stocks')
+        
+        try:
+            product = Product.objects.get(id=product_id)
+            
+            # Create stock record
+            stock_record = ManageStocks.objects.create(
+                product=product,
+                quantity_added=quantity_added
+            )
+            
+            messages.success(request, f"Successfully added {quantity_added} units to {product.product_name}. New stock: {stock_record.new_quantity}")
+            return redirect('manage-stocks')
+            
+        except Product.DoesNotExist:
+            messages.error(request, "Selected product does not exist.")
+            return redirect('manage-stocks')
+        except Exception as e:
+            messages.error(request, f"Error adding stock: {str(e)}")
+            return redirect('manage-stocks')
+    
+    # GET request - display stock history
+    products = Product.objects.all().order_by('product_name')
+    stock_history = ManageStocks.objects.all().select_related('product', 'product__product_category')
+    
+    context = {
+        'products': products,
+        'stock_history': stock_history,
+    }
+    return render(request, 'screens/administrator/manage-stocks.html', context)
+
+
+# edit manage stock
+@login_required(login_url='login')
+@admin_only
+def editManageStock(request, stock_id):
+    stock_record = get_object_or_404(ManageStocks, id=stock_id)
+    products = Product.objects.all().order_by('product_name')
+    
+    if request.method == 'POST':
+        product_id = request.POST.get('product')
+        quantity_added = request.POST.get('quantity_added')
+        
+        # Validation
+        if not all([product_id, quantity_added]):
+            messages.error(request, "All fields must be provided.")
+            return redirect('manage-stocks')
+        
+        try:
+            quantity_added = int(quantity_added)
+            if quantity_added <= 0:
+                messages.error(request, "Quantity must be greater than zero.")
+                return redirect('manage-stocks')
+        except ValueError:
+            messages.error(request, "Quantity must be a valid number.")
+            return redirect('manage-stocks')
+        
+        try:
+            new_product = Product.objects.get(id=product_id)
+            old_product = stock_record.product
+            
+            # Revert previous stock addition from old product
+            old_product.product_quantity = stock_record.previous_quantity
+            old_product.save(update_fields=['product_quantity'])
+            
+            # Update stock record with new product and quantity
+            stock_record.product = new_product
+            stock_record.previous_quantity = new_product.product_quantity
+            stock_record.quantity_added = quantity_added
+            stock_record.save()
+            
+            messages.success(request, f"Stock record updated successfully. {new_product.product_name} new stock: {stock_record.new_quantity}")
+            return redirect('manage-stocks')
+            
+        except Product.DoesNotExist:
+            messages.error(request, "Selected product does not exist.")
+            return redirect('manage-stocks')
+        except Exception as e:
+            messages.error(request, f"Error updating stock: {str(e)}")
+            return redirect('manage-stocks')
+    
+    context = {
+        'stock_record': stock_record,
+        'products': products,
+    }
+    return render(request, 'screens/administrator/edit-manage-stock.html', context)
+
+
+
+# delete manage stock
+@login_required(login_url='login')
+@admin_only
+def deleteManageStock(request, stock_id):
+    stock_record = get_object_or_404(ManageStocks, id=stock_id)
+    
+    if request.method == 'POST':
+        # Revert the product quantity back to previous state
+        product = stock_record.product
+        product.product_quantity = stock_record.previous_quantity
+        product.save(update_fields=["product_quantity"])
+        
+        # Delete the stock record
+        product_name = stock_record.product.product_name
+        quantity_added = stock_record.quantity_added
+        stock_record.delete()
+        
+        messages.success(request, f"Stock record deleted successfully. {product_name} quantity reverted by {quantity_added} units.")
+        return redirect('manage-stocks')
+    
+    # If GET request, redirect back to manage stocks
+    return redirect(request,'screens/administrator/manage-stocks.html')
+
 
 # annual report page
-def annual_report(request):
+def annualReport(request):
     return render(request,'screens/administrator/annual-report.html')
 
 # profit and loss page

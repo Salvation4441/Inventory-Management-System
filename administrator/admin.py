@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Customer, Sales, SalesItem
+from .models import Category, Product, Customer, Sales, SalesItem, ManageStocks
 
 
 # --------------------------
@@ -84,3 +84,19 @@ class SalesItemAdmin(admin.ModelAdmin):
     list_filter = ('product',)
     readonly_fields = ('unit_price', 'total')
     ordering = ('-sale',)
+
+
+# --------------------------
+# MANAGE STOCKS ADMIN
+# --------------------------
+@admin.register(ManageStocks)
+class ManageStocksAdmin(admin.ModelAdmin):
+    list_display = ('product', 'previous_quantity', 'quantity_added', 'new_quantity', 'added_at')
+    search_fields = ('product__product_name', 'product__product_sku')
+    list_filter = ('added_at', 'product__product_category')
+    readonly_fields = ('previous_quantity', 'new_quantity', 'added_at')
+    ordering = ('-added_at',)
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('product', 'product__product_category')

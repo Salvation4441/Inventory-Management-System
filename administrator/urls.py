@@ -17,8 +17,7 @@ urlpatterns = [
     # --------------------------
     path('sales/',views.sales,name='sales'),
     path('sales-report/',views.salesReport,name='sales-report'),
-    path('manage-stocks/', views.manage_stocks, name='manage-stocks'),
-    path('annual-report/', views.manage_stocks, name='annual-report'),
+    path('annual-report/', views.annualReport, name='annual-report'),
     path('profit-and-loss/', views.profit_and_loss, name='profit-and-loss'),
     
     # --------------------------
@@ -64,4 +63,10 @@ urlpatterns = [
     # --------------------------
     path('sales/',views.sales,name='sales'),
     path('add-sales/',views.addSales,name='add-sales'),
+    
+    
+    # MANAGE STOCKS
+    path('manage-stocks/', views.manageStocks, name='manage-stocks'),
+    path('edit-stock/<int:stock_id>/', views.editManageStock, name='edit-stock'),
+    path('delete-stock/<int:stock_id>/', views.deleteManageStock, name='delete-stock'),
 ]
