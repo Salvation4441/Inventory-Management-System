@@ -128,7 +128,20 @@
                 {% endfor %}
               {% else %}
                 <tr>
-                  <td colspan="9" class="text-center">No stock records found</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td class="text-center py-5">
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                      <i class="ti ti-package-off fs-3 text-muted mb-2"></i>
+                      <p class="mb-0 text-muted">No stock records found</p>
+                    </div>
+                  </td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
                 </tr>
               {% endif %}
             </tbody>
@@ -317,6 +330,8 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteForm.action = `{% url 'delete-stock' 0 %}`.replace('0', stockId);
         });
     });
+
+    // DataTable initialization is handled by the base template
 });
 </script>
 
