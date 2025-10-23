@@ -214,12 +214,61 @@ def searchProducts(request):
     ]
     return JsonResponse(results, safe=False)
 
-# manage stocks page
-def manage_stocks(request):
-    return render(request,'screens/administrator/manage-stocks.html')
+#----------------------------------
+# MANAGE STOCKS
+#----------------------------------
+@login_required(login_url='login')
+@admin_only
+def manageStocks(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product')
+        quantity_added = request.POST.get('quantity_added')
+        
+        # Validation
+        if not all([product_id, quantity_added]):
+            messages.error(request, "All required fields must be filled.")
+            return redirect('manage-stocks')
+        
+        try:
+            quantity_added = int(quantity_added)
+            if quantity_added <= 0:
+                messages.error(request, "Quantity must be greater than zero.")
+                return redirect('manage-stocks')
+        except ValueError:
+            messages.error(request, "Quantity must be a valid number.")
+            return redirect('manage-stocks')
+        
+        try:
+            product = Product.objects.get(id=product_id)
+            
+            # Create stock record
+            stock_record = ManageStocks.objects.create(
+                product=product,
+                quantity_added=quantity_added
+            )
+            
+            messages.success(request, f"Successfully added {quantity_added} units to {product.product_name}. New stock: {stock_record.new_quantity}")
+            return redirect('manage-stocks')
+            
+        except Product.DoesNotExist:
+            messages.error(request, "Selected product does not exist.")
+            return redirect('manage-stocks')
+        except Exception as e:
+            messages.error(request, f"Error adding stock: {str(e)}")
+            return redirect('manage-stocks')
+    
+    # GET request - display stock history
+    products = Product.objects.all().order_by('product_name')
+    stock_history = ManageStocks.objects.all().select_related('product', 'product__product_category')
+    
+    context = {
+        'products': products,
+        'stock_history': stock_history,
+    }
+    return render(request, 'screens/administrator/manage-stocks.html', context)
 
 # annual report page
-def annual_report(request):
+def annualReport(request):
     return render(request,'screens/administrator/annual-report.html')
 
 # profit and loss page

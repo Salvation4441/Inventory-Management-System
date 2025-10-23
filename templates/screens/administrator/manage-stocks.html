@@ -7,7 +7,7 @@
       <div class="add-item d-flex">
         <div class="page-title">
           <h4>Manage Stock</h4>
-          <h6>Manage your stock</h6>
+          <h6>Add stock to existing products and view stock history</h6>
         </div>
       </div>
       <ul class="table-top-head">
@@ -40,70 +40,7 @@
             <span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
           </div>
         </div>
-        <div class="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-          <div class="dropdown me-2">
-            <a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-              data-bs-toggle="dropdown">
-              Warehouse
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Lavish Warehouse</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Quaint Warehouse
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Traditional Warehouse</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Cool Warehouse</a>
-              </li>
-            </ul>
-          </div>
-          <div class="dropdown me-2">
-            <a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-              data-bs-toggle="dropdown">
-              Store
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Electro Mart</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Quantum Gadgets</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Prime Bazaar</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Gadget World</a>
-              </li>
-            </ul>
-          </div>
-          <div class="dropdown">
-            <a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-              data-bs-toggle="dropdown">
-              Product
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Lenovo IdeaPad 3</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Beats Pro
-                </a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Nike Jordan</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);" class="dropdown-item rounded-1">Apple Series 5 Watch</a>
-              </li>
-            </ul>
-          </div>
-        </div>
+        
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -116,430 +53,78 @@
                     <span class="checkmarks"></span>
                   </label>
                 </th>
-                <th>Warehouse</th>
-                <th>Store</th>
                 <th>Product</th>
-                <th>Date</th>
-                <th>Person</th>
-                <th>Qty</th>
-                <th class="no-sort"></th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Previous Qty</th>
+                <th>Qty Added</th>
+                <th>New Qty</th>
+                <th>Date Added</th>
+                <th class="no-sort">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Lavish Warehouse</td>
-                <td>Electro Mart</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-01.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Lenovo IdeaPad 3</a>
-                  </div>
-                </td>
-                <td>24 Dec 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-30.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">James Kirwin</a>
-                  </div>
-                </td>
-                <td>100</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center edit-delete-action">
-                    <a class="me-2 border rounded d-flex align-items-center p-2" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Quaint Warehouse</td>
-                <td>Quantum Gadgets</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-06.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Beats Pro</a>
-                  </div>
-                </td>
-                <td>10 Dec 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-13.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Francis Chang</a>
-                  </div>
-                </td>
-                <td>140</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Lobar Handy</td>
-                <td>Prime Bazaar</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-02.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Nike Jordan</a>
-                  </div>
-                </td>
-                <td>25 Jul 2023</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-08.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Steven</a>
-                  </div>
-                </td>
-                <td>120</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Quaint Warehouse</td>
-                <td>Gadget World</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-03.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Apple Series 5 Watch</a>
-                  </div>
-                </td>
-                <td>28 Jul 2023</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-04.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Gravely</a>
-                  </div>
-                </td>
-                <td>130</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Traditional Warehouse</td>
-                <td>Volt Vault</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-04.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Amazon Echo Dot</a>
-                  </div>
-                </td>
-                <td>24 Jul 2023</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-09.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Kevin</a>
-                  </div>
-                </td>
-                <td>140</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Cool Warehouse</td>
-                <td>Elite Retail</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/stock-img-05.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Lobar Handy</a>
-                  </div>
-                </td>
-                <td>15 Jul 2023</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-10.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Grillo</a>
-                  </div>
-                </td>
-                <td>150</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Retail Supply Hub</td>
-                <td>Prime Mart</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/expire-product-01.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Red Premium Satchel</a>
-                  </div>
-                </td>
-                <td>14 Oct 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-08.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Gary Hennessy</a>
-                  </div>
-                </td>
-                <td>700</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>EdgeWare Solutions</td>
-                <td>NeoTech Store</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/expire-product-02.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Iphone 14 Pro</a>
-                  </div>
-                </td>
-                <td>03 Oct 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-04.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Eleanor Panek</a>
-                  </div>
-                </td>
-                <td>630</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>North Zone Warehouse</td>
-                <td>Urban Mart</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/expire-product-03.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Gaming Chair</a>
-                  </div>
-                </td>
-                <td>20 Sep 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-13.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">William Levy</a>
-                  </div>
-                </td>
-                <td>410</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label class="checkboxs">
-                    <input type="checkbox" />
-                    <span class="checkmarks"></span>
-                  </label>
-                </td>
-                <td>Fulfillment Hub</td>
-                <td>Travel Mart</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/products/expire-product-04.png'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Borealis Backpack</a>
-                  </div>
-                </td>
-                <td>10 Sep 2024</td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                      <img src="{%static 'assets/img/users/user-16.jpg'%}" alt="product" />
-                    </a>
-                    <a href="javascript:void(0);">Charlotte Klotz</a>
-                  </div>
-                </td>
-                <td>550</td>
-                <td class="d-flex">
-                  <div class="d-flex align-items-center justify-content-between edit-delete-action">
-                    <a class="me-2 p-2 border rounded d-flex align-items-center" href="#" data-bs-toggle="modal"
-                      data-bs-target="#edit-stock">
-                      <i data-feather="edit" class="feather-edit"></i>
-                    </a>
-                    <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);"
-                      data-bs-toggle="modal" data-bs-target="#delete">
-                      <i data-feather="trash-2" class="feather-trash-2"></i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
+              {% if stock_history %}
+                {% for stock in stock_history %} 
+                <tr>
+                  <td>
+                    <label class="checkboxs">
+                      <input type="checkbox" />
+                      <span class="checkmarks"></span>
+                    </label>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      {% if stock.product.product_image %}
+                        <a href="javascript:void(0);" class="avatar avatar-md me-2">
+                          <img src="{{ stock.product.product_image.url }}" alt="product" />
+                        </a>
+                      {% else %}
+                        <a href="javascript:void(0);" class="avatar avatar-md me-2">
+                          <img src="{%static 'assets/img/products/product1.jpg'%}" alt="product" />
+                        </a>
+                      {% endif %}
+                      <a href="javascript:void(0);">{{ stock.product.product_name }}</a>
+                    </div>
+                  </td>
+                  <td>{{ stock.product.product_sku }}</td>
+                  <td>{{ stock.product.product_category.category_name }}</td>
+                  <td>
+                    <span class="badge bg-soft-success fw-bold">{{ stock.previous_quantity }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-soft-primary fw-bold">+{{ stock.quantity_added }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-soft-success fw-bold">{{ stock.new_quantity }}</span>
+                  </td>
+                  <td>{{ stock.added_at|date:"d M Y h:i A" }}</td>
+                  <td>
+                    <div class="d-flex align-items-center edit-delete-action">
+                      <a class="me-2 border rounded d-flex align-items-center p-2" href="#" data-bs-toggle="modal" data-bs-target="#edit-stock" title="Edit Stock">
+                        <i data-feather="edit" class="feather-edit"></i>
+                      </a>
+                      <a class="p-2 border rounded d-flex align-items-center" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete-stock-{{ stock.id }}" title="Delete Stock">
+                        <i data-feather="trash-2" class="feather-trash-2"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="9" class="text-center">No stock records found</td>
+                </tr>
+              {% endif %}
             </tbody>
+              
           </table>
         </div>
       </div>
     </div>
     <!-- /product list -->
   </div>
-  <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
-    <p class="mb-0">2014 - 2025 &copy; DreamsPOS. All Right Reserved</p>
-    <p>
-      Designed &amp; Developed by
-      <a href="javascript:void(0);" class="text-primary">Dreams</a>
-    </p>
-  </div>
+
 </div>
 <!-- Add Stock -->
 <div class="modal fade" id="add-stock">
@@ -553,50 +138,27 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="https://dreamspos.dreamstechnologies.com/html/template/manage-stocks.html">
+      <form action="{% url 'manage-stocks' %}" method="POST">
+        {%csrf_token%}
         <div class="modal-body">
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label">Warehouse <span class="text-danger ms-1">*</span></label>
-                <select class="select">
-                  <option>Select</option>
-                  <option>Warehouse</option>
-                  <option>Quaint Warehouse</option>
-                  <option>Traditional Warehouse</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label">Store <span class="text-danger ms-1">*</span></label>
-                <select class="select">
-                  <option>Select</option>
-                  <option>Electro Mart</option>
-                  <option>Quantum Gadgets</option>
-                  <option>Prime Bazaar</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label">Responsible Person
-                  <span class="text-danger ms-1">*</span></label>
-                <select class="select">
-                  <option>Select</option>
-                  <option>James Kirwin</option>
-                  <option>Francis Chang</option>
-                  <option>Antonio Engle</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-12">
-              <div class="search-form mb-0">
                 <label class="form-label">Product <span class="text-danger ms-1">*</span></label>
-                <div class="position-relative">
-                  <input type="text" class="form-control" placeholder="Select Product" />
-                  <i data-feather="search" class="feather-search"></i>
-                </div>
+                <select class="select" name="product" required>
+                  <option value="">Choose Product</option>
+                  {% for product in products %}
+                    <option value="{{ product.id }}">
+                      {{ product.product_name }} ({{ product.product_sku }}) - Current Stock: {{ product.product_quantity }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">Quantity to Add <span class="text-danger ms-1">*</span></label>
+                <input type="number" name="quantity_added" class="form-control" placeholder="Enter quantity to add" min="1" required />
               </div>
             </div>
           </div>
