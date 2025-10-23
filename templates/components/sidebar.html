@@ -37,7 +37,7 @@
       </ul>
     </div>
   </div>
-  <div class="sidebar-header p-3 pb-0 pt-2">
+  <!-- <div class="sidebar-header p-3 pb-0 pt-2">
     <div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
       <div class="avatar avatar-md onlin">
         <img src="{% static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
@@ -75,60 +75,51 @@
         </a>
       </div>
     </div>
-  </div>
+  </div> -->
   <div class="sidebar-inner slimscroll">
     <div id="sidebar-menu" class="sidebar-menu">
       <ul>
         <li class="submenu-open">
 
           <ul>
-            <li>
-              <a href="{%url 'admin-dashboard' %}"
-                class="subdrop {% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}">
+              <a href="{%url 'admin-dashboard' %}" class="subdrop"><i
                   class="ti ti-layout-grid fs-16 me-2"></i>Dashboard</a>
             </li>
-            <li>
-              <a href="{%url 'products' %}"
-                class="subdrop {% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'addProduct' or request.resolver_match.url_name == 'editProduct' or request.resolver_match.url_name == 'productDetails' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'addProduct' or request.resolver_match.url_name == 'editProduct' or request.resolver_match.url_name == 'productDetails' %}active{% endif %}">
+              <a href="{%url 'products' %}" class="subdrop"><i
                   data-feather="box"></i>Products</a>
             </li>
 
-            <li>
-              <a href="{%url 'category' %}"
-                class="subdrop {% if request.resolver_match.url_name == 'category' or request.resolver_match.url_name == 'addCategory' or request.resolver_match.url_name == 'editCategory' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'category' or request.resolver_match.url_name == 'addCategory' or request.resolver_match.url_name == 'editCategory' %}active{% endif %}">
+              <a href="{%url 'category' %}" class="subdrop"><i
                   class="ti ti-list-details fs-16 me-2"></i>Category</a>
             </li>
 
-            <li>
-              <a href="{%url 'sales'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'sales' or request.resolver_match.url_name == 'add-sales' %}active{% endif %}">
+            <li class="{% if request.resolver_match.url_name == 'sales' or request.resolver_match.url_name == 'add-sales' %}active{% endif %}">
+              <a href="{%url 'sales'%}" class="subdrop">
                 <i class="ti ti-stack-3 fs-16 me-2"></i>Sales </a>
             </li>
-            <li>
-              <a href="{%url 'customers'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
+            <li class="{% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
+              <a href="{%url 'customers'%}" class="subdrop">
                 <i class="ti ti-users-group fs-16 me-2"></i>Customers</a>
             </li>
-            <li>
-              <a href="{%url 'sales-report'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'sales-report' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'sales-report' %}active{% endif %}">
+              <a href="{%url 'sales-report'%}" class="subdrop"><i
                   class="ti ti-chart-bar fs-16 me-2"></i>Sales Report</a>
             </li>
-            <li>
-              <a href="{%url 'profit-and-loss'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'profit-and-loss' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'profit-and-loss' %}active{% endif %}">
+              <a href="{%url 'profit-and-loss'%}" class="subdrop"><i
                   class="ti ti-chart-donut fs-16 me-2"></i>Profit &
                 Loss</a>
             </li>
-            <li>
-              <a href="{%url 'annual-report'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'annual-report' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'annual-report' %}active{% endif %}">
+              <a href="{%url 'annual-report'%}" class="subdrop"><i
                   class="ti ti-report-search fs-16 me-2"></i>Annual
                 Report</a>
             </li>
-            <li>
-              <a href="{%url 'users'%}"
-                class="subdrop {% if request.resolver_match.url_name == 'users' or request.resolver_match.url_name == 'addUser' or request.resolver_match.url_name == 'editUser' %}active{% endif %}"><i
+            <li class="{% if request.resolver_match.url_name == 'users' or request.resolver_match.url_name == 'addUser' or request.resolver_match.url_name == 'editUser' %}active{% endif %}">
+              <a href="{%url 'users'%}" class="subdrop"><i
                   class="ti ti-shield-up fs-16 me-2"></i>Users</a>
             </li>
 
