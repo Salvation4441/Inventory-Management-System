@@ -130,7 +130,7 @@
 </div>
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
-		{% if not isAdmin %}
+		{% if isSalesPerson %}
 		document.body.classList.add("menu-horizontal");
 		{% endif %}
 	});

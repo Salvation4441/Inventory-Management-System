@@ -641,11 +641,11 @@ def addSales(request):
 
     customers = Customer.objects.all()
     products = Product.objects.all()
-    isAdmin = getattr(request.user, 'role', '').upper() == 'ADMIN'
+    isSalesPerson = getattr(request.user, 'role', '').upper() == 'SALESPERSON'
     return render(request, 'screens/administrator/add-sales.html', {
         'customers': customers,
         'products': products,
-        'isAdmin':isAdmin,
+        'isSalesPerson':isSalesPerson,
     })
 
 # notification
