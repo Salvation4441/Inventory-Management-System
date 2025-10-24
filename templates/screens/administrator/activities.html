@@ -47,10 +47,10 @@
 											<i class="ti ti-dots-vertical"></i>
 										</a>
 										<ul class="dropdown-menu dropdown-menu-end">
-											<li><a class="dropdown-item" href="#" onclick="viewActivityDetail({{ activity.id }})">View Details</a></li>
-											{% if activity.sale %}
+											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Details</a></li>
+											<!-- {% if activity.sale %}
 											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Sale</a></li>
-											{% endif %}
+											{% endif %} -->
 											<li><hr class="dropdown-divider"></li>
 											<li><a class="dropdown-item text-danger" href="#">Delete</a></li>
 										</ul>
@@ -102,15 +102,129 @@
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body" id="saleDetailBody">
-							<div class="text-center">
-								<div class="spinner-border" role="status">
-									<span class="visually-hidden">Loading...</span>
+							<form>
+								<div class="card border-0">
+									<div class="card-body pb-0">
+										<div class="invoice-box table-height"
+											style="max-width: 1600px;width:100%;padding: 0;font-size: 14px;line-height: 24px;color: #555;">
+											<div class="row sales-details-items d-flex">
+												<div class="col-md-4 details-item">
+													<h6>Customer Info</h6>
+													<h4 class="mb-1">Carl Evans</h4>
+													<p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
+													<p class="mb-0">Email<span><a href="" class="__cf_email__"
+																data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe">[email&#160;protected]</a></span>
+													</p>
+													<p class="mb-0">Phone<span>+1 987 471 6589</span></p>
+												</div>
+												<div class="opacity-0 col-md-4 details-item">
+													<h6>Company Info</h6>
+													<h4 class="mb-1">DGT</h4>
+													<p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
+													<p class="mb-0">Email<span><a href="" class="__cf_email__"
+																data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></span>
+													</p>
+													<p class="mb-0">Phone<span>+1 893 174 0385</span></p>
+												</div>
+												<div class="col-md-4 details-item">
+													<h6>Invoice Info</h6>
+													<p class="mb-0">Reference: <span class="fs-16 text-primary ms-2">#SL0101</span></p>
+													<p class="mb-0">Reference: <span class="ms-2 text-gray-9">Dec 24, 2024</span></p>
+													<p class="mb-0">Status: <span class="badge badge-success ms-2">Completed</span></p>
+													<p class="mb-0">Payment Status: <span
+															class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2">
+															<i class="ti ti-point-filled"></i>Paid</span></p>
+												</div>
+											</div>
+											<h5 class="order-text">Order Summary</h5>
+											<div class="table-responsive no-pagination mb-3">
+												<table id="productTableBody" class="table border">
+													<thead>
+														<tr>
+															<th>Name</th>
+															<th>Selling Price</th>
+															<th>Subtotal</th>
+															<th>Quantity</th>
+														</tr>
+													</thead>
+													<tbody></tbody>
+												</table>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-lg-6 ms-auto">
+												<div class="total-order w-100 max-widthauto m-auto mb-4">
+													<ul class="border-1 rounded-2">
+														<li class="border-bottom">
+															<h4 class="border-end">Grand Total</h4>
+															<h5 id="grandTotal">GH 0.00</h5>
+														</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
+							</form>
 						</div>
 					</div>
 				</div>
 			</div>
+
+
+
+
+
+			<script>
+				 function loadSalesDetail (saleId) {
+					console.log(document.querySelector("#saleDetailModal"))
+
+					fetch(`/sales/${saleId}/detail/`)
+						.then(response => response.json())
+						.then(data => {
+							// Populate customer info
+							document.querySelector("#saleDetailModal .details-item:nth-child(1) h4").textContent = data.customer.name;
+							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(3)").textContent = data.customer.address;
+							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(4) span").textContent = data.customer.email;
+							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(5) span").textContent = data.customer.phone;
+
+							// Populate invoice info
+							document.querySelector("#saleDetailModal .details-item:nth-child(3) span.text-primary").textContent = `#${data.reference}`;
+							document.querySelector("#saleDetailModal .details-item:nth-child(3) .text-gray-9").textContent = data.sale_date;
+							document.querySelector("#saleDetailModal .details-item:nth-child(3) .badge-success").textContent = data.status;
+							document.querySelector("#grandTotal").textContent = data.total_amount.toFixed(2);
+
+							// Populate items table
+							const tbody = document.querySelector("#productTableBody tbody");
+							
+							tbody.innerHTML = "";
+							data.items.forEach(item => {
+								tbody.innerHTML += `
+								<tr>
+									<td>
+										${item.product}
+									</td>
+									<td>
+										GH${item.unit_price.toFixed(2)}
+									</td>
+									<td class="subtotal">
+										GH${item.total.toFixed(2)}
+									</td>
+									<td>
+										${item.product}
+									</td>
+								</tr>
+							`;
+							});
+
+						})
+						.then(data => { loading.classList.add("d-none") })
+						.catch(error => {
+							console.error("Error loading sale detail:", error);
+						});
+				}
+			
+			</script>
 
 			<script>
 			function viewActivityDetail(activityId) {
@@ -230,161 +344,9 @@
 				const modal = new bootstrap.Modal(document.getElementById('saleDetailModal'));
 				modal.show();
 				
-				// Reset modal body to loading state
-				document.getElementById('saleDetailBody').innerHTML = `
-					<div class="text-center">
-						<div class="spinner-border" role="status">
-							<span class="visually-hidden">Loading...</span>
-						</div>
-					</div>
-				`;
-				
-				// Fetch sale details
-				fetch(`/administrator/sale-modal/${saleId}/`)
-					.then(response => response.json())
-					.then(data => {
-						if (data.success) {
-							const sale = data.sale;
-							
-							let statusColor = '';
-							switch(sale.status.toLowerCase()) {
-								case 'completed':
-								case 'paid':
-									statusColor = 'success';
-									break;
-								case 'pending':
-									statusColor = 'warning';
-									break;
-								case 'cancelled':
-									statusColor = 'danger';
-									break;
-								default:
-									statusColor = 'secondary';
-							}
-							
-							let modalContent = `
-								<div class="row">
-									<div class="col-md-8">
-										<div class="card border-0">
-											<div class="card-header bg-primary text-white">
-												<div class="d-flex justify-content-between align-items-center">
-													<h6 class="mb-0"><i class="ti ti-receipt me-2"></i>Sale ${sale.reference}</h6>
-													<span class="badge bg-light text-dark">${sale.status}</span>
-												</div>
-											</div>
-											<div class="card-body">
-												<div class="row mb-3">
-													<div class="col-md-6">
-														<p class="mb-1"><strong>Sale Date:</strong> ${sale.sale_date}</p>
-														<p class="mb-1"><strong>Payment Mode:</strong> ${sale.payment_mode}</p>
-													</div>
-													<div class="col-md-6">
-														<p class="mb-1"><strong>Salesperson:</strong> ${sale.salesperson.name}</p>
-														<p class="mb-1"><strong>Status:</strong> <span class="badge bg-${statusColor}">${sale.status}</span></p>
-													</div>
-												</div>
-												
-												<div class="table-responsive">
-													<table class="table table-sm">
-														<thead class="table-light">
-															<tr>
-																<th>Product</th>
-																<th>SKU</th>
-																<th>Qty</th>
-																<th>Unit Price</th>
-																<th>Total</th>
-															</tr>
-														</thead>
-														<tbody>
-							`;
-							
-							sale.items.forEach(item => {
-								modalContent += `
-									<tr>
-										<td>${item.product_name}</td>
-										<td><small class="text-muted">${item.sku}</small></td>
-										<td>${item.quantity}</td>
-										<td>GHC ${item.unit_price}</td>
-										<td><strong>GHC ${item.total}</strong></td>
-									</tr>
-								`;
-							});
-							
-							modalContent += `
-														</tbody>
-														<tfoot class="table-light">
-															<tr>
-																<th colspan="4" class="text-end">Subtotal:</th>
-																<th>GHC ${sale.subtotal}</th>
-															</tr>
-															<tr>
-																<th colspan="4" class="text-end">Total:</th>
-																<th class="text-primary">GHC ${sale.total_amount}</th>
-															</tr>
-														</tfoot>
-													</table>
-												</div>
-											</div>
-										</div>
-									</div>
-									
-									<div class="col-md-4">
-										<div class="card border-0">
-											<div class="card-header bg-light">
-												<h6 class="mb-0"><i class="ti ti-user me-2"></i>Customer Details</h6>
-											</div>
-											<div class="card-body">
-												<div class="text-center mb-3">
-													<div class="avatar avatar-xl bg-primary text-white mb-2">
-														<span class="avatar-title fs-4">${sale.customer.name.split(' ').map(n => n[0]).join('')}</span>
-													</div>
-													<h6 class="mb-1">${sale.customer.name}</h6>
-												</div>
-												<div class="mb-2">
-													<small class="text-muted">Email:</small>
-													<p class="mb-1">${sale.customer.email}</p>
-												</div>
-												<div class="mb-2">
-													<small class="text-muted">Phone:</small>
-													<p class="mb-1">${sale.customer.phone}</p>
-												</div>
-												<hr>
-												<div class="d-grid gap-2">
-													<a href="/administrator/sales/${sale.id}/detail/" class="btn btn-outline-primary btn-sm">
-														<i class="ti ti-external-link me-1"></i>Open Full Sale Page
-													</a>
-													<button class="btn btn-outline-secondary btn-sm">
-														<i class="ti ti-printer me-1"></i>Print Receipt
-													</button>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							`;
-							
-							document.getElementById('saleDetailBody').innerHTML = modalContent;
-						} else {
-							document.getElementById('saleDetailBody').innerHTML = `
-								<div class="alert alert-danger">
-									<i class="ti ti-alert-circle me-2"></i>
-									Error loading sale details: ${data.error}
-								</div>
-							`;
-						}
-					})
-					.catch(error => {
-						console.error('Error:', error);
-						document.getElementById('saleDetailBody').innerHTML = `
-							<div class="alert alert-danger">
-								<i class="ti ti-alert-circle me-2"></i>
-								Error loading sale details. Please try again.
-							</div>
-						`;
-					});
+				loadSalesDetail(saleId)
 			}
 			
-			// Add hover effect to activity cards
 			document.querySelectorAll('.activity-card').forEach(card => {
 				card.addEventListener('mouseenter', function() {
 					this.style.transform = 'translateY(-2px)';
