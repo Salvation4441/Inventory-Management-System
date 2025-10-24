@@ -4,9 +4,8 @@ from authentication.decorators import allowed_users
 # Create your views here.
 @allowed_users(allowed_roles=['SALESPERSON'])
 def employee_dashboard(request):
-    return render(request,'screens/employee/employee-dashboard.html')
+    return render(request,'screens/employee/employee-dashboard.html',{'isSalesPerson':True})
 
 @allowed_users(allowed_roles=['SALESPERSON'])
 def employee_sales(request):
-    isSalesPerson = getattr(request.user, 'role', '').upper() == 'SALESPERSON'
-    return render(request,'screens/employee/add-sales.html',{'isSalesPerson':True,})
+    return render(request,'screens/employee/add-sales.html',{'isSalesPerson':True})
