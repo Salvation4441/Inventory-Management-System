@@ -69,4 +69,12 @@ urlpatterns = [
     path('manage-stocks/', views.manageStocks, name='manage-stocks'),
     path('edit-stock/<int:stock_id>/', views.editManageStock, name='edit-stock'),
     path('delete-stock/<int:stock_id>/', views.deleteManageStock, name='delete-stock'),
+    
+    # ACTIVITIES/NOTIFICATIONS
+    path('activities/', views.activities, name='activities'),
+    path('mark-activities-read/', views.mark_activities_read, name='mark-activities-read'),
+
+    # NOTIFICATIONS
+    # path('notifications/', views.notifications, name='notifications'),
+
 ]

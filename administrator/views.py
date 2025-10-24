@@ -796,6 +796,16 @@ def addSales(request):
                     unit_price=float(unit_prices[i])
                 )
 
+            # Create activity notification
+            total_items = sum(int(q) for q in quantities if q)
+            create_activity(
+                user=request.user,
+                activity_type='sale_created',
+                title=f'New Sale Created',
+                description=f'Sale #{sale.reference} created for {customer.first_name} {customer.last_name} with {total_items} items totaling GHC{sale.total_amount:.2f}',
+                sale=sale
+            )
+            
             messages.success(request, "Sale added successfully!")
 
         except Exception as e:
@@ -813,5 +823,49 @@ def addSales(request):
     })
 
 #----------------------------------
-# SALES REPORT
+# NOTIFICATIONS
 #----------------------------------
+def notifications(request):
+    return render(request,'screens/administrator/activities.html')
+
+
+#----------------------------------
+# ACTIVITY/NOTIFICATION FUNCTIONS
+#----------------------------------
+
+def create_activity(user, activity_type, title, description, sale=None, product=None):
+    """Create a new activity/notification"""
+    activity = Activity.objects.create(
+        user=user,
+        activity_type=activity_type,
+        title=title,
+        description=description,
+        sale=sale,
+        product=product
+    )
+    return activity
+
+def get_unread_activity_count():
+    """Get count of unread activities"""
+    from .models import Activity
+    return Activity.objects.filter(is_read=False).count()
+
+@login_required
+@admin_only
+def activities(request):
+    """Display all activities"""
+
+    activities = Activity.objects.all().select_related('user', 'sale', 'product')[:50]
+    
+    context = {
+        'activities': activities,
+        'unread_count': get_unread_activity_count()
+    }
+    return render(request, 'screens/administrator/activities.html', context)
+
+@login_required
+def mark_activities_read(request):
+    """Mark all activities as read"""
+    
+    Activity.objects.filter(is_read=False).update(is_read=True)
+    return redirect('activities')
