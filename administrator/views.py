@@ -33,9 +33,6 @@ def admin_dashboard(request):
 #----------------------------------
 @admin_only
 def salesReport(request):
-    from datetime import datetime, timedelta
-    from django.utils import timezone
-    
     products = Product.objects.all()
     
     # Get all sales items with related data for better performance
@@ -45,33 +42,14 @@ def salesReport(request):
     
     # Initialize filter variables
     selected_product = None
-    date_from = None
-    date_to = None
     
     # Apply filters if form is submitted
     if request.method == 'POST':
         selected_product = request.POST.get('product')
-        date_from = request.POST.get('date_from')
-        date_to = request.POST.get('date_to')
         
         # Filter by product if selected
         if selected_product:
             sales_items = sales_items.filter(product_id=selected_product)
-        
-        # Filter by date range if provided
-        if date_from:
-            try:
-                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
-                sales_items = sales_items.filter(sale__sale_date__date__gte=date_from_obj)
-            except ValueError:
-                pass
-                
-        if date_to:
-            try:
-                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
-                sales_items = sales_items.filter(sale__sale_date__date__lte=date_to_obj)
-            except ValueError:
-                pass
     
     # Calculate summary statistics
     total_sales_amount = sales_items.aggregate(
@@ -93,8 +71,6 @@ def salesReport(request):
         'sales_items': sales_items,
         'products': products,
         'selected_product': selected_product,
-        'date_from': date_from,
-        'date_to': date_to,
         'total_sales_amount': total_sales_amount,
         'total_quantity_sold': total_quantity_sold,
         'total_sales_count': total_sales_count,

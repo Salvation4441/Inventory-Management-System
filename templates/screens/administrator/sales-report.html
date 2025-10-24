@@ -91,20 +91,6 @@
 					<div class="row align-items-end">
 						<div class="col-lg-10">
 							<div class="row">
-								<div class="col-md-3">
-									<div class="mb-3">
-										<label class="form-label">From Date</label>
-										<input type="date" class="form-control" name="date_from" value="{{ date_from }}">
-									</div>
-								</div>
-								
-								<div class="col-md-3">
-									<div class="mb-3">
-										<label class="form-label">To Date</label>
-										<input type="date" class="form-control" name="date_to" value="{{ date_to }}">
-									</div>
-								</div>
-
 								<div class="col-md-4">
 									<div class="mb-3">
 										<label class="form-label">Filter by Product</label>
@@ -136,18 +122,14 @@
 			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
 				<div>
 					<h4>Sales Report</h4>
-					{% if date_from or date_to or selected_product %}
+					{% if selected_product %}
 						<div class="d-flex align-items-center gap-2 mt-2">
-							<small class="text-muted">Filters applied:</small>
-							{% if date_from %}<span class="badge bg-info">From: {{ date_from }}</span>{% endif %}
-							{% if date_to %}<span class="badge bg-info">To: {{ date_to }}</span>{% endif %}
-							{% if selected_product %}
-								{% for product in products %}
-									{% if product.id|stringformat:"s" == selected_product %}
-										<span class="badge bg-success">Product: {{ product.product_name }}</span>
-									{% endif %}
-								{% endfor %}
-							{% endif %}
+							<small class="text-muted">Filter applied:</small>
+							{% for product in products %}
+								{% if product.id|stringformat:"s" == selected_product %}
+									<span class="badge bg-success">Product: {{ product.product_name }}</span>
+								{% endif %}
+							{% endfor %}
 						</div>
 					{% endif %}
 				</div>
@@ -242,12 +224,20 @@
 							</tr>
 							{% empty %}
 							<tr>
-								<td colspan="9" class="text-center py-4">
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td class="text-center py-4">
 									<div class="d-flex flex-column align-items-center">
 										<i class="ti ti-chart-line fs-3 text-muted mb-2"></i>
 										<p class="mb-0 text-muted">No sales records found</p>
 									</div>
 								</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
 							</tr>
 							{% endfor %}
 						</tbody>
