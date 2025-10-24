@@ -822,6 +822,51 @@ def addSales(request):
         'isSalesPerson':isSalesPerson,
     })
 
+@login_required
+def saleDetail(request, sale_id):
+    sale = get_object_or_404(Sales, id=sale_id)
+    items = SalesItem.objects.filter(sale=sale)
+    
+    sale_data = {
+        "id": sale.id,
+        "reference": sale.reference,
+        "status": sale.status,
+        "payment_mode": sale.payment_mode,
+        "sale_date": sale.sale_date.strftime("%b %d, %Y"),
+        "total_amount": sale.total_amount,
+        "customer": {
+            "name": f"{sale.customer.first_name} {sale.customer.last_name}",
+            "email": sale.customer.email if hasattr(sale.customer, "email") else "",
+            "phone": sale.customer.phone if hasattr(sale.customer, "phone") else "",
+            "address": sale.customer.address if hasattr(sale.customer, "address") else "",
+        },
+        "user": str(sale.user),
+        "items": [
+            {
+                "product": item.product.product_name,
+                "unit_price": item.unit_price,
+                "quantity": item.quantity,
+                "discount": item.discount,
+                "total": item.total,
+                "image": item.product.product_image.url if item.product.product_image else "",
+            }
+            for item in items
+        ],
+    }
+
+    return JsonResponse(sale_data)
+
+@login_required
+@transaction.atomic
+def delete_sale(request, sale_id):
+    sale = get_object_or_404(Sales, id=sale_id)
+    try:
+        sale.delete()
+        messages.success(request, f"Sale {sale.reference} deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Error deleting sale: {e}")
+    return redirect('sales')
+
 #----------------------------------
 # NOTIFICATIONS
 #----------------------------------

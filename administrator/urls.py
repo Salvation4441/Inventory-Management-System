@@ -63,8 +63,9 @@ urlpatterns = [
     # --------------------------
     path('sales/',views.sales,name='sales'),
     path('add-sales/',views.addSales,name='add-sales'),
-    
-    
+    path('sales/<int:sale_id>/detail/', views.saleDetail, name='sale-detail'),
+    path('sales/<int:sale_id>/delete/', views.delete_sale, name='delete-sale'),
+
     # MANAGE STOCKS
     path('manage-stocks/', views.manageStocks, name='manage-stocks'),
     path('edit-stock/<int:stock_id>/', views.editManageStock, name='edit-stock'),
