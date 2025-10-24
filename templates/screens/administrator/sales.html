@@ -126,69 +126,106 @@
 	</div>
 </div>
 <!-- Modal -->
-<!-- show payment Modal -->
-<div class="modal fade" id="showpayment">
-	<div class="modal-dialog modal-dialog-centered stock-adjust-modal">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div class="page-title">
-					<h4>Show Payments</h4>
-				</div>
-				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="modal-body-table total-orders p-0">
-							<div class="table-responsive rounded">
-								<table class="table datatable">
-									<thead class="thead-light">
-										<tr>
-											<th>Date</th>
-											<th>Reference</th>
-											<th>Amount</th>
-											<th>Paid By</th>
-											<th class="no-sort"></th>
+<!-- details popup -->
+<div class="modal fade" id="sales-details-new">
 
+	<div class="modal-dialog sales-details-modal">
+		<div class="modal-content">
+			<div id="sale-loading" class="text-center py-4 d-none">
+				<div class="spinner-border text-primary"></div>
+				<p>Loading sale details...</p>
+			</div>
+			<div class="page-header p-4 border-bottom mb-0">
+				<div class="add-item d-flex align-items-center">
+					<div class="page-title modal-datail">
+						<h4 class="mb-0 me-2">Sales Detail</h4>
+					</div>
+				</div>
+				<ul class="table-top-head">
+					<li>
+						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
+								src="{%static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
+					</li>
+					<li>
+						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
+								src="{%static 'assets/img/icons/printer.svg' %}" alt="img"></a>
+					</li>
+				</ul>
+				<div class="page-btn">
+					<a data-bs-dismiss="modal" aria-label="Close" class="btn btn-secondary"><i data-feather="arrow-left"
+							class="me-2"></i> Back to Sales</a>
+				</div>
+			</div>
+
+			<form>
+				<div class="card border-0">
+					<div class="card-body pb-0">
+						<div class="invoice-box table-height"
+							style="max-width: 1600px;width:100%;padding: 0;font-size: 14px;line-height: 24px;color: #555;">
+							<div class="row sales-details-items d-flex">
+								<div class="col-md-4 details-item">
+									<h6>Customer Info</h6>
+									<h4 class="mb-1">Carl Evans</h4>
+									<p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
+									<p class="mb-0">Email<span><a href="" class="__cf_email__"
+												data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe">[email&#160;protected]</a></span>
+									</p>
+									<p class="mb-0">Phone<span>+1 987 471 6589</span></p>
+								</div>
+								<div class="opacity-0 col-md-4 details-item">
+									<h6>Company Info</h6>
+									<h4 class="mb-1">DGT</h4>
+									<p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
+									<p class="mb-0">Email<span><a href="" class="__cf_email__"
+												data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></span>
+									</p>
+									<p class="mb-0">Phone<span>+1 893 174 0385</span></p>
+								</div>
+								<div class="col-md-4 details-item">
+									<h6>Invoice Info</h6>
+									<p class="mb-0">Reference: <span class="fs-16 text-primary ms-2">#SL0101</span></p>
+									<p class="mb-0">Reference: <span class="ms-2 text-gray-9">Dec 24, 2024</span></p>
+									<p class="mb-0">Status: <span class="badge badge-success ms-2">Completed</span></p>
+									<p class="mb-0">Payment Status: <span
+											class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2">
+											<i class="ti ti-point-filled"></i>Paid</span></p>
+								</div>
+							</div>
+							<h5 class="order-text">Order Summary</h5>
+							<div class="table-responsive no-pagination mb-3">
+								<table id="productTableBody" class="table border">
+									<thead>
+										<tr>
+											<th>Name</th>
+											<th>Selling Price</th>
+											<th>Subtotal</th>
+											<th>Quantity</th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td>19 Jan 2023</td>
-											<td>INV/SL0101</td>
-											<td>$1500</td>
-											<td>Cash</td>
-											<td>
-												<div class="edit-delete-action d-flex align-items-center">
-													<a class="me-3 p-2 border rounded d-flex align-items-center"
-														href="javascript:void(0);">
-														<i data-feather="printer" class="feather-rotate-ccw"></i>
-													</a>
-													<a class="me-3 p-2 border rounded d-flex align-items-center"
-														href="#" data-bs-toggle="modal" data-bs-target="#editpayment">
-														<i data-feather="edit" class="feather-edit"></i>
-													</a>
-													<a class="p-2 border rounded d-flex align-items-center"
-														href="javascript:void(0);">
-														<i data-feather="trash-2" class="feather-trash-2"></i>
-													</a>
-												</div>
-
-											</td>
-										</tr>
-									</tbody>
+									<tbody></tbody>
 								</table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-lg-6 ms-auto">
+								<div class="total-order w-100 max-widthauto m-auto mb-4">
+									<ul class="border-1 rounded-2">
+										<li class="border-bottom">
+											<h4 class="border-end">Grand Total</h4>
+											<h5 id="grandTotal">GH 0.00</h5>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+				
+			</form>
 		</div>
 	</div>
 </div>
-<!-- show payment Modal -->
+<!-- /details popup -->
 
 <!-- Delete Sale Modal -->
 <div class="modal fade modal-default" id="delete-sale-modal">
