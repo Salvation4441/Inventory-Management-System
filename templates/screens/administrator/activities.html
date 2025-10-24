@@ -1,0 +1,401 @@
+{%extends 'base.html'%} 
+{%block content%} 
+{%load static%}
+    <div class="page-wrapper">
+				<div class="content mb-4">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>All Notifications</h4>
+							<h6>View your all activities ({{ activities.count }} total)</h6>
+						</div>
+						<div class="page-btn">
+							<a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
+								<i class="ti ti-check me-2"></i>Mark All as Read
+							</a>
+						</div>
+					</div>
+					
+					{% if activities %}
+						{% for activity in activities %}
+						<div class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card" 
+							 style="cursor: pointer;" 
+							 data-activity-id="{{ activity.id }}"
+							 onclick="viewActivityDetail({{ activity.id }})">
+							<div class="px-3 py-3">
+								<div class="d-flex align-items-center">
+									<div class="d-flex me-2">
+										<span class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success{% elif activity.activity_type == 'stock_updated' %}bg-warning{% else %}bg-info{% endif %} avatar-rounded">
+											<span class="avatar-title">{{ activity.user.first_name.0|upper }}{{ activity.user.last_name.0|upper }}</span>
+										</span>
+									</div>
+									<div class="flex-fill ml-3">
+										<p class="text-sm lh-140 mb-0">
+											<strong class="h6">{{ activity.user.first_name }} {{ activity.user.last_name }}</strong> 
+											<span>{{ activity.title }}</span>
+											{% if activity.product %}
+												<strong class="h6">{{ activity.product.product_name }}</strong>
+											{% endif %}
+											{% if not activity.is_read %}
+												<span class="badge bg-primary ms-2">New</span>
+											{% endif %}
+										</p>
+										<p class="text-muted mb-1">{{ activity.description|truncatewords:10 }}</p>
+										<small><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} ago</small>
+									</div>
+									<div class="dropdown" onclick="event.stopPropagation();">
+										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown">
+											<i class="ti ti-dots-vertical"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li><a class="dropdown-item" href="#" onclick="viewActivityDetail({{ activity.id }})">View Details</a></li>
+											{% if activity.sale %}
+											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Sale</a></li>
+											{% endif %}
+											<li><hr class="dropdown-divider"></li>
+											<li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					{% else %}
+						<div class="card">
+							<div class="card-body text-center py-5">
+								<div class="avatar avatar-xl bg-light mx-auto mb-3">
+									<i class="ti ti-bell-off text-muted"></i>
+								</div>
+								<h5>No Activities Yet</h5>
+								<p class="text-muted">When employees make sales or perform actions, they will appear here.</p>
+							</div>
+						</div>
+					{% endif %}
+					
+				</div>
+			</div>
+
+			<!-- Activity Detail Modal -->
+			<div class="modal fade" id="activityDetailModal" tabindex="-1" aria-labelledby="activityDetailModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="activityDetailModalLabel">Activity Details</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body" id="activityDetailBody">
+							<div class="text-center">
+								<div class="spinner-border" role="status">
+									<span class="visually-hidden">Loading...</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sale Detail Modal -->
+			<div class="modal fade" id="saleDetailModal" tabindex="-1" aria-labelledby="saleDetailModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="saleDetailModalLabel">Sale Details</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body" id="saleDetailBody">
+							<div class="text-center">
+								<div class="spinner-border" role="status">
+									<span class="visually-hidden">Loading...</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<script>
+			function viewActivityDetail(activityId) {
+				// Show modal
+				const modal = new bootstrap.Modal(document.getElementById('activityDetailModal'));
+				modal.show();
+				
+				// Reset modal body to loading state
+				document.getElementById('activityDetailBody').innerHTML = `
+					<div class="text-center">
+						<div class="spinner-border" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				`;
+				
+				// Fetch activity details
+				fetch(`/administrator/activity/${activityId}/`)
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							const activity = data.activity;
+							let activityTypeColor = '';
+							
+							switch(activity.activity_type) {
+								case 'Sale Created':
+									activityTypeColor = 'bg-success';
+									break;
+								case 'Stock Updated':
+									activityTypeColor = 'bg-warning';
+									break;
+								case 'Product Added':
+									activityTypeColor = 'bg-info';
+									break;
+								default:
+									activityTypeColor = 'bg-secondary';
+							}
+							
+							let modalContent = `
+								<div class="d-flex align-items-center mb-4">
+									<div class="avatar avatar-xl ${activityTypeColor} me-3">
+										<span class="avatar-title fs-4">${activity.user.initials}</span>
+									</div>
+									<div>
+										<h6 class="mb-1">${activity.user.name}</h6>
+										<small class="text-muted">@${activity.user.username}</small>
+									</div>
+									<div class="ms-auto">
+										<span class="badge ${activityTypeColor.replace('bg-', 'bg-light text-')}">${activity.activity_type}</span>
+									</div>
+								</div>
+								
+								<div class="mb-3">
+									<h6 class="fw-bold">${activity.title}</h6>
+									<p class="text-muted mb-1">${activity.description}</p>
+									<small class="text-muted"><i class="ti ti-clock me-1"></i>${activity.created_at}</small>
+								</div>
+							`;
+							
+							// Add sale details if available
+							if (activity.sale) {
+								modalContent += `
+									<div class="card bg-light mb-3">
+										<div class="card-body">
+											<h6 class="card-title"><i class="ti ti-receipt me-2"></i>Sale Details</h6>
+											<div class="row">
+												<div class="col-md-6">
+													<p class="mb-1"><strong>Reference:</strong> ${activity.sale.reference}</p>
+													<p class="mb-1"><strong>Customer:</strong> ${activity.sale.customer_name}</p>
+												</div>
+												<div class="col-md-6">
+													<p class="mb-1"><strong>Amount:</strong> GHC ${activity.sale.total_amount}</p>
+													<button class="btn btn-sm btn-outline-primary" onclick="viewSaleDetail(${activity.sale.id})">View Full Sale Details</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								`;
+							}
+							
+							// Add product details if available
+							if (activity.product) {
+								modalContent += `
+									<div class="card bg-light">
+										<div class="card-body">
+											<h6 class="card-title"><i class="ti ti-package me-2"></i>Product Details</h6>
+											<p class="mb-1"><strong>Name:</strong> ${activity.product.name}</p>
+											<p class="mb-0"><strong>SKU:</strong> ${activity.product.sku}</p>
+										</div>
+									</div>
+								`;
+							}
+							
+							document.getElementById('activityDetailBody').innerHTML = modalContent;
+						} else {
+							document.getElementById('activityDetailBody').innerHTML = `
+								<div class="alert alert-danger">
+									<i class="ti ti-alert-circle me-2"></i>
+									Error loading activity details: ${data.error}
+								</div>
+							`;
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						document.getElementById('activityDetailBody').innerHTML = `
+							<div class="alert alert-danger">
+								<i class="ti ti-alert-circle me-2"></i>
+								Error loading activity details. Please try again.
+							</div>
+						`;
+					});
+			}
+			
+			function viewSaleDetail(saleId) {
+				// Show modal
+				const modal = new bootstrap.Modal(document.getElementById('saleDetailModal'));
+				modal.show();
+				
+				// Reset modal body to loading state
+				document.getElementById('saleDetailBody').innerHTML = `
+					<div class="text-center">
+						<div class="spinner-border" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				`;
+				
+				// Fetch sale details
+				fetch(`/administrator/sale-modal/${saleId}/`)
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							const sale = data.sale;
+							
+							let statusColor = '';
+							switch(sale.status.toLowerCase()) {
+								case 'completed':
+								case 'paid':
+									statusColor = 'success';
+									break;
+								case 'pending':
+									statusColor = 'warning';
+									break;
+								case 'cancelled':
+									statusColor = 'danger';
+									break;
+								default:
+									statusColor = 'secondary';
+							}
+							
+							let modalContent = `
+								<div class="row">
+									<div class="col-md-8">
+										<div class="card border-0">
+											<div class="card-header bg-primary text-white">
+												<div class="d-flex justify-content-between align-items-center">
+													<h6 class="mb-0"><i class="ti ti-receipt me-2"></i>Sale ${sale.reference}</h6>
+													<span class="badge bg-light text-dark">${sale.status}</span>
+												</div>
+											</div>
+											<div class="card-body">
+												<div class="row mb-3">
+													<div class="col-md-6">
+														<p class="mb-1"><strong>Sale Date:</strong> ${sale.sale_date}</p>
+														<p class="mb-1"><strong>Payment Mode:</strong> ${sale.payment_mode}</p>
+													</div>
+													<div class="col-md-6">
+														<p class="mb-1"><strong>Salesperson:</strong> ${sale.salesperson.name}</p>
+														<p class="mb-1"><strong>Status:</strong> <span class="badge bg-${statusColor}">${sale.status}</span></p>
+													</div>
+												</div>
+												
+												<div class="table-responsive">
+													<table class="table table-sm">
+														<thead class="table-light">
+															<tr>
+																<th>Product</th>
+																<th>SKU</th>
+																<th>Qty</th>
+																<th>Unit Price</th>
+																<th>Total</th>
+															</tr>
+														</thead>
+														<tbody>
+							`;
+							
+							sale.items.forEach(item => {
+								modalContent += `
+									<tr>
+										<td>${item.product_name}</td>
+										<td><small class="text-muted">${item.sku}</small></td>
+										<td>${item.quantity}</td>
+										<td>GHC ${item.unit_price}</td>
+										<td><strong>GHC ${item.total}</strong></td>
+									</tr>
+								`;
+							});
+							
+							modalContent += `
+														</tbody>
+														<tfoot class="table-light">
+															<tr>
+																<th colspan="4" class="text-end">Subtotal:</th>
+																<th>GHC ${sale.subtotal}</th>
+															</tr>
+															<tr>
+																<th colspan="4" class="text-end">Total:</th>
+																<th class="text-primary">GHC ${sale.total_amount}</th>
+															</tr>
+														</tfoot>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="col-md-4">
+										<div class="card border-0">
+											<div class="card-header bg-light">
+												<h6 class="mb-0"><i class="ti ti-user me-2"></i>Customer Details</h6>
+											</div>
+											<div class="card-body">
+												<div class="text-center mb-3">
+													<div class="avatar avatar-xl bg-primary text-white mb-2">
+														<span class="avatar-title fs-4">${sale.customer.name.split(' ').map(n => n[0]).join('')}</span>
+													</div>
+													<h6 class="mb-1">${sale.customer.name}</h6>
+												</div>
+												<div class="mb-2">
+													<small class="text-muted">Email:</small>
+													<p class="mb-1">${sale.customer.email}</p>
+												</div>
+												<div class="mb-2">
+													<small class="text-muted">Phone:</small>
+													<p class="mb-1">${sale.customer.phone}</p>
+												</div>
+												<hr>
+												<div class="d-grid gap-2">
+													<a href="/administrator/sales/${sale.id}/detail/" class="btn btn-outline-primary btn-sm">
+														<i class="ti ti-external-link me-1"></i>Open Full Sale Page
+													</a>
+													<button class="btn btn-outline-secondary btn-sm">
+														<i class="ti ti-printer me-1"></i>Print Receipt
+													</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							`;
+							
+							document.getElementById('saleDetailBody').innerHTML = modalContent;
+						} else {
+							document.getElementById('saleDetailBody').innerHTML = `
+								<div class="alert alert-danger">
+									<i class="ti ti-alert-circle me-2"></i>
+									Error loading sale details: ${data.error}
+								</div>
+							`;
+						}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						document.getElementById('saleDetailBody').innerHTML = `
+							<div class="alert alert-danger">
+								<i class="ti ti-alert-circle me-2"></i>
+								Error loading sale details. Please try again.
+							</div>
+						`;
+					});
+			}
+			
+			// Add hover effect to activity cards
+			document.querySelectorAll('.activity-card').forEach(card => {
+				card.addEventListener('mouseenter', function() {
+					this.style.transform = 'translateY(-2px)';
+					this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+					this.style.transition = 'all 0.3s ease';
+				});
+				
+				card.addEventListener('mouseleave', function() {
+					this.style.transform = 'translateY(0)';
+					this.style.boxShadow = '';
+				});
+			});
+			</script>
+{%endblock%}

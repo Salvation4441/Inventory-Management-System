@@ -191,3 +191,32 @@ class ManageStocks(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} - Added {self.quantity_added} (from {self.previous_quantity} to {self.new_quantity})"
+
+
+# --------------------------
+# ACTIVITY/NOTIFICATION MODEL
+# --------------------------
+class Activity(models.Model):
+    ACTIVITY_TYPES = [
+        ('sale_created', 'Sale Created'),
+        ('product_added', 'Product Added'),
+        ('stock_updated', 'Stock Updated'),
+        ('user_created', 'User Created'),
+    ]
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="activities")
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Optional reference to related objects
+    sale = models.ForeignKey(Sales, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"{self.title} by {self.user.username}"

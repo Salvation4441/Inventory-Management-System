@@ -70,4 +70,14 @@ urlpatterns = [
     path('manage-stocks/', views.manageStocks, name='manage-stocks'),
     path('edit-stock/<int:stock_id>/', views.editManageStock, name='edit-stock'),
     path('delete-stock/<int:stock_id>/', views.deleteManageStock, name='delete-stock'),
+    
+    # ACTIVITIES/NOTIFICATIONS
+    path('activities/', views.activities, name='activities'),
+    path('mark-activities-read/', views.mark_activities_read, name='mark-activities-read'),
+    path('activity/<int:activity_id>/', views.activity_detail, name='activity-detail'),
+    path('sale-modal/<int:sale_id>/', views.sale_detail_modal, name='sale-detail-modal'),
+
+    # NOTIFICATIONS
+    # path('notifications/', views.notifications, name='notifications'),
+
 ]

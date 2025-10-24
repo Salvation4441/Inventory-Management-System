@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Customer, Sales, SalesItem, ManageStocks
+from .models import *
 
 
 # --------------------------
@@ -100,3 +100,18 @@ class ManageStocksAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related('product', 'product__product_category')
+
+# --------------------------
+# ACTIVITIES & NOTIFICATIONS ADMIN
+# --------------------------
+@admin.register(Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = ('user', 'activity_type', 'title', 'is_read', 'created_at')
+    search_fields = ('user__username', 'title', 'description')
+    list_filter = ('activity_type', 'is_read', 'created_at')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('user')
