@@ -89,6 +89,14 @@
       </li>
 
       <li class="nav-item dropdown link-nav">
+        {% if not isSalesPerson %}  
+        <a href="{%url 'add-sales'%}" class="btn btn-primary btn-md d-inline-flex align-items-center"
+          >
+          <i class="ti ti-circle-plus me-1"></i>Add Sales
+        </a>
+      </li>
+        {% else %}
+      <li class="nav-item dropdown link-nav">
         <a href="javascript:void(0);" class="btn btn-primary btn-md d-inline-flex align-items-center"
           data-bs-toggle="dropdown">
           <i class="ti ti-circle-plus me-1"></i>Add New
@@ -148,6 +156,7 @@
           </div>
         </div>
       </li>
+		    {% endif %}
 
       <li class="nav-item nav-item-box">
         <a href="javascript:void(0);" id="btnFullscreen">

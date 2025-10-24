@@ -18,6 +18,7 @@ from django.utils.dateparse import parse_date
 from django.db import transaction
 from .models import Category, Product, SalesItem
 from django.db.models import Sum
+from django.db.models import Q
 
 
 # Create your views here.
@@ -683,6 +684,19 @@ def customerDelete(request, id):
     customers = Customer.objects.all().order_by('-id')
     return render(request, 'screens/administrator/customers.html', {'customers': customers})
 
+# SEARCH CUSTOMERS 
+
+def searchCustomers(request):
+    q = request.GET.get('q', '').strip()
+    customers = Customer.objects.filter(
+        Q(first_name__icontains=q) | Q(last_name__icontains=q)
+    )[:10]
+    results = [
+        {'id': c.id, 'name': f"{c.first_name} {c.last_name}"}
+        for c in customers
+    ]
+    return JsonResponse(results, safe=False)
+
 
 #----------------------------------
 # PRODUCT SALES
@@ -705,10 +719,25 @@ def addSales(request):
     if request.method == 'POST':
         try:
             customer_id = request.POST.get('customer_id')
+            customer_name = request.POST.get('customer_name')
             status = request.POST.get('status', 'Pending')
             payment_mode = request.POST.get('payment_mode', 'Cash')
 
-            customer = Customer.objects.get(id=customer_id)
+            # Check if customer_id exists
+            if not customer_id:
+                # Split the name into first and last parts
+                name_parts = customer_name.strip().split(" ", 1)
+                first_name = name_parts[0]
+                last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+                # Create a new customer
+                customer = Customer.objects.create(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+            else:
+                # Retrieve existing customer
+                customer = Customer.objects.get(id=customer_id)
 
             # Create sale
             sale = Sales.objects.create(
@@ -722,9 +751,6 @@ def addSales(request):
             product_ids = request.POST.getlist('product_id[]')
             quantities = request.POST.getlist('quantity[]')
             unit_prices = request.POST.getlist('unit_price[]')
-            print('product_ids: ',product_ids)
-            print('quantities: ',quantities)
-            print('unit_prices: ',unit_prices)
 
             for i in range(len(product_ids)):
                 if not product_ids[i]:
@@ -746,11 +772,11 @@ def addSales(request):
 
     customers = Customer.objects.all()
     products = Product.objects.all()
-    isAdmin = getattr(request.user, 'role', '').upper() == 'ADMIN'
+    isSalesPerson = getattr(request.user, 'role', '').upper() == 'SALESPERSON'
     return render(request, 'screens/administrator/add-sales.html', {
         'customers': customers,
         'products': products,
-        'isAdmin':isAdmin,
+        'isSalesPerson':isSalesPerson,
     })
 
 # notification

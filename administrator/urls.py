@@ -57,6 +57,7 @@ urlpatterns = [
     path('customers/create/', views.customerCreate, name='customer_create'),
     path('customers/<str:id>/edit/', views.customerEdit, name='customer_edit'),
     path('customers/<str:id>/delete/', views.customerDelete, name='customer_delete'),
+    path('search-customers/', views.searchCustomers, name='search-customers'),
 
     # SALES
     # --------------------------
