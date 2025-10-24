@@ -816,12 +816,15 @@ def addSales(request):
     customers = Customer.objects.all()
     products = Product.objects.all()
     isSalesPerson = getattr(request.user, 'role', '').upper() == 'SALESPERSON'
-    return render(request, 'screens/administrator/add-sales.html', {
+    
+    context = {
         'customers': customers,
         'products': products,
-        'isSalesPerson':isSalesPerson,
-    })
+        'isSalesPerson': isSalesPerson,
+    }
 
+    return render(request, 'screens/administrator/add-sales.html', context)
+    
 @login_required
 def saleDetail(request, sale_id):
     sale = get_object_or_404(Sales, id=sale_id)
@@ -900,11 +903,14 @@ def get_unread_activity_count():
 def activities(request):
     """Display all activities"""
 
-    activities = Activity.objects.all().select_related('user', 'sale', 'product')[:50]
+    activities = Activity.objects.all().select_related('user', 'sale', 'product').order_by('-created_at')[:50]
+    
+    # Mark all unread activities as read when viewing the activities page
+    Activity.objects.filter(is_read=False).update(is_read=True)
     
     context = {
         'activities': activities,
-        'unread_count': get_unread_activity_count()
+        'unread_count': 0  # Since we just marked all as read
     }
     return render(request, 'screens/administrator/activities.html', context)
 
@@ -914,3 +920,93 @@ def mark_activities_read(request):
     
     Activity.objects.filter(is_read=False).update(is_read=True)
     return redirect('activities')
+
+@login_required
+def activity_detail(request, activity_id):
+    """Get activity details for modal display"""
+    try:
+        activity = Activity.objects.select_related('user', 'sale', 'product').get(id=activity_id)
+        
+        data = {
+            'success': True,
+            'activity': {
+                'id': activity.id,
+                'title': activity.title,
+                'description': activity.description,
+                'activity_type': activity.get_activity_type_display(),
+                'created_at': activity.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'user': {
+                    'name': f"{activity.user.first_name} {activity.user.last_name}",
+                    'username': activity.user.username,
+                    'initials': f"{activity.user.first_name[0]}{activity.user.last_name[0]}" if activity.user.first_name and activity.user.last_name else activity.user.username[0].upper()
+                },
+                'sale': {
+                    'id': activity.sale.id,
+                    'reference': activity.sale.reference,
+                    'total_amount': str(activity.sale.total_amount),
+                    'customer_name': f"{activity.sale.customer.first_name} {activity.sale.customer.last_name}"
+                } if activity.sale else None,
+                'product': {
+                    'id': activity.product.id,
+                    'name': activity.product.product_name,
+                    'sku': activity.product.sku
+                } if activity.product else None
+            }
+        }
+    except Activity.DoesNotExist:
+        data = {
+            'success': False,
+            'error': 'Activity not found'
+        }
+    
+    return JsonResponse(data)
+
+@login_required
+def sale_detail_modal(request, sale_id):
+    """Get sale details for modal display"""
+    try:
+        sale = Sales.objects.select_related('customer', 'user').prefetch_related('salesitem_set__product').get(id=sale_id)
+        
+        # Calculate totals
+        sale_items = sale.salesitem_set.all()
+        subtotal = sum(item.quantity * item.unit_price for item in sale_items)
+        
+        data = {
+            'success': True,
+            'sale': {
+                'id': sale.id,
+                'reference': sale.reference,
+                'sale_date': sale.sale_date.strftime('%B %d, %Y at %I:%M %p'),
+                'status': sale.status,
+                'payment_mode': sale.payment_mode,
+                'total_amount': str(sale.total_amount),
+                'subtotal': str(subtotal),
+                'customer': {
+                    'id': sale.customer.id,
+                    'name': f"{sale.customer.first_name} {sale.customer.last_name}",
+                    'email': getattr(sale.customer, 'email', 'N/A'),
+                    'phone': getattr(sale.customer, 'phone', 'N/A')
+                },
+                'salesperson': {
+                    'name': f"{sale.user.first_name} {sale.user.last_name}",
+                    'username': sale.user.username
+                },
+                'items': [
+                    {
+                        'product_name': item.product.product_name,
+                        'sku': item.product.sku,
+                        'quantity': item.quantity,
+                        'unit_price': str(item.unit_price),
+                        'total': str(item.quantity * item.unit_price)
+                    }
+                    for item in sale_items
+                ]
+            }
+        }
+    except Sales.DoesNotExist:
+        data = {
+            'success': False,
+            'error': 'Sale not found'
+        }
+    
+    return JsonResponse(data)
