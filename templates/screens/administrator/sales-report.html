@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+{% load math_filters %}
 <div class="page-wrapper">
 	<div class="content">
 		<div class="page-header">
@@ -31,7 +32,7 @@
 						<div class="ms-2">
 							<p class="fw-medium mb-1">Total Amount</p>
 							<div>
-								<h3>$4,56,000</h3>
+								<h3>GHC{{ total_sales_amount|floatformat:2 }}</h3>
 							</div>
 						</div>
 					</div>
@@ -44,9 +45,9 @@
 							<i class="ti ti-align-box-bottom-left-filled fs-24"></i>
 						</span>
 						<div class="ms-2">
-							<p class="fw-medium mb-1">Total Paid</p>
+							<p class="fw-medium mb-1">Items Sold</p>
 							<div>
-								<h3>$2,56,42</h3>
+								<h3>{{ total_quantity_sold }}</h3>
 							</div>
 						</div>
 					</div>
@@ -59,9 +60,9 @@
 							<i class="ti ti-moneybag fs-24"></i>
 						</span>
 						<div class="ms-2">
-							<p class="fw-medium mb-1">Total Unpaid</p>
+							<p class="fw-medium mb-1">Total Sales</p>
 							<div>
-								<h3>$1,52,45</h3>
+								<h3>{{ total_sales_count }}</h3>
 							</div>
 						</div>
 					</div>
@@ -74,9 +75,9 @@
 							<i class="ti ti-alert-circle-filled fs-24"></i>
 						</span>
 						<div class="ms-2">
-							<p class="fw-medium mb-1">Overdue</p>
+							<p class="fw-medium mb-1">Avg Sale Value</p>
 							<div>
-								<h3>$2,56,12</h3>
+								<h3>GHC{{ avg_sale_value|floatformat:2 }}</h3>
 							</div>
 						</div>
 					</div>
@@ -90,37 +91,28 @@
 					<div class="row align-items-end">
 						<div class="col-lg-10">
 							<div class="row">
-								<div class="col-md-4">
+								<div class="col-md-3">
 									<div class="mb-3">
-										<label class="form-label">Choose Date </label>
-										<div class="input-icon-start position-relative">
-											<input type="text" class="form-control date-range bookingrange"
-												placeholder="dd/mm/yyyy - dd/mm/yyyy">
-											<span class="input-icon-left">
-												<i class="ti ti-calendar"></i>
-											</span>
-										</div>
+										<label class="form-label">From Date</label>
+										<input type="date" class="form-control" name="date_from" value="{{ date_from }}">
 									</div>
 								</div>
-								<div class="col-md-4">
+								
+								<div class="col-md-3">
 									<div class="mb-3">
-										<label class="form-label">Store</label>
-										<select class="select">
-											<option>All</option>
-											<option>Electro Mart</option>
-											<option>Quantum Gadgets</option>
-											<option>Prime Bazaar</option>
-										</select>
+										<label class="form-label">To Date</label>
+										<input type="date" class="form-control" name="date_to" value="{{ date_to }}">
 									</div>
 								</div>
+
 								<div class="col-md-4">
 									<div class="mb-3">
-										<label class="form-label">Products</label>
+										<label class="form-label">Filter by Product</label>
 										<select class="select" name="product">
-											<option value="">All</option>
+											<option value="">All Products</option>
 											{% for product in products %}
 											<option value="{{ product.id }}" {% if selected_product == product.id|stringformat:'s' %}selected{% endif %}>
-												{{ product.product_name }} ({{ product.product_sku }}){% if product.product_brand %} - {{ product.product_brand }}{% endif %}
+												{{ product.product_name }} ({{ product.product_sku }})
 											</option>
 											{% endfor %}
 										</select>
@@ -130,7 +122,9 @@
 						</div>
 						<div class="col-lg-2">
 							<div class="mb-3">
-								<button class="btn btn-primary w-100" type="submit">Generate Report</button>
+								<button class="btn btn-primary w-100 mb-2" type="submit">
+									<i class="ti ti-filter me-1"></i>Filter Report
+								</button>
 							</div>
 						</div>
 					</div>
@@ -142,77 +136,120 @@
 			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
 				<div>
 					<h4>Sales Report</h4>
+					{% if date_from or date_to or selected_product %}
+						<div class="d-flex align-items-center gap-2 mt-2">
+							<small class="text-muted">Filters applied:</small>
+							{% if date_from %}<span class="badge bg-info">From: {{ date_from }}</span>{% endif %}
+							{% if date_to %}<span class="badge bg-info">To: {{ date_to }}</span>{% endif %}
+							{% if selected_product %}
+								{% for product in products %}
+									{% if product.id|stringformat:"s" == selected_product %}
+										<span class="badge bg-success">Product: {{ product.product_name }}</span>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+						</div>
+					{% endif %}
 				</div>
-				<ul class="table-top-head">
-					<li class="me-2">
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
-								src="{% static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
-					</li>
-					<li class="me-2">
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"><img
-								src="{% static 'assets/img/icons/excel.svg' %}" alt="img"></a>
-					</li>
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Print"><i
-								class="ti ti-printer"></i></a>
-					</li>
-				</ul>
+				<div class="d-flex align-items-center gap-2">
+					<span class="text-muted me-2">Export:</span>
+					<ul class="table-top-head mb-0">
+						<li class="me-2">
+							<a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" onclick="alert('PDF export feature coming soon!')">
+								<img src="{% static 'assets/img/icons/pdf.svg' %}" alt="PDF">
+							</a>
+						</li>
+						<li class="me-2">
+							<a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel" onclick="alert('Excel export feature coming soon!')">
+								<img src="{% static 'assets/img/icons/excel.svg' %}" alt="Excel">
+							</a>
+						</li>
+						<li>
+							<a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Report" onclick="window.print()">
+								<i class="ti ti-printer"></i>
+							</a>
+						</li>
+					</ul>
+				</div>
 			</div>
 			<div class="card-body p-0">
 				<div class="table-responsive">
 					<table class="table datatable">
 						<thead class="thead-light">
 							<tr>
-								<th>SKU</th>
-								<th>Product Name</th>
-								<th>Brand</th>
+								<th>Sale Ref</th>
+								<th>Product</th>
+								<th>Customer</th>
 								<th>Category</th>
-								<th>Payment Mode</th>
-								<th>Sold Qty</th>
-								<th>Sold Amount</th>
+								<th>Qty Sold</th>
+								<th>Unit Price</th>
+								<th>Discount</th>
+								<th>Item Total</th>
+								<th>Sale Date</th>
 							</tr>
 						</thead>
 						<tbody>
-
-							{% for sale in sold_item %}
+							{% for item in sales_items %}
 							<tr>
 								<td>
-									<a>{{ sale.items.first.product.product_sku }}</a>
+									<span class="badge bg-primary">{{ item.sale.reference }}</span>
 								</td>
 								<td>
 									<div class="d-flex align-items-center">
-										<a class="avatar avatar-md">
-											{% if sale.items.first.product.product_image %}
-												<img src="{{ sale.items.first.product.product_image.url }}" class="img-fluid" alt="img">
+										<a class="avatar avatar-md me-2">
+											{% if item.product.product_image %}
+												<img src="{{ item.product.product_image.url }}" class="img-fluid" alt="img">
 											{% else %}
-												<img src="{% static 'assets/img/products/default.png' %}" class="img-fluid" alt="">
+												<img src="{% static 'assets/img/products/product1.jpg' %}" class="img-fluid" alt="">
 											{% endif %}
 										</a>
-										<div class="ms-2">
-											<p class="text-dark mb-0"><a>{{ sale.items.first.product.product_name }}</a></p>
+										<div>
+											<p class="text-dark mb-0 fw-medium">{{ item.product.product_name }}</p>
+											<small class="text-muted">{{ item.product.product_sku }}</small>
 										</div>
 									</div>
 								</td>
 								<td>
-									{{ sale.items.first.product.product_brand }}
+									<div>
+										<p class="mb-0">{{ item.sale.customer.first_name }} {{ item.sale.customer.last_name }}</p>
+									</div>
 								</td>
 								<td>
-									{{ sale.items.first.product.product_category }}
+									<span class="badge bg-light text-dark">{{ item.product.product_category.category_name }}</span>
 								</td>
 								<td>
-									{{ sale.payment_mode }}
+									<span class="fw-medium">{{ item.quantity }}</span>
 								</td>
 								<td>
-									{{ sale.items.first.quantity }}
+									<span class="text-success fw-medium">GHC{{ item.unit_price|floatformat:2 }}</span>
 								</td>
 								<td>
-									GHC{{ sale.total_amount }}
+									{% if item.discount > 0 %}
+										<span class="text-warning">-GHC{{ item.discount|floatformat:2 }}</span>
+									{% else %}
+										<span class="text-muted">-</span>
+									{% endif %}
+								</td>
+								<td>
+									<span class="fw-bold text-primary">GHC{{ item.total|floatformat:2 }}</span>
+								</td>
+								<td>
+									<div>
+										<p class="mb-0">{{ item.sale.sale_date|date:"d M Y" }}</p>
+										<small class="text-muted">{{ item.sale.sale_date|time:"H:i" }}</small>
+									</div>
 								</td>
 							</tr>
 							{% empty %}
-							<tr><td colspan="7" class="text-center">No sales found.</td></tr>
+							<tr>
+								<td colspan="9" class="text-center py-4">
+									<div class="d-flex flex-column align-items-center">
+										<i class="ti ti-chart-line fs-3 text-muted mb-2"></i>
+										<p class="mb-0 text-muted">No sales records found</p>
+									</div>
+								</td>
+							</tr>
 							{% endfor %}
-
 						</tbody>
 					</table>
 				</div>

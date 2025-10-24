@@ -33,15 +33,72 @@ def admin_dashboard(request):
 #----------------------------------
 @admin_only
 def salesReport(request):
+    from datetime import datetime, timedelta
+    from django.utils import timezone
+    
     products = Product.objects.all()
-    sold_item = Sales.objects.all()
-    selected_product = request.POST.get('product') if request.method == 'POST' else None
-    if selected_product:
-        sold_item = sold_item.filter(items__product_id=selected_product)
+    
+    # Get all sales items with related data for better performance
+    sales_items = SalesItem.objects.select_related(
+        'sale', 'sale__customer', 'product', 'product__product_category'
+    ).order_by('-sale__sale_date')
+    
+    # Initialize filter variables
+    selected_product = None
+    date_from = None
+    date_to = None
+    
+    # Apply filters if form is submitted
+    if request.method == 'POST':
+        selected_product = request.POST.get('product')
+        date_from = request.POST.get('date_from')
+        date_to = request.POST.get('date_to')
+        
+        # Filter by product if selected
+        if selected_product:
+            sales_items = sales_items.filter(product_id=selected_product)
+        
+        # Filter by date range if provided
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                sales_items = sales_items.filter(sale__sale_date__date__gte=date_from_obj)
+            except ValueError:
+                pass
+                
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                sales_items = sales_items.filter(sale__sale_date__date__lte=date_to_obj)
+            except ValueError:
+                pass
+    
+    # Calculate summary statistics
+    total_sales_amount = sales_items.aggregate(
+        total=Sum(F('quantity') * F('unit_price') - F('discount'), output_field=FloatField())
+    )['total'] or 0.0
+    
+    total_quantity_sold = sales_items.aggregate(total=Sum('quantity'))['total'] or 0
+    total_sales_count = sales_items.values('sale').distinct().count()
+    
+    # Calculate average sale value per transaction (not per item)
+    avg_sale_value = 0
+    if total_sales_count > 0:
+        sale_totals = sales_items.values('sale').annotate(
+            sale_total=Sum(F('quantity') * F('unit_price') - F('discount'), output_field=FloatField())
+        ).aggregate(avg_total=Sum('sale_total'))
+        avg_sale_value = (sale_totals['avg_total'] or 0) / total_sales_count
+    
     context = {
-        'sold_item': sold_item,
+        'sales_items': sales_items,
         'products': products,
         'selected_product': selected_product,
+        'date_from': date_from,
+        'date_to': date_to,
+        'total_sales_amount': total_sales_amount,
+        'total_quantity_sold': total_quantity_sold,
+        'total_sales_count': total_sales_count,
+        'avg_sale_value': avg_sale_value,
     }
     return render(request,'screens/administrator/sales-report.html', context)
 
@@ -779,6 +836,6 @@ def addSales(request):
         'isSalesPerson':isSalesPerson,
     })
 
-# notification
-def create_notification(user, message):
-    raise NotImplementedError
+#----------------------------------
+# SALES REPORT
+#----------------------------------
