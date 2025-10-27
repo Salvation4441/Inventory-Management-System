@@ -17,7 +17,7 @@ class CategoryAdmin(admin.ModelAdmin):
 # --------------------------
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'product_sku', 'product_category', 'product_quantity', 'product_selling_price', 'product_buying_price', 'product_discount')
+    list_display = ('product_name', 'product_sku', 'product_category', 'product_quantity', 'product_selling_price', 'product_cost_price', 'product_discount')
     list_filter = ('product_category', 'manufacture_date', 'expiry_date')
     search_fields = ('product_name', 'product_sku', 'product_brand')
     readonly_fields = ('product_sku', 'created_at', 'updated_at')
@@ -42,7 +42,7 @@ class SalesItemInline(admin.TabularInline):
     model = SalesItem
     extra = 1  # allows one blank line for adding new items
     readonly_fields = ('unit_price','total',)
-    fields = ('product', 'quantity', 'unit_price', 'discount', 'total')
+    fields = ('product', 'quantity', 'selling_price', 'unit_price', 'discount', 'total')
     
     def get_readonly_fields(self, request, obj=None):
         # Allow editing only quantity and discount; others auto-filled

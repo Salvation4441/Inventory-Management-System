@@ -9,90 +9,28 @@
 				<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
 					<div class="mb-3">
 						<h1 class="mb-1">Welcome, {{user.first_name|upper}} {{user.last_name|upper}}</h1>
-						<p class="fw-medium">You have <span class="text-primary fw-bold">200+</span> Orders, Today</p>
+						<p class="fw-medium">You have <span class="text-primary fw-bold">{{ todays_orders }}+</span> Orders, Today</p>
+						<small class="text-muted">Showing data for: <span class="fw-semibold text-info">{{ date_range }}</span></small>
 					</div>
 					<div class="input-icon-start position-relative mb-3">
 						<span class="input-icon-addon fs-16 text-gray-9">
 							<i class="ti ti-calendar"></i>
 						</span>
-						<input type="text" class="form-control date-range bookingrange" placeholder="Search Product">
+						<input type="text" class="form-control date-range bookingrange" placeholder="Select Date Range" value="{{ start_date|date:'Y-m-d' }} to {{ end_date|date:'Y-m-d' }}">
 					</div>
 				</div>
 
+				{% if critical_stock_product %}
 				<div class="alert bg-orange-transparent alert-dismissible fade show mb-4">
 					<div>
-						<span><i class="ti ti-info-circle fs-14 text-orange me-2"></i>Your Product </span> <span class="text-orange fw-semibold"> Apple Iphone 15 is running Low, </span> already below 5 Pcs., <a href="javascript:void(0);" class="link-orange text-decoration-underline fw-semibold" data-bs-toggle="modal" data-bs-target="#add-stock">Add Stock</a>
+						<span><i class="ti ti-info-circle fs-14 text-orange me-2"></i>Your Product </span> 
+						<span class="text-orange fw-semibold">{{ critical_stock_product.product_name }} is running Low, </span> 
+						only {{ critical_stock_product.product_quantity }} left, 
+						<a href="{% url 'manage-stocks' %}" class="link-orange text-decoration-underline fw-semibold">Add Stock</a>
 					</div>
 					<button type="button" class="btn-close text-gray-9 fs-14" data-bs-dismiss="alert" aria-label="Close"><i class="ti ti-x"></i></button>
 				</div>
-
-				<!-- <div class="row">
-					<div class="col-xl-3 col-sm-6 col-12 d-flex">
-						<div class="card bg-primary sale-widget flex-fill">
-							<div class="card-body d-flex align-items-center">
-								<span class="sale-icon bg-white text-primary">
-									<i class="ti ti-file-text fs-24"></i>
-								</span>
-								<div class="ms-2">
-									<p class="text-white mb-1">Total Sales</p>
-									<div class="d-inline-flex align-items-center flex-wrap gap-2">
-										<h4 class="text-white">$48,988,078</h4>
-										<span class="badge badge-soft-primary"><i class="ti ti-arrow-up me-1"></i>+22%</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-xl-3 col-sm-6 col-12 d-flex">
-						<div class="card bg-secondary sale-widget flex-fill">
-							<div class="card-body d-flex align-items-center">
-								<span class="sale-icon bg-white text-secondary">
-									<i class="ti ti-repeat fs-24"></i>
-								</span>
-								<div class="ms-2">
-									<p class="text-white mb-1">Total Profit</p>
-									<div class="d-inline-flex align-items-center flex-wrap gap-2">
-										<h4 class="text-white">$16,478,145</h4>
-										<span class="badge badge-soft-danger"><i class="ti ti-arrow-down me-1"></i>-22%</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-xl-3 col-sm-6 col-12 d-flex">
-						<div class="card bg-teal sale-widget flex-fill">
-							<div class="card-body d-flex align-items-center">
-								<span class="sale-icon bg-white text-teal">
-									<i class="ti ti-gift fs-24"></i>
-								</span>
-								<div class="ms-2">
-									<p class="text-white mb-1">Total Purchase</p>
-									<div class="d-inline-flex align-items-center flex-wrap gap-2">
-										<h4 class="text-white">$24,145,789</h4>
-										<span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-xl-3 col-sm-6 col-12 d-flex">
-						<div class="card bg-info sale-widget flex-fill">
-							<div class="card-body d-flex align-items-center">
-								<span class="sale-icon bg-white text-info">
-									<i class="ti ti-brand-pocket fs-24"></i>
-								</span>
-								<div class="ms-2">
-									<p class="text-white mb-1">Total Purchase Return</p>
-									<div class="d-inline-flex align-items-center flex-wrap gap-2">
-										<h4 class="text-white">$18,458,747</h4>
-										<span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div> -->
-
+				{% endif %}
 				
 				<div class="row">
 
@@ -102,7 +40,7 @@
 							<div class="card-body">
 								<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
 									<div>
-										<h4 class="mb-1">$8,458,798</h4>
+										<h4 class="mb-1">GHC {{ total_profit|floatformat:2 }}</h4>
 										<p>Total Profit</p>
 									</div>
 									<span class="revenue-icon bg-cyan-transparent text-cyan">
@@ -110,7 +48,11 @@
 									</span>
 								</div>
 								<div class="d-flex align-items-center justify-content-between">
-									<p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
+									<p class="mb-0">
+										<span class="fs-13 fw-bold text-info">
+											{{ profit_margin_percentage|floatformat:1 }}% Margin
+										</span> on GHC {{ total_revenue|floatformat:0 }}
+									</p>
 									<a href="{%url 'profit-and-loss'%}" class="text-decoration-underline fs-13 fw-medium">View All</a>
 								</div>
 							</div>
@@ -124,7 +66,7 @@
 							<div class="card-body">
 								<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
 									<div>
-										<h4 class="mb-1">$48,988,78</h4>
+										<h4 class="mb-1">GHC {{ total_sales|floatformat:2 }}</h4>
 										<p>Total Sales</p>
 									</div>
 									<span class="revenue-icon bg-teal-transparent text-teal">
@@ -132,35 +74,43 @@
 									</span>
 								</div>
 								<div class="d-flex align-items-center justify-content-between">
-									<p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
-									<a href="" class="text-decoration-underline fs-13 fw-medium">View All</a>
+									<p class="mb-0">
+										<span class="fs-13 fw-bold {% if sales_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+											{% if sales_growth >= 0 %}+{% endif %}{{ sales_growth|floatformat:1 }}%
+										</span> vs Last Month
+									</p>
+									<a href="{% url 'sales-report' %}" class="text-decoration-underline fs-13 fw-medium">View All</a>
 								</div>
 							</div>
 						</div>
 					</div>
 					<!-- /Invoice -->
 
-					<!-- Expenses -->
+					<!-- Profit Margin -->
 					<div class="col-xl-3 col-sm-6 col-12 d-flex">
 						<div class="card revenue-widget flex-fill">
 							<div class="card-body">
 								<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
 									<div>
-										<h4 class="mb-1">$8,980,097</h4>
-										<p>Total Expenses</p>
+										<h4 class="mb-1">{{ profit_margin_percentage|floatformat:1 }}%</h4>
+										<p>Profit Margin</p>
 									</div>
 									<span class="revenue-icon bg-orange-transparent text-orange">
-										<i class="ti ti-lifebuoy fs-16"></i>
+										<i class="ti ti-percentage fs-16"></i>
 									</span>
 								</div>
 								<div class="d-flex align-items-center justify-content-between">
-									<p class="mb-0"><span class="fs-13 fw-bold text-success">+41%</span> vs Last Month</p>
-									<a href="expense-list.html" class="text-decoration-underline fs-13 fw-medium">View All</a>
+									<p class="mb-0">
+										<span class="fs-13 fw-bold {% if profit_margin_percentage >= 20 %}text-success{% elif profit_margin_percentage >= 10 %}text-warning{% else %}text-danger{% endif %}">
+											{% if profit_margin_percentage >= 30 %}Excellent{% elif profit_margin_percentage >= 20 %}Good{% elif profit_margin_percentage >= 10 %}Average{% else %}Low{% endif %}
+										</span> Performance
+									</p>
+									<a href="{% url 'profit-and-loss' %}" class="text-decoration-underline fs-13 fw-medium">View Details</a>
 								</div>
 							</div>
 						</div>
 					</div>
-					<!-- /Expenses -->
+					<!-- /Profit Margin -->
 
 					<!-- Returns -->
 					<div class="col-xl-3 col-sm-6 col-12 d-flex">
@@ -168,16 +118,16 @@
 							<div class="card-body">
 								<div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
 									<div>
-										<h4 class="mb-1">$78,458,798</h4>
-										<p>Total Payment Returns</p>
+										<h4 class="mb-1">{{ total_orders }}</h4>
+										<p>Total Orders</p>
 									</div>
 									<span class="revenue-icon bg-indigo-transparent text-indigo">
-										<i class="ti ti-hash fs-16"></i>
+										<i class="ti ti-shopping-cart fs-16"></i>
 									</span>
 								</div>
 								<div class="d-flex align-items-center justify-content-between">
-									<p class="mb-0"><span class="fs-13 fw-bold text-danger">-20%</span> vs Last Month</p>
-									<a href="sales-report.html" class="text-decoration-underline fs-13 fw-medium">View All</a>
+									<p class="mb-0"><span class="fs-13 fw-bold text-info">{{ total_customers }} Customers</span></p>
+									<a href="{% url 'sales' %}" class="text-decoration-underline fs-13 fw-medium">View All</a>
 								</div>
 							</div>
 						</div>
@@ -198,193 +148,146 @@
 								</div>
 								<div class="dropdown">
 									<a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="ti ti-calendar me-1"></i>Today
+										<i class="ti ti-calendar me-1"></i>Last 30 Days
 									</a>
 									<ul class="dropdown-menu p-3">
 										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Today</a>
+											<span class="dropdown-item-text text-muted fs-12">
+												{{ month_ago|date:"M d" }} - {{ today|date:"M d, Y" }}
+											</span>
 										</li>
 										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Weekly</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Monthly</a>
+											<span class="dropdown-item-text text-success fs-12">
+												<i class="ti ti-refresh me-1"></i>Auto-updated daily
+											</span>
 										</li>
 									</ul>
 								</div>
 							</div>
 							<div class="card-body sell-product">
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-01.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Charger Cable - Lighting</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$187</p>
-												<p>247+ Sales</p>
+								<div class="top-selling-container" style="max-height: 320px; overflow-y: auto;">
+									{% for product in top_selling_products|slice:":4" %}
+									<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3">
+										<div class="d-flex align-items-center">
+											<a href="{% url 'productDetails' product.id %}" class="avatar avatar-lg">
+												{% if product.product_image %}
+													<img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+												{% else %}
+													<div class="bg-light d-flex align-items-center justify-content-center h-100">
+														<i class="ti ti-package text-muted"></i>
+													</div>
+												{% endif %}
+											</a>
+											<div class="ms-2">
+												<h6 class="fw-bold mb-1"><a href="{% url 'productDetails' product.id %}">{{ product.product_name }}</a></h6>
+												<div class="d-flex align-items-center item-list">			
+													<p>GHC {{ product.product_selling_price }}</p>
+													<p>{{ product.recent_sold|default:0 }} Recent Sales</p>
+												</div>
 											</div>
 										</div>
+										<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center">
+											<i class="ti ti-trending-up me-1"></i>Top
+										</span>
 									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-16.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Yves Saint Eau De Parfum</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$145</p>
-												<p>289+ Sales</p>
-											</div>
+									{% empty %}
+									<div class="text-center py-4">
+										<div class="avatar avatar-lg bg-light mx-auto mb-2">
+											<i class="ti ti-trending-down text-muted"></i>
 										</div>
+										<p class="text-muted mb-1">No products sold recently</p>
+										<small class="text-muted">No sales from {{ month_ago|date:"M d" }} - {{ today|date:"M d" }}</small>
 									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-03.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Apple Airpods 2</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$458</p>
-												<p>300+ Sales</p>
-											</div>
-										</div>
+									{% endfor %}
+									
+									{% if top_selling_products|length > 4 %}
+									<div class="text-center pt-2">
+										<small class="text-muted">+{{ top_selling_products|length|add:"-4" }} more products</small>
 									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-04.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Vacuum Cleaner</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$139</p>
-												<p>225+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-danger badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-down-left me-1"></i>21%</span>
-								</div>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-05.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Samsung Galaxy S21 Fe 5g</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>$898</p>
-												<p>365+ Sales</p>
-											</div>
-										</div>
-									</div>
-									<span class="badge bg-outline-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
+									{% endif %}
 								</div>
 							</div>
 						</div>
 					</div>
 					<!-- /Top Selling Products -->
 
-
-					<!-- Low Stock Products -->
-					<div class="col-xxl-4 col-md-6 d-flex">
+	<!-- Recent Sales -->
+					<div class="col-xxl-4 col-md-12 d-flex">
 						<div class="card flex-fill">
 							<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
 								<div class="d-inline-flex align-items-center">
-									<span class="title-icon bg-soft-danger fs-16 me-2"><i class="ti ti-alert-triangle"></i></span>
-									<h5 class="card-title mb-0">Low Stock Products</h5>
-								</div>								
-								<a href="low-stocks.html" class="fs-13 fw-medium text-decoration-underline">View All</a>
+									<span class="title-icon bg-soft-pink fs-16 me-2"><i class="ti ti-box"></i></span>
+									<h5 class="card-title mb-0">Recent Sales</h5>
+								</div>
+								<div class="dropdown">
+									<a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white"  data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="ti ti-calendar me-1"></i>Last 7 Days
+									</a>
+									<ul class="dropdown-menu p-3">
+										<li>
+											<span class="dropdown-item-text text-muted fs-12">
+												{{ week_ago|date:"M d" }} - {{ today|date:"M d, Y" }}
+											</span>
+										</li>
+										<li>
+											<span class="dropdown-item-text text-success fs-12">
+												<i class="ti ti-refresh me-1"></i>Auto-updated daily
+											</span>
+										</li>
+									</ul>
+								</div>
 							</div>
 							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-06.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Dell XPS 13</a></h6>
-											<p class="fs-13">ID : #665814</p>
+								<div class="recent-sales-container" style="max-height: 320px; overflow-y: auto;">
+									{% for sale in recent_sales|slice:":4" %}
+									<div class="d-flex align-items-center justify-content-between mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
+										<div class="d-flex align-items-center">
+											<div class="avatar avatar-lg bg-success text-white">
+												<i class="ti ti-receipt"></i>
+											</div>
+											<div class="ms-2">
+												<h6 class="fw-bold mb-1">
+													<a href="javascript:void(0);">{{ sale.reference }}</a>
+												</h6>
+												<div class="d-flex align-items-center item-list">			
+													<p>{{ sale.customer.first_name }} {{ sale.customer.last_name }}</p>
+													<p class="text-gray-9">GHC {{ sale.total_amount|floatformat:2 }}</p>
+												</div>
+											</div>
 										</div>
+										<div class="text-end">
+											<p class="fs-13 mb-1">
+												{% if sale.sale_date.date == today %}
+													Today {{ sale.sale_date|date:"H:i" }}
+												{% else %}
+													{{ sale.sale_date|timesince }} ago
+												{% endif %}
+											</p>
+											<span class="badge {% if sale.status == 'Completed' %}bg-success{% else %}bg-warning{% endif %} badge-xs d-inline-flex align-items-center">
+												<i class="ti ti-circle-filled fs-5 me-1"></i>{{ sale.status }}
+											</span>
+										</div>									
 									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Instock</p>
-										<h6 class="text-orange fw-medium">08</h6>
-									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-07.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Vacuum Cleaner Robot</a></h6>
-											<p class="fs-13">ID : #940004</p>
+									{% empty %}
+									<div class="text-center py-4">
+										<div class="avatar avatar-lg bg-light mx-auto mb-2">
+											<i class="ti ti-calendar-x text-muted"></i>
 										</div>
+										<p class="text-muted mb-1">No sales in the last 7 days</p>
+										<small class="text-muted">Sales from {{ week_ago|date:"M d" }} - {{ today|date:"M d" }}</small>
 									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Instock</p>
-										<h6 class="text-orange fw-medium">14</h6>
+									{% endfor %}
+									
+									{% if recent_sales|length > 4 %}
+									<div class="text-center pt-2">
+										<small class="text-muted">+{{ recent_sales|length|add:"-4" }} more sales</small>
 									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-08.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">KitchenAid Stand Mixer</a></h6>
-											<p class="fs-13">ID : #325569</p>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Instock</p>
-										<h6 class="text-orange fw-medium">21</h6>
-									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-09.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Levi's Trucker Jacket</a></h6>
-											<p class="fs-13">ID : #124588</p>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Instock</p>
-										<h6 class="text-orange fw-medium">12</h6>
-									</div>
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-0">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-10.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Lay's Classic</a></h6>
-											<p class="fs-13">ID : #365586</p>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Instock</p>
-										<h6 class="text-orange fw-medium">10</h6>
-									</div>
+									{% endif %}
 								</div>
 							</div>
 						</div>
 					</div>
-					<!-- Low Stock Products -->
+					<!-- /Recent Sales -->
 
 					<!-- Overall Information -->
 					<div class="col-xxl-4 col-xl-5 d-flex">
@@ -400,10 +303,10 @@
 									<div class="col-md-4">
 										<div class="info-item border bg-light p-3 text-center">
 											<div class="mb-2 text-info fs-24">
-												<i class="ti ti-user-check"></i>
+												<i class="ti ti-package"></i>
 											</div>
-											<p class="mb-1">Suppliers</p>
-											<h5>6987</h5>
+											<p class="mb-1">Products</p>
+											<h5>{{ total_products }}</h5>
 										</div>
 									</div>
 									<div class="col-md-4">
@@ -411,8 +314,8 @@
 											<div class="mb-2 text-orange fs-24">
 												<i class="ti ti-users"></i>
 											</div>
-											<p class="mb-1">Customer</p>
-											<h5>4896</h5>
+											<p class="mb-1">Customers</p>
+											<h5>{{ total_customers }}</h5>
 										</div>
 									</div>
 									<div class="col-md-4">
@@ -421,7 +324,7 @@
 												<i class="ti ti-shopping-cart"></i>
 											</div>
 											<p class="mb-1">Orders</p>
-											<h5>487</h5>
+											<h5>{{ total_orders }}</h5>
 										</div>
 									</div>
 								</div>
@@ -474,297 +377,476 @@
 					</div>
 				</div>
 
-				<div class="row">
-					<!-- Top Customers -->
-					<div class="col-xxl-4 col-md-6 d-flex">
-						<div class="card flex-fill">
-							<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-								<div class="d-inline-flex align-items-center">
-									<span class="title-icon bg-soft-orange fs-16 me-2"><i class="ti ti-users"></i></span>
-									<h5 class="card-title mb-0">Top Customers</h5>
-								</div>								
-								<a href="customers.html" class="fs-13 fw-medium text-decoration-underline">View All</a>
-							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="assets/img/customer/customer11.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Carlos Curran</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>USA</p>
-												<p>24 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$8,9645</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="assets/img/customer/customer12.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Stan Gaunter</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>UAE</p>
-												<p>22 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$16,985</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="assets/img/customer/customer13.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Richard Wilson</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Germany</p>
-												<p>14 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$5,366</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between border-bottom mb-3 pb-3 flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="assets/img/customer/customer14.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Mary Bronson</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Belgium</p>
-												<p>08 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$4,569</h5>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg flex-shrink-0">
-											<img src="assets/img/customer/customer15.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fs-14 fw-bold mb-1"><a href="javascript:void(0);">Annie Tremblay</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p class="d-inline-flex align-items-center"><i class="ti ti-map-pin me-1"></i>Greenland</p>
-												<p>14 Orders</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<h5>$3,5698</h5>
-									</div>									
-								</div>
-							</div>
-						</div>
-					</div>	
-					<!-- /Top Customers -->
-
-					<!-- Recent Sales -->
-					<div class="col-xxl-4 col-md-12 d-flex">
-						<div class="card flex-fill">
-							<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-								<div class="d-inline-flex align-items-center">
-									<span class="title-icon bg-soft-pink fs-16 me-2"><i class="ti ti-box"></i></span>
-									<h5 class="card-title mb-0">Recent Sales</h5>
-								</div>
-								<div class="dropdown">
-									<a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white"  data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="ti ti-calendar me-1"></i>Weekly
-									</a>
-									<ul class="dropdown-menu p-3">
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Today</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Weekly</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Monthly</a>
-										</li>
-									</ul>
-								</div>
-							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-11.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Apple Watch Series 9</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>Electronics</p>
-												<p class="text-gray-9">$640</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Today</p>
-										<span class="badge bg-purple badge-xs d-inline-flex align-items-center"><i class="ti ti-circle-filled fs-5 me-1"></i>Processing</span>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-12.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Gold Bracelet</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>Fashion</p>
-												<p class="text-gray-9">$126</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">Today</p>
-										<span class="badge badge-danger badge-xs d-inline-flex align-items-center"><i class="ti ti-circle-filled fs-5 me-1"></i>Cancelled</span>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-13.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Parachute Down Duvet</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>Health</p>
-												<p class="text-gray-9">$69</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">15 Jan 2025</p>
-										<span class="badge badge-cyan badge-xs d-inline-flex align-items-center"><i class="ti ti-circle-filled fs-5 me-1"></i>Onhold</span>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-14.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">YETI Rambler Tumbler</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>Sports</p>
-												<p class="text-gray-9">$65</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">12 Jan 2025</p>
-										<span class="badge bg-purple badge-xs d-inline-flex align-items-center"><i class="ti ti-circle-filled fs-5 me-1"></i>Processing</span>
-									</div>									
-								</div>
-								<div class="d-flex align-items-center justify-content-between mb-0">
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-lg">
-											<img src="assets/img/products/product-15.jpg" alt="img">
-										</a>
-										<div class="ms-2">
-											<h6 class="fw-bold mb-1"><a href="javascript:void(0);">Osmo Genius Starter Kit</a></h6>
-											<div class="d-flex align-items-center item-list">			
-												<p>Lifestyles</p>
-												<p class="text-gray-9">$87.56</p>
-											</div>
-										</div>
-									</div>
-									<div class="text-end">
-										<p class="fs-13 mb-1">11 Jan 2025</p>
-										<span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="ti ti-circle-filled fs-5 me-1"></i>Completed</span>
-									</div>									
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- /Recent Sales -->
-
-					<!-- Top Categories -->
-					<div class="col-xxl-4 col-md-6 d-flex">
-						<div class="card flex-fill">
-							<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-								<div class="d-inline-flex align-items-center">
-									<span class="title-icon bg-soft-orange fs-16 me-2"><i class="ti ti-users"></i></span>
-									<h5 class="card-title mb-0">Top Categories</h5>
-								</div>
-								<div class="dropdown">
-									<a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="ti ti-calendar me-1"></i>Weekly
-									</a>
-									<ul class="dropdown-menu p-3">
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Today</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Weekly</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item">Monthly</a>
-										</li>
-									</ul>
-								</div>
-							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-4 mb-4">
-									<div>
-										<canvas id="top-category" height="230" width="200"></canvas>
-									</div>
-									<div>
-										<div class="category-item category-primary">
-											<p class="fs-13 mb-1">Electronics</p>
-											<h2 class="d-flex align-items-center">698<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-										<div class="category-item category-orange">
-											<p class="fs-13 mb-1">Sports</p>
-											<h2 class="d-flex align-items-center">545<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-										<div class="category-item category-secondary">
-											<p class="fs-13 mb-1">Lifestyles</p>
-											<h2 class="d-flex align-items-center">456<span class="fs-13 fw-normal text-default ms-1">Sales</span></h2>
-										</div>
-									</div>
-								</div>
-								<h6 class="mb-2">Category Statistics</h6>
-								<div class="border br-8">
-									<div class="d-flex align-items-center justify-content-between border-bottom p-2">
-										<p class="d-inline-flex align-items-center mb-0"><i class="ti ti-square-rounded-filled text-indigo fs-8 me-2"></i>Total Number Of Categories</p>
-										<h5>698</h5>
-									</div>
-									<div class="d-flex align-items-center justify-content-between p-2">
-										<p class="d-inline-flex align-items-center mb-0"><i class="ti ti-square-rounded-filled text-orange fs-8 me-2"></i>Total Number Of Products</p>
-										<h5>7899</h5>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- /Top Categories -->
-					
-
-				</div>
-
 			</div>
 	
 		</div>
 
         <!-- Main wrapper -->
+
+		<!-- Custom CSS for overflow containers -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const dateRangePicker = document.querySelector('.date-range.bookingrange');
+				
+				// Initialize the date range picker (assuming you're using a date range picker library)
+				if (dateRangePicker) {
+					// Update placeholder text
+					dateRangePicker.placeholder = "Select Date Range";
+					
+					// Set default value to current date range
+					const startDate = '{{ start_date|date:"Y-m-d" }}';
+					const endDate = '{{ end_date|date:"Y-m-d" }}';
+					const currentRange = `${startDate} to ${endDate}`;
+					dateRangePicker.value = currentRange;
+					
+					// Auto-update dashboard when date range is selected
+					dateRangePicker.addEventListener('change', function() {
+						updateDashboardData(this.value);
+					});
+					
+					// If using a date picker library like daterangepicker
+					if (typeof $ !== 'undefined' && $.fn.daterangepicker) {
+						$(dateRangePicker).daterangepicker({
+							startDate: moment('{{ start_date|date:"Y-m-d" }}'),
+							endDate: moment('{{ end_date|date:"Y-m-d" }}'),
+							ranges: {
+								'Today': [moment(), moment()],
+								'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+								'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+								'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+								'This Month': [moment().startOf('month'), moment().endOf('month')],
+								'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+							},
+							locale: {
+								format: 'YYYY-MM-DD'
+							},
+							autoApply: true,
+							autoUpdateInput: true
+						}, function(start, end, label) {
+							// Update dashboard immediately when date range is selected
+							console.log('Date range selected:', start.format('YYYY-MM-DD'), 'to', end.format('YYYY-MM-DD'));
+							updateDashboardData(null, start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+						});
+						
+						// Also handle apply event for manual date selection
+						$(dateRangePicker).on('apply.daterangepicker', function(ev, picker) {
+							const startDate = picker.startDate.format('YYYY-MM-DD');
+							const endDate = picker.endDate.format('YYYY-MM-DD');
+							console.log('Date range applied:', startDate, 'to', endDate);
+							updateDashboardData(null, startDate, endDate);
+						});
+					} else {
+						// Fallback for manual input without date picker library
+						dateRangePicker.addEventListener('blur', function() {
+							if (this.value) {
+								updateDashboardData(this.value);
+							}
+						});
+						
+						// Also listen for Enter key
+						dateRangePicker.addEventListener('keypress', function(e) {
+							if (e.key === 'Enter' && this.value) {
+								updateDashboardData(this.value);
+							}
+						});
+					}
+				}
+				
+				function updateDashboardData(dateRange, startDate = null, endDate = null) {
+					// Show loading state
+					showLoadingState();
+					
+					// Parse date range if provided
+					if (dateRange && !startDate && !endDate) {
+						const dates = parseDateRange(dateRange);
+						startDate = dates.start;
+						endDate = dates.end;
+					}
+					
+					// Validate dates
+					if (!startDate || !endDate) {
+						console.error('Invalid date range selected');
+						hideLoadingState();
+						return;
+					}
+					
+					// Update URL parameters without reload (for browser history)
+					const url = new URL(window.location.href);
+					url.searchParams.set('start_date', startDate);
+					url.searchParams.set('end_date', endDate);
+					history.pushState({}, '', url.toString());
+					
+					// Make AJAX request for updated data
+					fetchDashboardData(startDate, endDate);
+				}
+				
+				function fetchDashboardData(startDate, endDate) {
+					const url = new URL(window.location.href);
+					url.searchParams.set('start_date', startDate);
+					url.searchParams.set('end_date', endDate);
+					url.searchParams.set('ajax', '1'); // Flag for AJAX request
+					
+					fetch(url.toString())
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('Network response was not ok');
+							}
+							return response.json();
+						})
+						.then(data => {
+							if (data.success) {
+								// Update dashboard cards with new data
+								updateDashboardCardsFromJSON(data.data);
+								
+								// Update HTML sections if provided
+								if (data.html) {
+									if (data.html.top_selling_products) {
+										updateTopSellingProductsFromHTML(data.html.top_selling_products);
+									}
+									if (data.html.recent_sales) {
+										updateRecentSalesFromHTML(data.html.recent_sales);
+									}
+								}
+								
+								// Update date range display
+								updateDateRangeDisplay(data.data.start_date, data.data.end_date);
+								
+								console.log('Dashboard updated successfully');
+							} else {
+								throw new Error('Server returned error response');
+							}
+							
+							hideLoadingState();
+						})
+						.catch(error => {
+							console.error('Error fetching dashboard data:', error);
+							// Fallback to full page reload if AJAX fails
+							const fallbackUrl = url.toString().replace('&ajax=1', '').replace('?ajax=1', '');
+							window.location.href = fallbackUrl;
+						});
+				}
+				
+				function updateDashboardCardsFromJSON(data) {
+					// Update financial metric cards with JSON data
+					const cards = document.querySelectorAll('.revenue-widget');
+					
+					// Update Total Profit card (first card)
+					if (cards[0]) {
+						const h4 = cards[0].querySelector('h4');
+						if (h4) h4.textContent = data.total_profit;
+					}
+					
+					// Update Total Sales card (second card)
+					if (cards[1]) {
+						const h4 = cards[1].querySelector('h4');
+						if (h4) h4.textContent = data.total_sales;
+						
+						// Update growth percentage
+						const growthSpan = cards[1].querySelector('.fs-13.fw-bold');
+						if (growthSpan) {
+							growthSpan.textContent = data.sales_growth;
+							// Update color based on growth
+							const growth = parseFloat(data.sales_growth);
+							growthSpan.className = growthSpan.className.replace(/text-(success|danger)/, '');
+							growthSpan.classList.add(growth >= 0 ? 'text-success' : 'text-danger');
+						}
+					}
+					
+					// Update Profit Margin card (third card)
+					if (cards[2]) {
+						const h4 = cards[2].querySelector('h4');
+						if (h4) h4.textContent = data.profit_margin_percentage;
+						
+						// Update performance indicator
+						const performanceSpan = cards[2].querySelector('.fs-13.fw-bold');
+						if (performanceSpan) {
+							const margin = parseFloat(data.profit_margin_percentage);
+							let performance = 'Low';
+							let colorClass = 'text-danger';
+							
+							if (margin >= 30) {
+								performance = 'Excellent';
+								colorClass = 'text-success';
+							} else if (margin >= 20) {
+								performance = 'Good';
+								colorClass = 'text-success';
+							} else if (margin >= 10) {
+								performance = 'Average';
+								colorClass = 'text-warning';
+							}
+							
+							performanceSpan.textContent = performance;
+							performanceSpan.className = performanceSpan.className.replace(/text-(success|warning|danger)/, '');
+							performanceSpan.classList.add(colorClass);
+						}
+					}
+					
+					// Update Total Orders card (fourth card)
+					if (cards[3]) {
+						const h4 = cards[3].querySelector('h4');
+						if (h4) h4.textContent = data.total_orders;
+						
+						// Update customers count
+						const customersSpan = cards[3].querySelector('.fs-13.fw-bold.text-info');
+						if (customersSpan) {
+							customersSpan.textContent = `${data.total_customers} Customers`;
+						}
+					}
+				}
+				
+				function updateTopSellingProductsFromHTML(html) {
+					const container = document.querySelector('.top-selling-container');
+					if (container && html) {
+						container.innerHTML = html;
+					}
+				}
+				
+				function updateRecentSalesFromHTML(html) {
+					const container = document.querySelector('.recent-sales-container');
+					if (container && html) {
+						container.innerHTML = html;
+					}
+				}
+				
+				// Fallback functions for non-AJAX updates
+				function updateTopSellingProducts(doc) {
+					const currentContainer = document.querySelector('.top-selling-container');
+					const newContainer = doc.querySelector('.top-selling-container');
+					
+					if (currentContainer && newContainer) {
+						currentContainer.innerHTML = newContainer.innerHTML;
+					}
+				}
+				
+				function updateRecentSales(doc) {
+					const currentContainer = document.querySelector('.recent-sales-container');
+					const newContainer = doc.querySelector('.recent-sales-container');
+					
+					if (currentContainer && newContainer) {
+						currentContainer.innerHTML = newContainer.innerHTML;
+					}
+				}
+				
+				function updateDateRangeDisplay(startDate, endDate) {
+					// Update the date range display in the header
+					const dateRangeDisplay = document.querySelector('.text-muted .text-info');
+					if (dateRangeDisplay) {
+						const start = new Date(startDate);
+						const end = new Date(endDate);
+						const formatOptions = { month: 'short', day: 'numeric' };
+						const startStr = start.toLocaleDateString('en-US', formatOptions);
+						const endStr = end.toLocaleDateString('en-US', { ...formatOptions, year: 'numeric' });
+						dateRangeDisplay.textContent = `${startStr} - ${endStr}`;
+					}
+					
+					// Show success notification
+					showSuccessNotification('Dashboard updated successfully');
+				}
+				
+				function showSuccessNotification(message) {
+					// Create and show a temporary success notification
+					const notification = document.createElement('div');
+					notification.className = 'alert alert-success alert-dismissible position-fixed';
+					notification.style.cssText = `
+						top: 20px;
+						right: 20px;
+						z-index: 9999;
+						min-width: 300px;
+						animation: slideInRight 0.3s ease-out;
+					`;
+					notification.innerHTML = `
+						<i class="ti ti-check-circle me-2"></i>${message}
+						<button type="button" class="btn-close" aria-label="Close"></button>
+					`;
+					
+					document.body.appendChild(notification);
+					
+					// Auto-remove after 3 seconds
+					setTimeout(() => {
+						notification.style.animation = 'slideOutRight 0.3s ease-out';
+						setTimeout(() => {
+							if (notification.parentNode) {
+								notification.parentNode.removeChild(notification);
+							}
+						}, 300);
+					}, 3000);
+					
+					// Allow manual close
+					const closeBtn = notification.querySelector('.btn-close');
+					closeBtn.addEventListener('click', () => {
+						notification.style.animation = 'slideOutRight 0.3s ease-out';
+						setTimeout(() => {
+							if (notification.parentNode) {
+								notification.parentNode.removeChild(notification);
+							}
+						}, 300);
+					});
+				}
+				}
+				
+				function parseDateRange(dateRange) {
+					// Handle common date range formats
+					const formats = [
+						/(\d{4}-\d{2}-\d{2})\s*to\s*(\d{4}-\d{2}-\d{2})/, // YYYY-MM-DD to YYYY-MM-DD
+						/(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/, // DD/MM/YYYY - DD/MM/YYYY
+						/(\d{2}-\d{2}-\d{4})\s*to\s*(\d{2}-\d{2}-\d{4})/ // DD-MM-YYYY to DD-MM-YYYY
+					];
+					
+					for (let format of formats) {
+						const match = dateRange.match(format);
+						if (match) {
+							let startDate = match[1];
+							let endDate = match[2];
+							
+							// Convert DD/MM/YYYY to YYYY-MM-DD if needed
+							if (startDate.includes('/')) {
+								const [day, month, year] = startDate.split('/');
+								startDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+							}
+							if (endDate.includes('/')) {
+								const [day, month, year] = endDate.split('/');
+								endDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+							}
+							
+							return { start: startDate, end: endDate };
+						}
+					}
+					
+					return { start: null, end: null };
+				}
+				
+				function showLoadingState() {
+					// Add loading overlay to dashboard cards
+					const containers = [
+						...document.querySelectorAll('.revenue-widget .card-body'),
+						...document.querySelectorAll('.top-selling-container'),
+						...document.querySelectorAll('.recent-sales-container')
+					];
+					
+					containers.forEach(container => {
+						if (!container.querySelector('.loading-overlay')) {
+							const overlay = document.createElement('div');
+							overlay.className = 'loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-90 rounded';
+							overlay.style.zIndex = '1000';
+							overlay.innerHTML = `
+								<div class="text-center">
+									<div class="spinner-border text-primary mb-2" role="status">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+									<p class="small text-muted mb-0">Updating data...</p>
+								</div>
+							`;
+							container.style.position = 'relative';
+							container.appendChild(overlay);
+						}
+					});
+					
+					// Add loading state to date range input
+					const dateInput = document.querySelector('.date-range.bookingrange');
+					if (dateInput) {
+						dateInput.disabled = true;
+						dateInput.style.opacity = '0.6';
+					}
+				}
+				
+				function hideLoadingState() {
+					// Remove loading overlays
+					document.querySelectorAll('.loading-overlay').forEach(overlay => {
+						overlay.remove();
+					});
+					
+					// Re-enable date range input
+					const dateInput = document.querySelector('.date-range.bookingrange');
+					if (dateInput) {
+						dateInput.disabled = false;
+						dateInput.style.opacity = '1';
+					}
+				}
+			});
+		</script>
+		
+		<style>
+			/* Animation keyframes for notifications */
+			@keyframes slideInRight {
+				from {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+				to {
+					transform: translateX(0);
+					opacity: 1;
+				}
+			}
+			
+			@keyframes slideOutRight {
+				from {
+					transform: translateX(0);
+					opacity: 1;
+				}
+				to {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+			}
+			
+			/* Loading overlay improvements */
+			.loading-overlay {
+				backdrop-filter: blur(1px);
+				border-radius: 0.375rem;
+			}
+			
+			.top-selling-container::-webkit-scrollbar,
+			.recent-sales-container::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			.top-selling-container::-webkit-scrollbar-track,
+			.recent-sales-container::-webkit-scrollbar-track {
+				background: #f1f1f1;
+				border-radius: 10px;
+			}
+
+			.top-selling-container::-webkit-scrollbar-thumb,
+			.recent-sales-container::-webkit-scrollbar-thumb {
+				background: #c1c1c1;
+				border-radius: 10px;
+			}
+
+			.top-selling-container::-webkit-scrollbar-thumb:hover,
+			.recent-sales-container::-webkit-scrollbar-thumb:hover {
+				background: #a8a8a8;
+			}
+
+			.top-selling-container,
+			.recent-sales-container {
+				scrollbar-width: thin;
+				scrollbar-color: #c1c1c1 #f1f1f1;
+			}
+
+			/* Smooth scrolling */
+			.top-selling-container,
+			.recent-sales-container {
+				scroll-behavior: smooth;
+			}
+
+			/* Fade effect at bottom to indicate more content */
+			.top-selling-container::after,
+			.recent-sales-container::after {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 20px;
+				background: linear-gradient(transparent, rgba(255,255,255,0.8));
+				pointer-events: none;
+			}
+
+			/* Container positioning for fade effect */
+			.card-body.sell-product,
+			.recent-sales-container {
+				position: relative;
+			}
+		</style>
 
     {% endblock %}

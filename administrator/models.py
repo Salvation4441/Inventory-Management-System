@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.core.exceptions import ValidationError
 from authentication.models import CustomUser
 from django.db.models import Sum, F, FloatField
 
@@ -32,7 +33,7 @@ class Product(models.Model):
     product_description = models.TextField(blank=True, null=True)
     product_quantity = models.PositiveIntegerField()
     product_selling_price = models.FloatField(help_text="How much the owner sells to customers")
-    product_buying_price = models.FloatField(help_text="How much the owner bought the product for")
+    product_cost_price = models.FloatField(help_text="How much the owner bought the product for")
     product_discount = models.FloatField(default=0.0, help_text="Discount per item")
     product_image = models.ImageField(upload_to='products/', blank=True, null=True)
     manufacture_name = models.CharField(max_length=100, blank=True, null=True)
@@ -75,9 +76,9 @@ class Product(models.Model):
 class Customer(models.Model):
     GENDER = [('Male', 'Male'), ('Female', 'Female')]
 
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.EmailField()
+    first_name = models.CharField(max_length=255,blank=True, null=True)
+    last_name = models.CharField(max_length=255,blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER, default='Male')
@@ -95,8 +96,8 @@ class Sales(models.Model):
     STATUS_CHOICES = [('Completed', 'Completed'), ('Pending', 'Pending')]
     PAYMENT_CHOICES = [('Cash', 'Cash'), ('MOMO', 'MOMO')]
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="sales")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="sales", blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Completed')
     payment_mode = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='Cash')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     sale_date = models.DateTimeField(auto_now_add=True)
@@ -115,9 +116,9 @@ class Sales(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Auto-update total from SalesItems
+        # Auto-update total from SalesItems using selling_price
         total = self.items.aggregate(
-            total=Sum(F('quantity') * F('unit_price'), output_field=FloatField())
+            total=Sum(F('quantity') * F('selling_price'), output_field=FloatField())
         )['total'] or 0.0
         if self.total_amount != total:
             self.total_amount = total
@@ -133,31 +134,90 @@ class Sales(models.Model):
 class SalesItem(models.Model):
     sale = models.ForeignKey(Sales, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    selling_price = models.FloatField(default=0.0,editable=True)
     quantity = models.PositiveIntegerField()
     unit_price = models.FloatField(editable=False)
     discount = models.FloatField(default=0.0)
     total = models.FloatField(default=0.0, editable=False)
 
-    def save(self, *args, **kwargs):
-        # Auto-set unit price from Product
-        if not self.unit_price:
-            self.unit_price = self.product.product_selling_price
+    def clean(self):
+        """Validate the SalesItem before saving"""
+        super().clean()
+        
+        if self.product and self.selling_price:
+            # Check if selling price is significantly below cost price (allowing small margin for flexibility)
+            cost_price = float(self.product.product_cost_price)
+            selling_price = float(self.selling_price)
+            
+            # Allow up to 5% below cost price for promotional sales, but warn for larger losses
+            min_allowed_price = cost_price * 0.95  # 5% below cost price
+            
+            if selling_price < min_allowed_price:
+                loss_percentage = ((cost_price - selling_price) / cost_price) * 100
+                raise ValidationError({
+                    'selling_price': f"Selling price (GHC{selling_price:.2f}) is {loss_percentage:.1f}% below "
+                    f"cost price (GHC {cost_price:.2f}) for {self.product.product_name}. "
+                    f"This will result in significant loss. Minimum recommended: GHC{min_allowed_price:.2f}"
+                })
+        
+        if self.product and self.quantity:
+            # Validate stock availability (only for new items)
+            if not self.pk and self.product.product_quantity < self.quantity:
+                raise ValidationError({
+                    'quantity': f"Insufficient stock for {self.product.product_name}. "
+                    f"Requested: {self.quantity}, Available: {self.product.product_quantity}"
+            })
 
-        # Validate stock
+    def save(self, *args, **kwargs):
+        # Always set unit price from Product's selling price (the standard price)
+        self.unit_price = self.product.product_selling_price
+        
+        # Auto-set selling price to unit price if not provided (allows custom pricing)
+        if not self.selling_price:
+            self.selling_price = self.unit_price
+
+        # Run validation
+        self.full_clean()
+
+        # Calculate discount as difference between unit price and selling price
+        # Positive discount means selling below standard price, negative means premium pricing
+        price_difference = self.unit_price - self.selling_price
+        if price_difference > 0:
+            # Selling below standard price - this is a discount
+            self.discount = price_difference * self.quantity
+        else:
+            # Selling at or above standard price - no discount (could be premium)
+            self.discount = 0.0
+
+        # Update stock for new items
         if not self.pk:  # new item only
-            if self.product.product_quantity < self.quantity:
-                raise ValueError(f"Not enough stock for {self.product.product_name}. Available: {self.product.product_quantity}")
             self.product.product_quantity -= self.quantity
             self.product.save(update_fields=["product_quantity"])
 
-        # Calculate total after discount
-        subtotal = self.quantity * self.unit_price
-        self.total = max(subtotal - self.discount, 0)
+        # Calculate total: quantity * selling_price (discount is already factored into selling_price)
+        self.total = self.quantity * self.selling_price
 
         super().save(*args, **kwargs)
 
+    @property
+    def profit_per_item(self):
+        """Calculate profit per item (selling price - cost price)"""
+        return self.selling_price - self.product.product_cost_price
+
+    @property
+    def total_profit(self):
+        """Calculate total profit for this sale item"""
+        return self.profit_per_item * self.quantity
+
+    @property
+    def profit_margin_percentage(self):
+        """Calculate profit margin as percentage"""
+        if self.selling_price == 0:
+            return 0
+        return (self.profit_per_item / self.selling_price) * 100
+
     def __str__(self):
-        return f"{self.product.product_name} x {self.quantity}"
+        return f"{self.product.product_name} x {self.quantity} @ GHC {self.selling_price:.2f}"
 
 
 # --------------------------

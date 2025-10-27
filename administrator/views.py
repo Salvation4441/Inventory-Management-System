@@ -19,12 +19,228 @@ from django.db import transaction
 from .models import Category, Product, SalesItem
 from django.db.models import Sum
 from django.db.models import Q
+from django.db.models import Count, Sum, F, Q
+from datetime import datetime, timedelta
 
 
 # Create your views here.
 @admin_only
 def admin_dashboard(request):
-    return render(request,'screens/administrator/dashboard.html')
+    # Handle date filtering from request parameters
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    # Get current date and time ranges
+    today = datetime.now().date()
+    
+    # Parse date parameters or use defaults
+    if start_date_str and end_date_str:
+        try:
+            start_date = parse_date(start_date_str)
+            end_date = parse_date(end_date_str)
+        except (ValueError, TypeError):
+            # Default to last 30 days if parsing fails
+            start_date = today - timedelta(days=30)
+            end_date = today
+    else:
+        # Default to last 30 days
+        start_date = today - timedelta(days=30)
+        end_date = today
+    
+    current_month = today.month
+    current_year = today.year
+    last_month = current_month - 1 if current_month > 1 else 12
+    last_month_year = current_year if current_month > 1 else current_year - 1
+    
+    # Calculate financial metrics based on date range
+    filtered_sales = Sales.objects.filter(
+        status='Completed',
+        sale_date__date__range=[start_date, end_date]
+    )
+    
+    total_sales = filtered_sales.aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+    
+    # Calculate this month vs last month sales for comparison
+    this_month_sales = Sales.objects.filter(
+        status='Completed',
+        sale_date__month=current_month,
+        sale_date__year=current_year
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    
+    last_month_sales = Sales.objects.filter(
+        status='Completed',
+        sale_date__month=last_month,
+        sale_date__year=last_month_year
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    
+    # Calculate sales growth percentage
+    sales_growth = 0
+    if last_month_sales > 0:
+        sales_growth = ((this_month_sales - last_month_sales) / last_month_sales) * 100
+    
+    # Calculate total profit (selling_price - cost_price) * quantity for date range
+    filtered_sales_items = SalesItem.objects.filter(
+        sale__status='Completed',
+        sale__sale_date__date__range=[start_date, end_date]
+    )
+    
+    # Debug: Check for negative profit items in date range
+    negative_profit_items = filtered_sales_items.select_related('product').filter(
+        selling_price__lt=F('product__product_cost_price')
+    )
+    
+    if negative_profit_items.exists():
+        print(f"Warning: {negative_profit_items.count()} items have negative profit in selected period")
+        for item in negative_profit_items[:3]:  # Show first 3
+            print(f"  - {item.product.product_name}: Selling={item.selling_price}, Cost={item.product.product_cost_price}")
+    
+    total_profit = filtered_sales_items.aggregate(
+        profit=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+    )['profit'] or 0
+    
+    # Ensure profit is not None and convert to float
+    total_profit = float(total_profit) if total_profit is not None else 0.0
+    
+    # Calculate profit margin percentage based on date range
+    total_revenue = filtered_sales_items.aggregate(
+        revenue=Sum(F('quantity') * F('selling_price'))
+    )['revenue'] or 0
+    
+    profit_margin_percentage = 0
+    if total_revenue > 0:
+        profit_margin_percentage = (total_profit / total_revenue) * 100
+    
+    # Get today's orders count
+    todays_orders = Sales.objects.filter(
+        sale_date__date=today
+    ).count()
+    
+    # Calculate date ranges for filtering (use consistent with main filter)
+    week_ago = start_date
+    month_ago = start_date
+    
+    # Top selling products (based on selected date range)
+    top_selling_products = Product.objects.annotate(
+        recent_sold=Sum(
+            'salesitem__quantity', 
+            filter=Q(
+                salesitem__sale__status='Completed',
+                salesitem__sale__sale_date__date__range=[start_date, end_date]
+            )
+        ),
+        recent_revenue=Sum(
+            F('salesitem__quantity') * F('salesitem__selling_price'),
+            filter=Q(
+                salesitem__sale__status='Completed',
+                salesitem__sale__sale_date__date__range=[start_date, end_date]
+            )
+        )
+    ).filter(recent_sold__isnull=False).order_by('-recent_sold')[:10]
+    
+    # Low stock products (below 10 units)
+    low_stock_products = Product.objects.filter(
+        product_quantity__lt=10
+    ).order_by('product_quantity')[:10]
+    
+    # Recent sales (based on selected date range)
+    recent_sales = Sales.objects.select_related('customer', 'user').prefetch_related(
+        'items__product'
+    ).filter(
+        sale_date__date__range=[start_date, end_date]
+    ).order_by('-sale_date')[:15]
+    
+    # Top customers by total purchase amount
+    top_customers = Customer.objects.annotate(
+        total_purchases=Sum('sales__total_amount', filter=Q(sales__status='Completed')),
+        total_orders=Count('sales', filter=Q(sales__status='Completed'))
+    ).filter(total_purchases__isnull=False).order_by('-total_purchases')[:5]
+    
+    # Category statistics
+    category_stats = Category.objects.annotate(
+        product_count=Count('products'),
+        total_sales=Sum('products__salesitem__quantity', filter=Q(products__salesitem__sale__status='Completed'))
+    ).order_by('-total_sales')[:5]
+    
+    # Overall counts
+    total_suppliers = 0  # You can implement this if you have suppliers model
+    total_customers = Customer.objects.count()
+    total_orders = Sales.objects.count()
+    total_categories = Category.objects.count()
+    total_products = Product.objects.count()
+    
+    context = {
+        # Financial metrics
+        'total_sales': total_sales,
+        'total_profit': total_profit,
+        'profit_margin_percentage': profit_margin_percentage,
+        'total_revenue': total_revenue,
+        'sales_growth': sales_growth,
+        
+        # Date ranges for display
+        'today': today,
+        'week_ago': week_ago,
+        'month_ago': month_ago,
+        'start_date': start_date,
+        'end_date': end_date,
+        'date_range': f"{start_date.strftime('%b %d')} - {end_date.strftime('%b %d, %Y')}",
+        
+        # Counts
+        'todays_orders': todays_orders,
+        'total_suppliers': total_suppliers,
+        'total_customers': total_customers,
+        'total_orders': total_orders,
+        'total_categories': total_categories,
+        'total_products': total_products,
+        
+        # Data for widgets
+        'top_selling_products': top_selling_products,
+        'low_stock_products': low_stock_products,
+        'recent_sales': recent_sales,
+        'top_customers': top_customers,
+        'category_stats': category_stats,
+        
+        # Low stock alert (for the alert banner)
+        'critical_stock_product': low_stock_products.first() if low_stock_products.exists() else None,
+    }
+    
+    # Check if this is an AJAX request for partial data update
+    if request.GET.get('ajax') == '1':
+        from django.http import JsonResponse
+        from django.template.loader import render_to_string
+        
+        # Return JSON response with updated HTML fragments
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'total_sales': f"GHC {total_sales:,.2f}",
+                'total_profit': f"GHC {total_profit:,.2f}",
+                'profit_margin_percentage': f"{profit_margin_percentage:.1f}%",
+                'total_revenue': f"GHC {total_revenue:,.2f}",
+                'sales_growth': f"{sales_growth:+.1f}%",
+                'total_orders': total_orders,
+                'total_customers': total_customers,
+                'date_range': f"{start_date.strftime('%b %d')} - {end_date.strftime('%b %d, %Y')}",
+                'start_date': start_date.strftime('%Y-%m-%d'),
+                'end_date': end_date.strftime('%Y-%m-%d'),
+            },
+            'html': {
+                'top_selling_products': render_to_string('components/top_selling_products.html', {
+                    'top_selling_products': top_selling_products,
+                    'start_date': start_date,
+                    'end_date': end_date
+                }),
+                'recent_sales': render_to_string('components/recent_sales.html', {
+                    'recent_sales': recent_sales,
+                    'today': today,
+                    'start_date': start_date,
+                    'end_date': end_date
+                })
+            }
+        })
+    
+    return render(request, 'screens/administrator/dashboard.html', context)
 
 
 
@@ -105,7 +321,7 @@ def addProduct(request):
         product_description = request.POST.get('product_description')
         product_quantity = request.POST.get('product_quantity')
         product_selling_price = request.POST.get('product_selling_price')
-        product_buying_price = request.POST.get('product_buying_price')
+        product_cost_price = request.POST.get('product_cost_price')
         product_discount = request.POST.get('product_discount')
         product_image = request.FILES.get('product_image')
         manufacture_name = request.POST.get('manufacture_name')
@@ -113,7 +329,7 @@ def addProduct(request):
         expiry_date = parse_date(request.POST.get('expiry_date'))
         
         # Basic validation (required fields)
-        if not all([product_name, product_category, product_quantity, product_selling_price, product_buying_price]):
+        if not all([product_name, product_category, product_quantity, product_selling_price, product_cost_price]):
             messages.error(request, "All required fields must be filled.")
             return redirect('addProduct')
 
@@ -121,7 +337,7 @@ def addProduct(request):
         try:
             product_quantity = int(product_quantity)
             product_selling_price = float(product_selling_price)
-            product_buying_price = float(product_buying_price)
+            product_cost_price = float(product_cost_price)
             product_discount = float(product_discount) if product_discount else 0.0
         except ValueError:
             messages.error(request, "Quantity, prices, and discount must be valid numbers.")
@@ -140,7 +356,7 @@ def addProduct(request):
                 product_description=product_description,
                 product_quantity=int(product_quantity),
                 product_selling_price=float(product_selling_price),
-                product_buying_price=float(product_buying_price),
+                product_cost_price=float(product_cost_price),
                 product_discount=float(product_discount) if product_discount else 0.0,
                 product_image=product_image,
                 manufacture_name=manufacture_name,
@@ -175,7 +391,7 @@ def editProduct(request, product_id):
         product_description = request.POST.get('product_description')
         product_quantity = request.POST.get('product_quantity')
         product_selling_price = request.POST.get('product_selling_price')
-        product_buying_price = request.POST.get('product_buying_price')
+        product_cost_price = request.POST.get('product_cost_price')
         product_discount = request.POST.get('product_discount')
         product_image = request.FILES.get('product_image')
         manufacture_name = request.POST.get('manufacture_name')
@@ -183,7 +399,7 @@ def editProduct(request, product_id):
         expiry_date = parse_date(request.POST.get('expiry_date'))
 
         # Validation
-        required_fields = [product_name, product_category_id, product_quantity, product_selling_price, product_buying_price]
+        required_fields = [product_name, product_category_id, product_quantity, product_selling_price, product_cost_price]
         if not all(required_fields):
             messages.error(request, "All required fields must be filled.")
             return redirect('editProduct', product_id=product.id)
@@ -192,7 +408,7 @@ def editProduct(request, product_id):
             category = get_object_or_404(Category, id=product_category_id)
             product_quantity = int(product_quantity)
             product_selling_price = float(product_selling_price)
-            product_buying_price = float(product_buying_price)
+            product_cost_price = float(product_cost_price)
             product_discount = float(product_discount) if product_discount else 0.0
         except ValueError:
             messages.error(request, "Quantity, prices, and discount must be valid numbers.")
@@ -205,7 +421,7 @@ def editProduct(request, product_id):
         product.product_description = product_description
         product.product_quantity = product_quantity
         product.product_selling_price = product_selling_price
-        product.product_buying_price = product_buying_price
+        product.product_cost_price = product_cost_price
         product.product_discount = product_discount
         product.manufacture_name = manufacture_name
         product.manufacture_date = manufacture_date
@@ -387,9 +603,164 @@ def deleteManageStock(request, stock_id):
 def annualReport(request):
     return render(request,'screens/administrator/annual-report.html')
 
+# Diagnostic function to check profit issues
+def diagnose_profit_issues():
+    """Helper function to diagnose negative profit issues"""
+    from django.db.models import Sum, F, Count
+    
+    print("\n=== PROFIT DIAGNOSIS ===")
+    
+    # Check total items
+    total_items = SalesItem.objects.filter(sale__status=['Completed','Pending']).count()
+    print(f"Total completed sales items: {total_items}")
+    
+    # Check items with negative profit
+    negative_profit_items = SalesItem.objects.filter(
+        sale__status=['Completed','Pending'],
+        selling_price__lt=F('product__product_cost_price')
+    ).select_related('product')
+    
+    print(f"Items with negative profit: {negative_profit_items.count()}")
+    
+    # Show details of negative profit items
+    if negative_profit_items.exists():
+        print("\nNEGATIVE PROFIT ITEMS:")
+        for item in negative_profit_items[:10]:  # Show first 10
+            loss = (item.product.product_cost_price - item.selling_price) * item.quantity
+            print(f"  - {item.product.product_name}")
+            print(f"    Cost: GHC{item.product.product_cost_price:.2f}")
+            print(f"    Selling: GHC{item.selling_price:.2f}")
+            print(f"    Qty: {item.quantity}")
+            print(f"    Loss: GHC{loss:.2f}")
+    
+    # Check products with zero or negative cost prices
+    zero_cost_products = Product.objects.filter(product_cost_price__lte=0)
+    if zero_cost_products.exists():
+        print(f"\nProducts with zero/negative cost price: {zero_cost_products.count()}")
+        for product in zero_cost_products[:5]:
+            print(f"  - {product.product_name}: Cost = GHC{product.product_cost_price:.2f}")
+    
+    # Calculate overall profit
+    total_profit = SalesItem.objects.filter(
+        sale__status__in=['Completed','Pending']
+    ).aggregate(
+        profit=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+    )['profit'] or 0
+    
+    print(f"\nTotal calculated profit: GHC{total_profit:.2f}")
+    return total_profit
+
 # profit and loss page
+@admin_only
 def profit_and_loss(request):
-    return render(request,'screens/administrator/profit-and-loss.html')
+    
+    
+    # Get date range from request or default to last 12 months
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if start_date and end_date:
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            # Default to last 12 months if invalid dates
+            end_date = datetime.now().date()
+            start_date = end_date - timedelta(days=365)
+    else:
+        # Default to last 12 months
+        end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=365)
+    
+    # Generate monthly data for the selected period
+    monthly_data = []
+    current_date = start_date.replace(day=1)  # Start from first day of start month
+    
+    while current_date <= end_date:
+        # Calculate next month
+        if current_date.month == 12:
+            next_month = current_date.replace(year=current_date.year + 1, month=1)
+        else:
+            next_month = current_date.replace(month=current_date.month + 1)
+        
+        # Filter sales for this month
+        month_sales = Sales.objects.filter(
+            status='Completed',
+            sale_date__gte=current_date,
+            sale_date__lt=next_month
+        )
+        
+        # Calculate revenue (total sales amount)
+        revenue = month_sales.aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
+        
+        # Calculate cost of goods sold
+        cogs = SalesItem.objects.filter(
+            sale__in=month_sales
+        ).aggregate(
+            total=Sum(F('quantity') * F('product__product_cost_price'))
+        )['total'] or 0
+        
+        # Calculate gross profit
+        gross_profit = revenue - cogs
+        
+        # Calculate profit from individual items (considering actual selling prices)
+        profit_from_sales = SalesItem.objects.filter(
+            sale__in=month_sales
+        ).aggregate(
+            total=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+        )['total'] or 0
+        
+        # Ensure profit is not None and convert to float
+        profit_from_sales = float(profit_from_sales) if profit_from_sales is not None else 0.0
+        
+        # Debug: Check for negative profit in this month
+        month_negative_items = SalesItem.objects.filter(
+            sale__in=month_sales,
+            selling_price__lt=F('product__product_cost_price')
+        ).count()
+        
+        if month_negative_items > 0:
+            print(f"Month {current_date.strftime('%b %Y')}: {month_negative_items} items with negative profit")
+        
+        # Calculate profit margin percentage
+        profit_margin = (profit_from_sales / revenue * 100) if revenue > 0 else 0
+        
+        monthly_data.append({
+            'month': current_date.strftime('%b %Y'),
+            'month_short': current_date.strftime('%b'),
+            'year': current_date.year,
+            'revenue': revenue,
+            'cogs': cogs,
+            'gross_profit': gross_profit,
+            'profit_from_sales': profit_from_sales,
+            'profit_margin': profit_margin,
+            'sales_count': month_sales.count(),
+        })
+        
+        current_date = next_month
+    
+    # Calculate totals for the entire period
+    total_revenue = sum(month['revenue'] for month in monthly_data)
+    total_cogs = sum(month['cogs'] for month in monthly_data)
+    total_gross_profit = sum(month['gross_profit'] for month in monthly_data)
+    total_profit = sum(month['profit_from_sales'] for month in monthly_data)
+    overall_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+    
+    context = {
+        'monthly_data': monthly_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'total_revenue': total_revenue,
+        'total_cogs': total_cogs,
+        'total_gross_profit': total_gross_profit,
+        'total_profit': total_profit,
+        'overall_margin': overall_margin,
+        'date_range': f"{start_date.strftime('%B %Y')} - {end_date.strftime('%B %Y')}",
+    }
+    
+    return render(request,'screens/administrator/profit-and-loss.html', context)
 
 
 # error - 404
@@ -753,7 +1124,7 @@ def addSales(request):
         try:
             customer_id = request.POST.get('customer_id')
             customer_name = request.POST.get('customer_name')
-            status = request.POST.get('status', 'Pending')
+            status = request.POST.get('status', 'Completed')
             payment_mode = request.POST.get('payment_mode', 'Cash')
 
             # Check if customer_id exists

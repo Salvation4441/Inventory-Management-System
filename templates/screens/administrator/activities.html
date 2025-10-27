@@ -1,8 +1,45 @@
 {%extends 'base.html'%} 
 {%block content%} 
 {%load static%}
+    <style>
+        .activity-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible !important;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        
+        .dropdown-menu {
+            z-index: 1050 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            border: 1px solid #e0e6ed !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa !important;
+        }
+        
+        .activity-card .dropdown {
+            position: relative !important;
+        }
+        
+        /* Ensure dropdown shows above card container */
+        .card {
+            position: relative;
+            overflow: visible;
+        }
+        
+        .content {
+            overflow: visible !important;
+        }
+    </style>
+
     <div class="page-wrapper">
-				<div class="content mb-4">
+				<div class="content mb-4" style="overflow: visible !important;">
 					<div class="page-header">
 						<div class="page-title">
 							<h4>All Notifications</h4>
@@ -42,17 +79,17 @@
 										<p class="text-muted mb-1">{{ activity.description|truncatewords:10 }}</p>
 										<small><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} ago</small>
 									</div>
-									<div class="dropdown" onclick="event.stopPropagation();">
-										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown">
+									<div class="dropdown dropstart" onclick="event.stopPropagation();">
+										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown" data-bs-boundary="viewport">
 											<i class="ti ti-dots-vertical"></i>
 										</a>
-										<ul class="dropdown-menu dropdown-menu-end">
-											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Details</a></li>
-											<!-- {% if activity.sale %}
-											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Sale</a></li>
-											{% endif %} -->
+										<ul class="dropdown-menu dropdown-menu-end shadow">
+											{% if activity.sale %}
+											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})"><i class="ti ti-eye me-2"></i>View Sale Details</a></li>
+											{% endif %}
+											<li><a class="dropdown-item" href="#" onclick="viewActivityDetail({{ activity.id }})"><i class="ti ti-info-circle me-2"></i>Activity Details</a></li>
 											<li><hr class="dropdown-divider"></li>
-											<li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+											<li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
 										</ul>
 									</div>
 								</div>
@@ -347,16 +384,18 @@
 				loadSalesDetail(saleId)
 			}
 			
-			document.querySelectorAll('.activity-card').forEach(card => {
-				card.addEventListener('mouseenter', function() {
-					this.style.transform = 'translateY(-2px)';
-					this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-					this.style.transition = 'all 0.3s ease';
-				});
-				
-				card.addEventListener('mouseleave', function() {
-					this.style.transform = 'translateY(0)';
-					this.style.boxShadow = '';
+			// Initialize tooltips for better UX
+			document.addEventListener('DOMContentLoaded', function() {
+				// Initialize Bootstrap dropdowns with better positioning
+				const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+				dropdowns.forEach(dropdown => {
+					dropdown.addEventListener('shown.bs.dropdown', function() {
+						// Ensure dropdown is visible by adjusting z-index if needed
+						const menu = this.nextElementSibling;
+						if (menu) {
+							menu.style.zIndex = '1060';
+						}
+					});
 				});
 			});
 			</script>
