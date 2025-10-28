@@ -1,115 +1,99 @@
-{%extends 'base.html'%} 
-{%block content%} 
-{%load static%}
-    <style>
-        .activity-card {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: visible !important;
-        }
-        
-        .activity-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-        }
-        
-        .dropdown-menu {
-            z-index: 1050 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-            border: 1px solid #e0e6ed !important;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #f8f9fa !important;
-        }
-        
-        .activity-card .dropdown {
-            position: relative !important;
-        }
-        
-        /* Ensure dropdown shows above card container */
-        .card {
-            position: relative;
-            overflow: visible;
-        }
-        
-        .content {
-            overflow: visible !important;
-        }
-    </style>
+{%extends 'base.html'%} {%block content%} {%load static%}
+<div class="page-wrapper">
+  <div class="content mb-4">
+    <div class="page-header">
+      <div class="page-title">
+        <h4>All Notifications</h4>
+        <h6>
+          View your all activities ({{ activities.paginator.count }} total)
+        </h6>
+      </div>
+      <div class="page-btn">
+        <a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
+          <i class="ti ti-check me-2"></i>Mark All as Read
+        </a>
+      </div>
+    </div>
 
-    <div class="page-wrapper">
-				<div class="content mb-4" style="overflow: visible !important;">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>All Notifications</h4>
-							<h6>View your all activities ({{ activities.count }} total)</h6>
-						</div>
-						<div class="page-btn">
-							<a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
-								<i class="ti ti-check me-2"></i>Mark All as Read
-							</a>
-						</div>
-					</div>
-					
-					{% if activities %}
-						{% for activity in activities %}
-						<div class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card" 
-							 style="cursor: pointer;" 
-							 data-activity-id="{{ activity.id }}"
-							 onclick="viewActivityDetail({{ activity.id }})">
-							<div class="px-3 py-3">
-								<div class="d-flex align-items-center">
-									<div class="d-flex me-2">
-										<span class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success{% elif activity.activity_type == 'stock_updated' %}bg-warning{% else %}bg-info{% endif %} avatar-rounded">
-											<span class="avatar-title">{{ activity.user.first_name.0|upper }}{{ activity.user.last_name.0|upper }}</span>
-										</span>
-									</div>
-									<div class="flex-fill ml-3">
-										<p class="text-sm lh-140 mb-0">
-											<strong class="h6">{{ activity.user.first_name }} {{ activity.user.last_name }}</strong> 
-											<span>{{ activity.title }}</span>
-											{% if activity.product %}
-												<strong class="h6">{{ activity.product.product_name }}</strong>
-											{% endif %}
-											{% if not activity.is_read %}
-												<span class="badge bg-primary ms-2">New</span>
-											{% endif %}
-										</p>
-										<p class="text-muted mb-1">{{ activity.description|truncatewords:10 }}</p>
-										<small><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} ago</small>
-									</div>
-									<div class="dropdown dropstart" onclick="event.stopPropagation();">
-										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown" data-bs-boundary="viewport">
-											<i class="ti ti-dots-vertical"></i>
-										</a>
-										<ul class="dropdown-menu dropdown-menu-end shadow">
-											{% if activity.sale %}
-											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})"><i class="ti ti-eye me-2"></i>View Sale Details</a></li>
-											{% endif %}
-											<li><a class="dropdown-item" href="#" onclick="viewActivityDetail({{ activity.id }})"><i class="ti ti-info-circle me-2"></i>Activity Details</a></li>
-											<li><hr class="dropdown-divider"></li>
-											<li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endfor %}
-					{% else %}
-						<div class="card">
-							<div class="card-body text-center py-5">
-								<div class="avatar avatar-xl bg-light mx-auto mb-3">
-									<i class="ti ti-bell-off text-muted"></i>
-								</div>
-								<h5>No Activities Yet</h5>
-								<p class="text-muted">When employees make sales or perform actions, they will appear here.</p>
-							</div>
-						</div>
-					{% endif %}
-					
-				</div>
-			</div>
+    {% if activities %} {% for activity in activities %}
+    <div
+      class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card"
+      style="cursor: pointer"
+      data-activity-id="{{ activity.id }}"
+      onclick="{% if activity.sale %}viewSaleDetail({{ activity.sale.id }});{% else %}viewActivityDetail({{ activity.id }});{% endif %}"
+    >
+      <div class="px-3 py-3">
+        <div class="d-flex align-items-center">
+          <div class="d-flex me-2">
+            <span
+              class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success{% elif activity.activity_type == 'stock_updated' %}bg-warning{% else %}bg-info{% endif %} avatar-rounded"
+            >
+              <span class="avatar-title"
+                >{{ activity.user.first_name.0|upper }}{{
+                activity.user.last_name.0|upper }}</span
+              >
+            </span>
+          </div>
+          <div class="flex-fill ml-3">
+            <p class="text-sm lh-140 mb-0">
+              <strong class="h6"
+                >{{ activity.user.first_name }} {{ activity.user.last_name
+                }}</strong
+              >
+              <span>{{ activity.title }}</span>
+              {% if activity.product %}
+              <strong class="h6">{{ activity.product.product_name }}</strong>
+              {% endif %} {% if not activity.is_read %}
+              <span class="badge bg-primary ms-2">New</span>
+              {% endif %}
+            </p>
+            <p class="text-muted mb-1">
+              {{ activity.description|truncatewords:10 }}
+            </p>
+            <small
+              ><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince
+              }} ago</small
+            >
+          </div>
+          <div
+            class="position-absolute top-0 end-0 m-2 d-flex"
+            onclick="event.stopPropagation();"
+          >
+            {% if activity.sale %}
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary me-2"
+              onclick="event.stopPropagation(); viewSaleDetail({{ activity.sale.id }});"
+            >
+              <i class="ti ti-eye"></i>
+            </button>
+            {% endif %}
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-danger"
+              onclick="event.stopPropagation(); if (confirm('Delete this activity?')) { deleteActivity({{ activity.id }}); }"
+            >
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="avatar avatar-xl bg-light mx-auto mb-3">
+          <i class="ti ti-bell-off text-muted"></i>
+        </div>
+        <h5>No Activities Yet</h5>
+        <p class="text-muted">
+          When employees make sales or perform actions, they will appear here.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
 
 <!-- Activity Detail Modal -->
 <div
@@ -178,21 +162,22 @@
                 "
               >
                 <div class="row sales-details-items d-flex">
-                  <div class="col-md-4 details-item">
+                  <div class="col-md-4 details-item" id="sale-customer-info">
                     <h6>Customer Info</h6>
-                    <h4 class="mb-1">Carl Evans</h4>
-                    <p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
+                    <h4 class="mb-1" id="sale-customer-name">Carl Evans</h4>
+                    <p class="mb-0" id="sale-customer-address">
+                      3103 Trainer Avenue Peoria, IL 61602
+                    </p>
                     <p class="mb-0">
                       Email<span
-                        ><a
-                          href=""
-                          class="__cf_email__"
-                          data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe"
+                        ><a href="#" id="sale-customer-email"
                           >[email&#160;protected]</a
                         ></span
                       >
                     </p>
-                    <p class="mb-0">Phone<span>+1 987 471 6589</span></p>
+                    <p class="mb-0">
+                      Phone<span id="sale-customer-phone">+1 987 471 6589</span>
+                    </p>
                   </div>
                   <div class="opacity-0 col-md-4 details-item">
                     <h6>Company Info</h6>
@@ -210,24 +195,31 @@
                     </p>
                     <p class="mb-0">Phone<span>+1 893 174 0385</span></p>
                   </div>
-                  <div class="col-md-4 details-item">
+                  <div class="col-md-4 details-item" id="sale-invoice-info">
                     <h6>Invoice Info</h6>
                     <p class="mb-0">
                       Reference:
-                      <span class="fs-16 text-primary ms-2">#SL0101</span>
+                      <span class="fs-16 text-primary ms-2" id="sale-reference"
+                        >#SL0101</span
+                      >
                     </p>
                     <p class="mb-0">
-                      Reference:
-                      <span class="ms-2 text-gray-9">Dec 24, 2024</span>
+                      Date:
+                      <span class="ms-2 text-gray-9" id="sale-date"
+                        >Dec 24, 2024</span
+                      >
                     </p>
                     <p class="mb-0">
                       Status:
-                      <span class="badge badge-success ms-2">Completed</span>
+                      <span class="badge badge-success ms-2" id="sale-status"
+                        >Completed</span
+                      >
                     </p>
                     <p class="mb-0">
                       Payment Status:
                       <span
                         class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2"
+                        id="sale-payment-status"
                       >
                         <i class="ti ti-point-filled"></i>Paid</span
                       >
@@ -270,31 +262,67 @@
 </div>
 
 <script>
-  document.addEventListener("show.bs.dropdown", function (event) {
-    // Close any other open dropdowns
-    document
-      .querySelectorAll(".dropdown.show")
-      .forEach(function (openDropdown) {
-        if (openDropdown !== event.target.closest(".dropdown")) {
-          const dropdownToggle = openDropdown.querySelector(
-            '[data-bs-toggle="dropdown"]'
-          );
-          const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
-          bsDropdown.hide();
+  function loadSalesDetail(saleId) {
+
+    fetch(`/sales/${saleId}/detail/`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Populate customer info
+        document.getElementById("sale-customer-name").textContent =
+          data.customer.name || "";
+        document.getElementById("sale-customer-address").textContent =
+          data.customer.address || "";
+        const emailEl = document.getElementById("sale-customer-email");
+        if (emailEl) {
+          emailEl.textContent = data.customer.email || "";
+          if (data.customer.email)
+            emailEl.setAttribute("href", `mailto:${data.customer.email}`);
         }
+        document.getElementById("sale-customer-phone").textContent =
+          data.customer.phone || "";
+
+        // Populate invoice info
+        const refEl = document.getElementById("sale-reference");
+        if (refEl) refEl.textContent = `#${data.reference}`;
+        const dateEl = document.getElementById("sale-date");
+        if (dateEl) dateEl.textContent = data.sale_date || "";
+        const statusEl = document.getElementById("sale-status");
+        if (statusEl) statusEl.textContent = data.status || "";
+        const grandEl = document.getElementById("grandTotal");
+        if (grandEl)
+          grandEl.textContent =
+            typeof data.total_amount === "number"
+              ? data.total_amount.toFixed(2)
+              : data.total_amount;
+
+        // Populate items table
+        const tbody = document.querySelector("#productTableBody tbody");
+        tbody.innerHTML = "";
+        for (const item of data.items) {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+									<td>${item.product}</td>
+									<td>GH${Number(item.unit_price).toFixed(2)}</td>
+									<td class="subtotal">GH${Number(item.total).toFixed(2)}</td>
+									<td>${item.quantity}</td>
+								`;
+          tbody.appendChild(row);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading sale detail:", error);
       });
-  });
+  }
 </script>
 
-<!-- Delete helper + CSRF -->
 <script>
+  // CSRF helper and delete action for activities
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
       const cookies = document.cookie.split(";");
       for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
-        // Does this cookie string begin with the name we want?
         if (cookie.substring(0, name.length + 1) === name + "=") {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
           break;
@@ -327,72 +355,6 @@
       .catch((err) => {
         console.error("Delete activity error:", err);
         alert("Error deleting activity");
-      });
-  }
-</script>
-
-<script>
-  function loadSalesDetail(saleId) {
-    console.log(document.querySelector("#saleDetailModal"));
-
-    fetch(`/sales/${saleId}/detail/`)
-      .then((response) => response.json())
-      .then((data) => {
-        // Populate customer info
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(1) h4"
-        ).textContent = data.customer.name;
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(1) p:nth-child(3)"
-        ).textContent = data.customer.address;
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(1) p:nth-child(4) span"
-        ).textContent = data.customer.email;
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(1) p:nth-child(5) span"
-        ).textContent = data.customer.phone;
-
-        // Populate invoice info
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(3) span.text-primary"
-        ).textContent = `#${data.reference}`;
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(3) .text-gray-9"
-        ).textContent = data.sale_date;
-        document.querySelector(
-          "#saleDetailModal .details-item:nth-child(3) .badge-success"
-        ).textContent = data.status;
-        document.querySelector("#grandTotal").textContent =
-          data.total_amount.toFixed(2);
-
-        // Populate items table
-        const tbody = document.querySelector("#productTableBody tbody");
-
-        tbody.innerHTML = "";
-        data.items.forEach((item) => {
-          tbody.innerHTML += `
-								<tr>
-									<td>
-										${item.product}
-									</td>
-									<td>
-										GH${item.unit_price.toFixed(2)}
-									</td>
-									<td class="subtotal">
-										GH${item.total.toFixed(2)}
-									</td>
-									<td>
-										${item.product}
-									</td>
-								</tr>
-							`;
-        });
-      })
-      .then((data) => {
-        loading.classList.add("d-none");
-      })
-      .catch((error) => {
-        console.error("Error loading sale detail:", error);
       });
   }
 </script>
@@ -527,7 +489,7 @@
     loadSalesDetail(saleId);
   }
 
-  document.querySelectorAll(".activity-card").forEach((card) => {
+  for (const card of document.querySelectorAll(".activity-card")) {
     card.addEventListener("mouseenter", function () {
       this.style.transform = "translateY(-2px)";
       this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
@@ -538,6 +500,6 @@
       this.style.transform = "translateY(0)";
       this.style.boxShadow = "";
     });
-  });
+  }
 </script>
 {%endblock%}
