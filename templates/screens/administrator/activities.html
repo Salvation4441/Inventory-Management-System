@@ -1,126 +1,115 @@
-{%extends 'base.html'%} {%block content%} {%load static%}
-<div class="page-wrapper">
-  <div class="content mb-4">
-    <div class="page-header">
-      <div class="page-title">
-        <h4>All Notifications</h4>
-        <h6>View your all activities ({{ activities.count }} total)</h6>
-      </div>
-      <div class="page-btn">
-        <a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
-          <i class="ti ti-check me-2"></i>Mark All as Read
-        </a>
-      </div>
-    </div>
+{%extends 'base.html'%} 
+{%block content%} 
+{%load static%}
+    <style>
+        .activity-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible !important;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        
+        .dropdown-menu {
+            z-index: 1050 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            border: 1px solid #e0e6ed !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa !important;
+        }
+        
+        .activity-card .dropdown {
+            position: relative !important;
+        }
+        
+        /* Ensure dropdown shows above card container */
+        .card {
+            position: relative;
+            overflow: visible;
+        }
+        
+        .content {
+            overflow: visible !important;
+        }
+    </style>
 
-    {% if activities %} {% for activity in activities %}
-    <div
-      class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card position-relative"
-      style="cursor: pointer"
-      data-activity-id="{{ activity.id }}"
-      onclick="viewActivityDetail({{ activity.id }})"
-    >
-      <!-- Delete button top-right -->
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2 text-danger"
-        onclick="event.stopPropagation(); if (confirm('Delete this activity?')) { deleteActivity({{ activity.id }}) }"
-      >
-        <i class="ti ti-trash"></i>
-      </button>
-
-      <!-- Card content -->
-      <div class="px-3 py-3">
-        <div class="d-flex align-items-center">
-          <div class="d-flex me-2">
-            <span
-              class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success {% elif activity.activity_type == 'stock_updated' %}bg-warning {% else %}bg-info{% endif %} avatar-rounded"
-            >
-              <span class="avatar-title">
-                {{ activity.user.first_name.0|upper }}{{
-                activity.user.last_name.0|upper }}
-              </span>
-            </span>
-          </div>
-
-          <div class="flex-fill ms-3">
-            <p class="text-sm lh-140 mb-0">
-              <strong class="h6"
-                >{{ activity.user.first_name }} {{ activity.user.last_name
-                }}</strong
-              >
-              <span>{{ activity.title }}</span>
-              {% if activity.product %}
-              <strong class="h6">{{ activity.product.product_name }}</strong>
-              {% endif %} {% if not activity.is_read %}
-              <span class="badge bg-primary ms-2">New</span>
-              {% endif %}
-            </p>
-            <p class="text-muted mb-1">
-              {{ activity.description|truncatewords:10 }}
-            </p>
-            <small
-              ><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince
-              }} ago</small
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {% endfor %}
-
-    <!-- Pagination -->
-    <div class="d-flex justify-content-center mt-3">
-      <nav aria-label="Page navigation">
-        <ul class="pagination">
-          {% if activities.has_previous %}
-          <li class="page-item">
-            <a
-              class="page-link"
-              href="?page={{ activities.previous_page_number }}"
-              >Previous</a
-            >
-          </li>
-          {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">Previous</span>
-          </li>
-          {% endif %} {% for page_num in activities.paginator.page_range %}
-          <li
-            class="page-item {% if activities.number == page_num %}active{% endif %}"
-          >
-            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-          </li>
-          {% endfor %} {% if activities.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ activities.next_page_number }}"
-              >Next</a
-            >
-          </li>
-          {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">Next</span>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-    {% else %}
-    <div class="card">
-      <div class="card-body text-center py-5">
-        <div class="avatar avatar-xl bg-light mx-auto mb-3">
-          <i class="ti ti-bell-off text-muted"></i>
-        </div>
-        <h5>No Activities Yet</h5>
-        <p class="text-muted">
-          When employees make sales or perform actions, they will appear here.
-        </p>
-      </div>
-    </div>
-    {% endif %}
-  </div>
-</div>
+    <div class="page-wrapper">
+				<div class="content mb-4" style="overflow: visible !important;">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>All Notifications</h4>
+							<h6>View your all activities ({{ activities.count }} total)</h6>
+						</div>
+						<div class="page-btn">
+							<a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
+								<i class="ti ti-check me-2"></i>Mark All as Read
+							</a>
+						</div>
+					</div>
+					
+					{% if activities %}
+						{% for activity in activities %}
+						<div class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card" 
+							 style="cursor: pointer;" 
+							 data-activity-id="{{ activity.id }}"
+							 onclick="viewActivityDetail({{ activity.id }})">
+							<div class="px-3 py-3">
+								<div class="d-flex align-items-center">
+									<div class="d-flex me-2">
+										<span class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success{% elif activity.activity_type == 'stock_updated' %}bg-warning{% else %}bg-info{% endif %} avatar-rounded">
+											<span class="avatar-title">{{ activity.user.first_name.0|upper }}{{ activity.user.last_name.0|upper }}</span>
+										</span>
+									</div>
+									<div class="flex-fill ml-3">
+										<p class="text-sm lh-140 mb-0">
+											<strong class="h6">{{ activity.user.first_name }} {{ activity.user.last_name }}</strong> 
+											<span>{{ activity.title }}</span>
+											{% if activity.product %}
+												<strong class="h6">{{ activity.product.product_name }}</strong>
+											{% endif %}
+											{% if not activity.is_read %}
+												<span class="badge bg-primary ms-2">New</span>
+											{% endif %}
+										</p>
+										<p class="text-muted mb-1">{{ activity.description|truncatewords:10 }}</p>
+										<small><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} ago</small>
+									</div>
+									<div class="dropdown dropstart" onclick="event.stopPropagation();">
+										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+											<i class="ti ti-dots-vertical"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-end shadow">
+											{% if activity.sale %}
+											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})"><i class="ti ti-eye me-2"></i>View Sale Details</a></li>
+											{% endif %}
+											<li><a class="dropdown-item" href="#" onclick="viewActivityDetail({{ activity.id }})"><i class="ti ti-info-circle me-2"></i>Activity Details</a></li>
+											<li><hr class="dropdown-divider"></li>
+											<li><a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-2"></i>Delete</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					{% else %}
+						<div class="card">
+							<div class="card-body text-center py-5">
+								<div class="avatar avatar-xl bg-light mx-auto mb-3">
+									<i class="ti ti-bell-off text-muted"></i>
+								</div>
+								<h5>No Activities Yet</h5>
+								<p class="text-muted">When employees make sales or perform actions, they will appear here.</p>
+							</div>
+						</div>
+					{% endif %}
+					
+				</div>
+			</div>
 
 <!-- Activity Detail Modal -->
 <div

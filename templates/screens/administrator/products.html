@@ -28,10 +28,10 @@
       <div class="page-btn">
         <a href="{%url 'addProduct' %}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Product</a>
       </div>
-      <div class="page-btn import">
+      <!-- <div class="page-btn import">
         <a href="#" class="btn btn-secondary color" data-bs-toggle="modal" data-bs-target="#view-notes"><i
             data-feather="download" class="me-1"></i>Import Product</a>
-      </div>
+      </div> -->
     </div>
 
     <!-- /product list -->
@@ -60,7 +60,7 @@
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Selling Price</th>
-                <th>Buying Price</th>
+                <th>Cost Price</th>
                 <th>Qty</th>
                 <th>Discount</th>
                 <th class="no-sort"></th>
@@ -80,7 +80,7 @@
                 <td>{{ product.product_category.category_name }}</td>
                 <td>{{ product.product_brand }}</td>
                 <td>GHC {{ product.product_selling_price }}</td>
-                <td>GHC {{ product.product_buying_price }}</td>
+                <td>GHC {{ product.product_cost_price }}</td>
                 <td>{{ product.product_quantity }}</td>
                 <td>{{ product.product_discount }}</td>
                 <td class="action-table-data">
