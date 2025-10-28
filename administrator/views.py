@@ -19,6 +19,7 @@ from django.db import transaction
 from .models import Category, Product, SalesItem
 from django.db.models import Sum
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 # Create your views here.
@@ -903,13 +904,24 @@ def get_unread_activity_count():
 def activities(request):
     """Display all activities"""
 
-    activities = Activity.objects.all().select_related('user', 'sale', 'product').order_by('-created_at')[:50]
-    
+    # Base queryset
+    activities_qs = Activity.objects.all().select_related('user', 'sale', 'product').order_by('-created_at')
+
     # Mark all unread activities as read when viewing the activities page
     Activity.objects.filter(is_read=False).update(is_read=True)
-    
+
+    # Paginate the activities list (10 per page)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(activities_qs, 10)
+    try:
+        activities_page = paginator.page(page)
+    except PageNotAnInteger:
+        activities_page = paginator.page(1)
+    except EmptyPage:
+        activities_page = paginator.page(paginator.num_pages)
+
     context = {
-        'activities': activities,
+        'activities': activities_page,
         'unread_count': 0  # Since we just marked all as read
     }
     return render(request, 'screens/administrator/activities.html', context)

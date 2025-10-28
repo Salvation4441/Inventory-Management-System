@@ -1,205 +1,387 @@
-{%extends 'base.html'%} 
-{%block content%} 
-{%load static%}
-    <div class="page-wrapper">
-				<div class="content mb-4">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>All Notifications</h4>
-							<h6>View your all activities ({{ activities.count }} total)</h6>
-						</div>
-						<div class="page-btn">
-							<a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
-								<i class="ti ti-check me-2"></i>Mark All as Read
-							</a>
-						</div>
-					</div>
-					
-					{% if activities %}
-						{% for activity in activities %}
-						<div class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card" 
-							 style="cursor: pointer;" 
-							 data-activity-id="{{ activity.id }}"
-							 onclick="viewActivityDetail({{ activity.id }})">
-							<div class="px-3 py-3">
-								<div class="d-flex align-items-center">
-									<div class="d-flex me-2">
-										<span class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success{% elif activity.activity_type == 'stock_updated' %}bg-warning{% else %}bg-info{% endif %} avatar-rounded">
-											<span class="avatar-title">{{ activity.user.first_name.0|upper }}{{ activity.user.last_name.0|upper }}</span>
-										</span>
-									</div>
-									<div class="flex-fill ml-3">
-										<p class="text-sm lh-140 mb-0">
-											<strong class="h6">{{ activity.user.first_name }} {{ activity.user.last_name }}</strong> 
-											<span>{{ activity.title }}</span>
-											{% if activity.product %}
-												<strong class="h6">{{ activity.product.product_name }}</strong>
-											{% endif %}
-											{% if not activity.is_read %}
-												<span class="badge bg-primary ms-2">New</span>
-											{% endif %}
-										</p>
-										<p class="text-muted mb-1">{{ activity.description|truncatewords:10 }}</p>
-										<small><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince }} ago</small>
-									</div>
-									<div class="dropdown" onclick="event.stopPropagation();">
-										<a href="#" class="btn btn-sm btn-outline-light" data-bs-toggle="dropdown">
-											<i class="ti ti-dots-vertical"></i>
-										</a>
-										<ul class="dropdown-menu dropdown-menu-end">
-											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Details</a></li>
-											<!-- {% if activity.sale %}
-											<li><a class="dropdown-item" href="#" onclick="viewSaleDetail({{ activity.sale.id }})">View Sale</a></li>
-											{% endif %} -->
-											<li><hr class="dropdown-divider"></li>
-											<li><a class="dropdown-item text-danger" href="#">Delete</a></li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endfor %}
-					{% else %}
-						<div class="card">
-							<div class="card-body text-center py-5">
-								<div class="avatar avatar-xl bg-light mx-auto mb-3">
-									<i class="ti ti-bell-off text-muted"></i>
-								</div>
-								<h5>No Activities Yet</h5>
-								<p class="text-muted">When employees make sales or perform actions, they will appear here.</p>
-							</div>
-						</div>
-					{% endif %}
-					
-				</div>
-			</div>
+{%extends 'base.html'%} {%block content%} {%load static%}
+<div class="page-wrapper">
+  <div class="content mb-4">
+    <div class="page-header">
+      <div class="page-title">
+        <h4>All Notifications</h4>
+        <h6>View your all activities ({{ activities.count }} total)</h6>
+      </div>
+      <div class="page-btn">
+        <a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
+          <i class="ti ti-check me-2"></i>Mark All as Read
+        </a>
+      </div>
+    </div>
 
-			<!-- Activity Detail Modal -->
-			<div class="modal fade" id="activityDetailModal" tabindex="-1" aria-labelledby="activityDetailModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-lg">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="activityDetailModalLabel">Activity Details</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body" id="activityDetailBody">
-							<div class="text-center">
-								<div class="spinner-border" role="status">
-									<span class="visually-hidden">Loading...</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+    {% if activities %} {% for activity in activities %}
+    <div
+      class="card mb-3 border shadow-none {% if not activity.is_read %}border-primary{% endif %} activity-card position-relative"
+      style="cursor: pointer"
+      data-activity-id="{{ activity.id }}"
+      onclick="viewActivityDetail({{ activity.id }})"
+    >
+      <!-- Delete button top-right -->
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2 text-danger"
+        onclick="event.stopPropagation(); if (confirm('Delete this activity?')) { deleteActivity({{ activity.id }}) }"
+      >
+        <i class="ti ti-trash"></i>
+      </button>
 
-			<!-- Sale Detail Modal -->
-			<div class="modal fade" id="saleDetailModal" tabindex="-1" aria-labelledby="saleDetailModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-xl">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="saleDetailModalLabel">Sale Details</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body" id="saleDetailBody">
-							<form>
-								<div class="card border-0">
-									<div class="card-body pb-0">
-										<div class="invoice-box table-height"
-											style="max-width: 1600px;width:100%;padding: 0;font-size: 14px;line-height: 24px;color: #555;">
-											<div class="row sales-details-items d-flex">
-												<div class="col-md-4 details-item">
-													<h6>Customer Info</h6>
-													<h4 class="mb-1">Carl Evans</h4>
-													<p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
-													<p class="mb-0">Email<span><a href="" class="__cf_email__"
-																data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe">[email&#160;protected]</a></span>
-													</p>
-													<p class="mb-0">Phone<span>+1 987 471 6589</span></p>
-												</div>
-												<div class="opacity-0 col-md-4 details-item">
-													<h6>Company Info</h6>
-													<h4 class="mb-1">DGT</h4>
-													<p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
-													<p class="mb-0">Email<span><a href="" class="__cf_email__"
-																data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></span>
-													</p>
-													<p class="mb-0">Phone<span>+1 893 174 0385</span></p>
-												</div>
-												<div class="col-md-4 details-item">
-													<h6>Invoice Info</h6>
-													<p class="mb-0">Reference: <span class="fs-16 text-primary ms-2">#SL0101</span></p>
-													<p class="mb-0">Reference: <span class="ms-2 text-gray-9">Dec 24, 2024</span></p>
-													<p class="mb-0">Status: <span class="badge badge-success ms-2">Completed</span></p>
-													<p class="mb-0">Payment Status: <span
-															class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2">
-															<i class="ti ti-point-filled"></i>Paid</span></p>
-												</div>
-											</div>
-											<h5 class="order-text">Order Summary</h5>
-											<div class="table-responsive no-pagination mb-3">
-												<table id="productTableBody" class="table border">
-													<thead>
-														<tr>
-															<th>Name</th>
-															<th>Selling Price</th>
-															<th>Subtotal</th>
-															<th>Quantity</th>
-														</tr>
-													</thead>
-													<tbody></tbody>
-												</table>
-											</div>
-										</div>
-										<div class="row">
-											<div class="col-lg-6 ms-auto">
-												<div class="total-order w-100 max-widthauto m-auto mb-4">
-													<ul class="border-1 rounded-2">
-														<li class="border-bottom">
-															<h4 class="border-end">Grand Total</h4>
-															<h5 id="grandTotal">GH 0.00</h5>
-														</li>
-													</ul>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
+      <!-- Card content -->
+      <div class="px-3 py-3">
+        <div class="d-flex align-items-center">
+          <div class="d-flex me-2">
+            <span
+              class="avatar avatar-lg {% if activity.activity_type == 'sale_created' %}bg-success {% elif activity.activity_type == 'stock_updated' %}bg-warning {% else %}bg-info{% endif %} avatar-rounded"
+            >
+              <span class="avatar-title">
+                {{ activity.user.first_name.0|upper }}{{
+                activity.user.last_name.0|upper }}
+              </span>
+            </span>
+          </div>
 
+          <div class="flex-fill ms-3">
+            <p class="text-sm lh-140 mb-0">
+              <strong class="h6"
+                >{{ activity.user.first_name }} {{ activity.user.last_name
+                }}</strong
+              >
+              <span>{{ activity.title }}</span>
+              {% if activity.product %}
+              <strong class="h6">{{ activity.product.product_name }}</strong>
+              {% endif %} {% if not activity.is_read %}
+              <span class="badge bg-primary ms-2">New</span>
+              {% endif %}
+            </p>
+            <p class="text-muted mb-1">
+              {{ activity.description|truncatewords:10 }}
+            </p>
+            <small
+              ><i class="far fa-clock me-1"></i>{{ activity.created_at|timesince
+              }} ago</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
 
+    {% endfor %}
 
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-3">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          {% if activities.has_previous %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?page={{ activities.previous_page_number }}"
+              >Previous</a
+            >
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+          </li>
+          {% endif %} {% for page_num in activities.paginator.page_range %}
+          <li
+            class="page-item {% if activities.number == page_num %}active{% endif %}"
+          >
+            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+          </li>
+          {% endfor %} {% if activities.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ activities.next_page_number }}"
+              >Next</a
+            >
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Next</span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% else %}
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="avatar avatar-xl bg-light mx-auto mb-3">
+          <i class="ti ti-bell-off text-muted"></i>
+        </div>
+        <h5>No Activities Yet</h5>
+        <p class="text-muted">
+          When employees make sales or perform actions, they will appear here.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
 
+<!-- Activity Detail Modal -->
+<div
+  class="modal fade"
+  id="activityDetailModal"
+  tabindex="-1"
+  aria-labelledby="activityDetailModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="activityDetailModalLabel">
+          Activity Details
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="activityDetailBody">
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-			<script>
-				 function loadSalesDetail (saleId) {
-					console.log(document.querySelector("#saleDetailModal"))
+<!-- Sale Detail Modal -->
+<div
+  class="modal fade"
+  id="saleDetailModal"
+  tabindex="-1"
+  aria-labelledby="saleDetailModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="saleDetailModalLabel">Sale Details</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="saleDetailBody">
+        <form>
+          <div class="card border-0">
+            <div class="card-body pb-0">
+              <div
+                class="invoice-box table-height"
+                style="
+                  max-width: 1600px;
+                  width: 100%;
+                  padding: 0;
+                  font-size: 14px;
+                  line-height: 24px;
+                  color: #555;
+                "
+              >
+                <div class="row sales-details-items d-flex">
+                  <div class="col-md-4 details-item">
+                    <h6>Customer Info</h6>
+                    <h4 class="mb-1">Carl Evans</h4>
+                    <p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
+                    <p class="mb-0">
+                      Email<span
+                        ><a
+                          href=""
+                          class="__cf_email__"
+                          data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe"
+                          >[email&#160;protected]</a
+                        ></span
+                      >
+                    </p>
+                    <p class="mb-0">Phone<span>+1 987 471 6589</span></p>
+                  </div>
+                  <div class="opacity-0 col-md-4 details-item">
+                    <h6>Company Info</h6>
+                    <h4 class="mb-1">DGT</h4>
+                    <p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
+                    <p class="mb-0">
+                      Email<span
+                        ><a
+                          href=""
+                          class="__cf_email__"
+                          data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed"
+                          >[email&#160;protected]</a
+                        ></span
+                      >
+                    </p>
+                    <p class="mb-0">Phone<span>+1 893 174 0385</span></p>
+                  </div>
+                  <div class="col-md-4 details-item">
+                    <h6>Invoice Info</h6>
+                    <p class="mb-0">
+                      Reference:
+                      <span class="fs-16 text-primary ms-2">#SL0101</span>
+                    </p>
+                    <p class="mb-0">
+                      Reference:
+                      <span class="ms-2 text-gray-9">Dec 24, 2024</span>
+                    </p>
+                    <p class="mb-0">
+                      Status:
+                      <span class="badge badge-success ms-2">Completed</span>
+                    </p>
+                    <p class="mb-0">
+                      Payment Status:
+                      <span
+                        class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2"
+                      >
+                        <i class="ti ti-point-filled"></i>Paid</span
+                      >
+                    </p>
+                  </div>
+                </div>
+                <h5 class="order-text">Order Summary</h5>
+                <div class="table-responsive no-pagination mb-3">
+                  <table id="productTableBody" class="table border">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Selling Price</th>
+                        <th>Subtotal</th>
+                        <th>Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6 ms-auto">
+                  <div class="total-order w-100 max-widthauto m-auto mb-4">
+                    <ul class="border-1 rounded-2">
+                      <li class="border-bottom">
+                        <h4 class="border-end">Grand Total</h4>
+                        <h5 id="grandTotal">GH 0.00</h5>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
-					fetch(`/sales/${saleId}/detail/`)
-						.then(response => response.json())
-						.then(data => {
-							// Populate customer info
-							document.querySelector("#saleDetailModal .details-item:nth-child(1) h4").textContent = data.customer.name;
-							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(3)").textContent = data.customer.address;
-							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(4) span").textContent = data.customer.email;
-							document.querySelector("#saleDetailModal .details-item:nth-child(1) p:nth-child(5) span").textContent = data.customer.phone;
+<script>
+  document.addEventListener("show.bs.dropdown", function (event) {
+    // Close any other open dropdowns
+    document
+      .querySelectorAll(".dropdown.show")
+      .forEach(function (openDropdown) {
+        if (openDropdown !== event.target.closest(".dropdown")) {
+          const dropdownToggle = openDropdown.querySelector(
+            '[data-bs-toggle="dropdown"]'
+          );
+          const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+          bsDropdown.hide();
+        }
+      });
+  });
+</script>
 
-							// Populate invoice info
-							document.querySelector("#saleDetailModal .details-item:nth-child(3) span.text-primary").textContent = `#${data.reference}`;
-							document.querySelector("#saleDetailModal .details-item:nth-child(3) .text-gray-9").textContent = data.sale_date;
-							document.querySelector("#saleDetailModal .details-item:nth-child(3) .badge-success").textContent = data.status;
-							document.querySelector("#grandTotal").textContent = data.total_amount.toFixed(2);
+<!-- Delete helper + CSRF -->
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
 
-							// Populate items table
-							const tbody = document.querySelector("#productTableBody tbody");
-							
-							tbody.innerHTML = "";
-							data.items.forEach(item => {
-								tbody.innerHTML += `
+  function deleteActivity(activityId) {
+    const csrftoken = getCookie("csrftoken");
+    fetch(`/administrator/activity/${activityId}/delete/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const el = document.querySelector(
+            `[data-activity-id="${activityId}"]`
+          );
+          if (el) el.remove();
+        } else {
+          alert(data.error || "Failed to delete activity");
+        }
+      })
+      .catch((err) => {
+        console.error("Delete activity error:", err);
+        alert("Error deleting activity");
+      });
+  }
+</script>
+
+<script>
+  function loadSalesDetail(saleId) {
+    console.log(document.querySelector("#saleDetailModal"));
+
+    fetch(`/sales/${saleId}/detail/`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Populate customer info
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(1) h4"
+        ).textContent = data.customer.name;
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(1) p:nth-child(3)"
+        ).textContent = data.customer.address;
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(1) p:nth-child(4) span"
+        ).textContent = data.customer.email;
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(1) p:nth-child(5) span"
+        ).textContent = data.customer.phone;
+
+        // Populate invoice info
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(3) span.text-primary"
+        ).textContent = `#${data.reference}`;
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(3) .text-gray-9"
+        ).textContent = data.sale_date;
+        document.querySelector(
+          "#saleDetailModal .details-item:nth-child(3) .badge-success"
+        ).textContent = data.status;
+        document.querySelector("#grandTotal").textContent =
+          data.total_amount.toFixed(2);
+
+        // Populate items table
+        const tbody = document.querySelector("#productTableBody tbody");
+
+        tbody.innerHTML = "";
+        data.items.forEach((item) => {
+          tbody.innerHTML += `
 								<tr>
 									<td>
 										${item.product}
@@ -215,55 +397,57 @@
 									</td>
 								</tr>
 							`;
-							});
+        });
+      })
+      .then((data) => {
+        loading.classList.add("d-none");
+      })
+      .catch((error) => {
+        console.error("Error loading sale detail:", error);
+      });
+  }
+</script>
 
-						})
-						.then(data => { loading.classList.add("d-none") })
-						.catch(error => {
-							console.error("Error loading sale detail:", error);
-						});
-				}
-			
-			</script>
+<script>
+  function viewActivityDetail(activityId) {
+    // Show modal
+    const modal = new bootstrap.Modal(
+      document.getElementById("activityDetailModal")
+    );
+    modal.show();
 
-			<script>
-			function viewActivityDetail(activityId) {
-				// Show modal
-				const modal = new bootstrap.Modal(document.getElementById('activityDetailModal'));
-				modal.show();
-				
-				// Reset modal body to loading state
-				document.getElementById('activityDetailBody').innerHTML = `
+    // Reset modal body to loading state
+    document.getElementById("activityDetailBody").innerHTML = `
 					<div class="text-center">
 						<div class="spinner-border" role="status">
 							<span class="visually-hidden">Loading...</span>
 						</div>
 					</div>
 				`;
-				
-				// Fetch activity details
-				fetch(`/administrator/activity/${activityId}/`)
-					.then(response => response.json())
-					.then(data => {
-						if (data.success) {
-							const activity = data.activity;
-							let activityTypeColor = '';
-							
-							switch(activity.activity_type) {
-								case 'Sale Created':
-									activityTypeColor = 'bg-success';
-									break;
-								case 'Stock Updated':
-									activityTypeColor = 'bg-warning';
-									break;
-								case 'Product Added':
-									activityTypeColor = 'bg-info';
-									break;
-								default:
-									activityTypeColor = 'bg-secondary';
-							}
-							
-							let modalContent = `
+
+    // Fetch activity details
+    fetch(`/administrator/activity/${activityId}/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const activity = data.activity;
+          let activityTypeColor = "";
+
+          switch (activity.activity_type) {
+            case "Sale Created":
+              activityTypeColor = "bg-success";
+              break;
+            case "Stock Updated":
+              activityTypeColor = "bg-warning";
+              break;
+            case "Product Added":
+              activityTypeColor = "bg-info";
+              break;
+            default:
+              activityTypeColor = "bg-secondary";
+          }
+
+          let modalContent = `
 								<div class="d-flex align-items-center mb-4">
 									<div class="avatar avatar-xl ${activityTypeColor} me-3">
 										<span class="avatar-title fs-4">${activity.user.initials}</span>
@@ -273,20 +457,24 @@
 										<small class="text-muted">@${activity.user.username}</small>
 									</div>
 									<div class="ms-auto">
-										<span class="badge ${activityTypeColor.replace('bg-', 'bg-light text-')}">${activity.activity_type}</span>
+										<span class="badge ${activityTypeColor.replace("bg-", "bg-light text-")}">${
+            activity.activity_type
+          }</span>
 									</div>
 								</div>
 								
 								<div class="mb-3">
 									<h6 class="fw-bold">${activity.title}</h6>
 									<p class="text-muted mb-1">${activity.description}</p>
-									<small class="text-muted"><i class="ti ti-clock me-1"></i>${activity.created_at}</small>
+									<small class="text-muted"><i class="ti ti-clock me-1"></i>${
+                    activity.created_at
+                  }</small>
 								</div>
 							`;
-							
-							// Add sale details if available
-							if (activity.sale) {
-								modalContent += `
+
+          // Add sale details if available
+          if (activity.sale) {
+            modalContent += `
 									<div class="card bg-light mb-3">
 										<div class="card-body">
 											<h6 class="card-title"><i class="ti ti-receipt me-2"></i>Sale Details</h6>
@@ -303,11 +491,11 @@
 										</div>
 									</div>
 								`;
-							}
-							
-							// Add product details if available
-							if (activity.product) {
-								modalContent += `
+          }
+
+          // Add product details if available
+          if (activity.product) {
+            modalContent += `
 									<div class="card bg-light">
 										<div class="card-body">
 											<h6 class="card-title"><i class="ti ti-package me-2"></i>Product Details</h6>
@@ -316,48 +504,51 @@
 										</div>
 									</div>
 								`;
-							}
-							
-							document.getElementById('activityDetailBody').innerHTML = modalContent;
-						} else {
-							document.getElementById('activityDetailBody').innerHTML = `
+          }
+
+          document.getElementById("activityDetailBody").innerHTML =
+            modalContent;
+        } else {
+          document.getElementById("activityDetailBody").innerHTML = `
 								<div class="alert alert-danger">
 									<i class="ti ti-alert-circle me-2"></i>
 									Error loading activity details: ${data.error}
 								</div>
 							`;
-						}
-					})
-					.catch(error => {
-						console.error('Error:', error);
-						document.getElementById('activityDetailBody').innerHTML = `
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        document.getElementById("activityDetailBody").innerHTML = `
 							<div class="alert alert-danger">
 								<i class="ti ti-alert-circle me-2"></i>
 								Error loading activity details. Please try again.
 							</div>
 						`;
-					});
-			}
-			
-			function viewSaleDetail(saleId) {
-				// Show modal
-				const modal = new bootstrap.Modal(document.getElementById('saleDetailModal'));
-				modal.show();
-				
-				loadSalesDetail(saleId)
-			}
-			
-			document.querySelectorAll('.activity-card').forEach(card => {
-				card.addEventListener('mouseenter', function() {
-					this.style.transform = 'translateY(-2px)';
-					this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-					this.style.transition = 'all 0.3s ease';
-				});
-				
-				card.addEventListener('mouseleave', function() {
-					this.style.transform = 'translateY(0)';
-					this.style.boxShadow = '';
-				});
-			});
-			</script>
+      });
+  }
+
+  function viewSaleDetail(saleId) {
+    // Show modal
+    const modal = new bootstrap.Modal(
+      document.getElementById("saleDetailModal")
+    );
+    modal.show();
+
+    loadSalesDetail(saleId);
+  }
+
+  document.querySelectorAll(".activity-card").forEach((card) => {
+    card.addEventListener("mouseenter", function () {
+      this.style.transform = "translateY(-2px)";
+      this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+      this.style.transition = "all 0.3s ease";
+    });
+
+    card.addEventListener("mouseleave", function () {
+      this.style.transform = "translateY(0)";
+      this.style.boxShadow = "";
+    });
+  });
+</script>
 {%endblock%}
