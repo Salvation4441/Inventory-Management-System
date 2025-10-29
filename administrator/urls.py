@@ -76,6 +76,7 @@ urlpatterns = [
     path('mark-activities-read/', views.mark_activities_read, name='mark-activities-read'),
     path('activity/<int:activity_id>/', views.activity_detail, name='activity-detail'),
     path('sale-modal/<int:sale_id>/', views.sale_detail_modal, name='sale-detail-modal'),
+    path('delete-activity/<int:activity_id>/', views.delete_activity, name='delete-activity'),
 
     # NOTIFICATIONS
     # path('notifications/', views.notifications, name='notifications'),
