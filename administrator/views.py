@@ -2,6 +2,7 @@ import code
 from os import name
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from administrator.forms import CustomerForm
 from administrator.models import Category, Customer, Product
 from authentication.decorators import admin_only
@@ -1393,3 +1394,18 @@ def sale_detail_modal(request, sale_id):
         }
     
     return JsonResponse(data)
+
+@login_required
+def delete_activity(request, activity_id):
+    """Delete a specific activity."""
+    activity = get_object_or_404(Activity, id=activity_id)
+    
+    # Optional: restrict deletion to admins or specific users
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to delete activities.")
+        return redirect('activities')
+    
+    activity.delete()
+    messages.success(request, "Activity deleted successfully.")
+    
+    return redirect('activities')
