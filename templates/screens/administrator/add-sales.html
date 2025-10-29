@@ -18,9 +18,7 @@
 					<div class="row">
 						<div class="col-lg-4 col-sm-6 col-12">
 							<div class="mb-3 position-relative">
-								<label class="form-label">
-									Customer Name <span class="text-danger ms-1">*</span>
-								</label>
+								<label class="form-label"> Customer Name </label>
 
 								<div class="input-group">
 									<input type="text" id="customerSearch" class="form-control" name="customer_name"
@@ -32,11 +30,11 @@
 								<!-- Custom dropdown results -->
 								<div id="customerNameAutocompleteResults"
 									class="border bg-white position-absolute w-100 shadow-sm rounded mt-1" style="
-										z-index: 1000;
-										display: none;
-										max-height: 200px;
-										overflow-y: auto;
-									"></div>
+                    z-index: 1000;
+                    display: none;
+                    max-height: 200px;
+                    overflow-y: auto;
+                  "></div>
 							</div>
 						</div>
 						<div class="col-lg-8 col-sm-6 col-12">
@@ -60,11 +58,11 @@
 										<div id="autocompleteResults"
 											class="border bg-white position-absolute w-100 shadow-sm rounded mt-1"
 											style="
-												z-index: 1000;
-												display: none;
-												max-height: 200px;
-												overflow-y: auto;
-											"></div>
+                        z-index: 1000;
+                        display: none;
+                        max-height: 200px;
+                        overflow-y: auto;
+                      "></div>
 									</div>
 								</div>
 							</div>
@@ -83,6 +81,7 @@
 													<thead>
 														<tr>
 															<th>Name</th>
+															<th>Unit Price</th>
 															<th>Selling Price</th>
 															<th>Subtotal</th>
 															<th>Quantity</th>
@@ -172,7 +171,7 @@
 					(p) => `
 						<div class="p-2 d-flex justify-content-between align-items-center hover-bg-light"
 							style="cursor:pointer;"
-							data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+							data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-cost="${p.cost}">
 							<span>${p.name}</span>
 							<small class="text-muted">GH${p.price.toFixed(2)}</small>
 						</div>
@@ -190,6 +189,7 @@
 					id: item.dataset.id,
 					name: item.dataset.name,
 					price: parseFloat(item.dataset.price),
+					cost: parseFloat(item.dataset.cost),
 				};
 
 				productSearch.value = selectedProduct.name;
@@ -214,20 +214,32 @@
 				row.innerHTML = `
 					<td>
 						<div class="add-product">
-						<input type="text" class="form-control" value="${selectedProduct.name
+							<input type="text" class="form-control" value="${selectedProduct.name
 					}" readonly />
-						<input type="hidden" name="product_id[]" value="${selectedProduct.id}">
+							<input type="hidden" name="product_id[]" value="${selectedProduct.id}">
 						</div>
 					</td>
 					<td>
 						<div class="add-product">
-						<input type="text" class="form-control" value="${selectedProduct.price.toFixed(
+							<input type="text" class="form-control" value="${selectedProduct.price.toFixed(
 						2
 					)}" readonly />
-						<input type="hidden" name="unit_price[]" value="${selectedProduct.price}">
 						</div>
 					</td>
-					<td class="subtotal">$${selectedProduct.price.toFixed(2)}</td>
+					<td>
+						<div class="add-product">
+							<input 
+								type="text" 
+								class="form-control" 
+								name="unit_price[]" 
+								onblur="handleSellingPrice(this, ${selectedProduct.price.toFixed(2)}, ${selectedProduct.cost.toFixed(2)})"  
+								value="${selectedProduct.price.toFixed(2)}" 
+							/>
+						</div>
+					</td>
+					<td class="subtotal">
+						GH${selectedProduct.price.toFixed(2)}
+					</td>
 					<td>
 						<div class="product-quantity">
 							<span class="quantity-btn minus-btn"><i data-feather="minus-circle" class="feather-search"></i></span>
@@ -347,7 +359,23 @@
 				resultsBox.style.display = "none";
 			}
 		});
+
 	});
+	
+	function handleSellingPrice(input, price, cost_price) {
+		// Convert strings to numbers, just in case
+		const enteredPrice = parseFloat(input.value);
+
+		if (enteredPrice >= cost_price) {
+		// Valid price: optionally update or format
+		input.value = enteredPrice.toFixed(2);
+		} else {
+		// Invalid: revert or show warning
+		alert("Selling price cannot be lower than the cost price!");
+		input.value = price.toFixed(2); // reset to default price
+		input.focus();
+		}
+	}
 </script>
 
 {%endblock%}
