@@ -461,7 +461,7 @@ def searchProducts(request):
     q = request.GET.get('q', '').strip()
     products = Product.objects.filter(product_name__icontains=q)[:10]
     results = [
-        {'id': p.id, 'name': p.product_name, 'price': float(p.product_selling_price)}
+        {'id': p.id, 'name': p.product_name, 'price': float(p.product_selling_price),'cost': float(p.product_cost_price)}
         for p in products
     ]
     return JsonResponse(results, safe=False)
@@ -1125,27 +1125,14 @@ def addSales(request):
     if request.method == 'POST':
         try:
             customer_id = request.POST.get('customer_id')
-            customer_name = request.POST.get('customer_name')
             status = request.POST.get('status', 'Completed')
             payment_mode = request.POST.get('payment_mode', 'Cash')
 
             # Check if customer_id exists
-            if not customer_id:
-                # Split the name into first and last parts
-                name_parts = customer_name.strip().split(" ", 1)
-                first_name = name_parts[0]
-                last_name = name_parts[1] if len(name_parts) > 1 else ""
-
-                # Create a new customer
-                customer = Customer.objects.create(
-                    first_name=first_name,
-                    last_name=last_name
-                )
-            else:
-                # Retrieve existing customer
+            customer = None
+            if customer_id:
                 customer = Customer.objects.get(id=customer_id)
 
-            # Create sale
             sale = Sales.objects.create(
                 customer=customer,
                 status=status,
@@ -1156,7 +1143,12 @@ def addSales(request):
             # Get all product rows
             product_ids = request.POST.getlist('product_id[]')
             quantities = request.POST.getlist('quantity[]')
-            unit_prices = request.POST.getlist('unit_price[]')
+            # Note: unit price is not editable (comes from product), selling price is editable by user
+            selling_prices = request.POST.getlist('selling_price[]') or request.POST.getlist('selling_price')
+
+            print('Products',product_ids)
+            print('Quantities',quantities)
+            print('Selling Prices',selling_prices)
 
             for i in range(len(product_ids)):
                 if not product_ids[i]:
@@ -1166,7 +1158,7 @@ def addSales(request):
                     sale=sale,
                     product=product,
                     quantity=int(quantities[i]),
-                    unit_price=float(unit_prices[i])
+                    selling_price=float(selling_prices[i]) if i < len(selling_prices) and selling_prices[i] else None
                 )
 
             # Create activity notification
@@ -1175,7 +1167,7 @@ def addSales(request):
                 user=request.user,
                 activity_type='sale_created',
                 title=f'New Sale Created',
-                description=f'Sale #{sale.reference} created for {customer.first_name} {customer.last_name} with {total_items} items totaling GHC{sale.total_amount:.2f}',
+                description=f"Sale #{sale.reference} created for {f'{customer.first_name} {customer.last_name}' if customer else 'Walk-in customer'} with {total_items} items totaling GHC{sale.total_amount:.2f}",
                 sale=sale
             )
             
@@ -1183,7 +1175,7 @@ def addSales(request):
 
         except Exception as e:
             messages.error(request, f"Error adding sale: {e}")
-            print(request, f"Error adding sale: {e}")
+            print("Error adding sale:", e)
             return redirect('add-sales')
 
     customers = Customer.objects.all()
