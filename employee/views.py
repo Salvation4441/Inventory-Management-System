@@ -38,6 +38,12 @@ def employee_dashboard(request):
         sale_date__year=current_year
     ).aggregate(total=Sum('total_amount'))['total'] or 0
     
+    # Weekly sales amount - total sales amount for the last 7 days
+    week_ago = today - timedelta(days=7)
+    weekly_sales_amount = user_sales.filter(
+        sale_date__date__gte=week_ago
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    
     # Total number of sales
     total_sales_count = user_sales.count()
     
@@ -54,6 +60,7 @@ def employee_dashboard(request):
         'daily_sales_amount': daily_sales_amount,
         'daily_growth': daily_growth,
         'monthly_sales_amount': monthly_sales_amount,
+        'weekly_sales_amount': weekly_sales_amount,
         'total_sales_count': total_sales_count,
         'recent_transactions': recent_transactions,
     }

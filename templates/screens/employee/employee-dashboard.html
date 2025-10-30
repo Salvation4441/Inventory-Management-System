@@ -74,10 +74,16 @@
               alt="img"
             />
           </div>
-          <h3 class="counters" data-count="{{ total_sales_count|default:0 }}">
-            {{ total_sales_count|default:0 }}
-          </h3>
-          <p>Total Sales</p>
+          <div style="display: flex; gap: 2px">
+            <h3>GHC</h3>
+            <h3
+              class="counters"
+              data-count="{{ weekly_sales_amount|default:0 }}"
+            >
+              {{ weekly_sales_amount|default:0|floatformat:0 }}
+            </h3>
+          </div>
+          <p>Weekly Sales</p>
           <i
             data-feather="rotate-ccw"
             class="feather-16"
@@ -95,12 +101,16 @@
               alt="img"
             />
           </div>
-          <h3
-            class="counters"
-            data-count="{{ monthly_sales_amount|default:0 }}"
-          >
-            GHC{{ monthly_sales_amount|default:0|floatformat:0 }}
-          </h3>
+
+          <div style="display: flex; gap: 2px">
+            <h3>GHC</h3>
+            <h3
+              class="counters"
+              data-count="{{ monthly_sales_amount|default:0 }}"
+            >
+              {{ monthly_sales_amount|default:0|floatformat:0 }}
+            </h3>
+          </div>
           <p>This Month's Sales</p>
           <i
             data-feather="rotate-ccw"
