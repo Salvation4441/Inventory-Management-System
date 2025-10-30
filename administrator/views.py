@@ -1195,6 +1195,22 @@ def saleDetail(request, sale_id):
     sale = get_object_or_404(Sales, id=sale_id)
     items = SalesItem.objects.filter(sale=sale)
     
+    # Handle customer data (can be None for walk-in customers)
+    if sale.customer:
+        customer_data = {
+            "name": f"{sale.customer.first_name} {sale.customer.last_name}",
+            "email": sale.customer.email if hasattr(sale.customer, "email") else "",
+            "phone": sale.customer.phone if hasattr(sale.customer, "phone") else "",
+            "address": sale.customer.address if hasattr(sale.customer, "address") else "",
+        }
+    else:
+        customer_data = {
+            "name": "Walk-in Customer",
+            "email": "",
+            "phone": "",
+            "address": "",
+        }
+    
     sale_data = {
         "id": sale.id,
         "reference": sale.reference,
@@ -1202,12 +1218,7 @@ def saleDetail(request, sale_id):
         "payment_mode": sale.payment_mode,
         "sale_date": sale.sale_date.strftime("%b %d, %Y"),
         "total_amount": sale.total_amount,
-        "customer": {
-            "name": f"{sale.customer.first_name} {sale.customer.last_name}",
-            "email": sale.customer.email if hasattr(sale.customer, "email") else "",
-            "phone": sale.customer.phone if hasattr(sale.customer, "phone") else "",
-            "address": sale.customer.address if hasattr(sale.customer, "address") else "",
-        },
+        "customer": customer_data,
         "user": str(sale.user),
         "items": [
             {
