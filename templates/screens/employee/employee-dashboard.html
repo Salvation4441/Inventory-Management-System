@@ -11,7 +11,7 @@
         &nbsp;
         <h6>here's what's happening with your store today.</h6>
       </div>
-      <div class="d-flex align-items-center">      
+      <div class="d-flex align-items-center">
         <ul class="table-top-head">
           <li>
             <a
@@ -40,22 +40,24 @@
           class="card d-flex align-items-center justify-content-between flex-fill mb-4"
         >
           <div>
-            <h6>Weekly Earning</h6>
+            <h6>Today's Sales</h6>
             <h3>
-              GHC<span class="counters" data-count="{{ weekly_earnings }}"
-                >{{ weekly_earnings|floatformat:2 }}</span
+              GHC<span
+                class="counters"
+                data-count="{{ daily_sales_amount|default:0 }}"
+                >{{ daily_sales_amount|default:0|floatformat:2 }}</span
               >
             </h3>
             <p class="sales-range">
-              {% if weekly_growth >= 0 %}
+              {% if daily_growth >= 0 %}
               <span class="text-success"
                 ><i data-feather="chevron-up" class="feather-16"></i>
-                {{weekly_growth|floatformat:0 }}%&nbsp;</span
-              >increase compare to last week {% else %}
+                {{daily_growth|default:0|floatformat:0 }}%&nbsp;</span
+              >increase compare to yesterday {% else %}
               <span class="text-danger"
                 ><i data-feather="chevron-down" class="feather-16"></i>
-                {{weekly_growth|floatformat:0 }}%&nbsp;</span
-              >decrease compare to last week {% endif %}
+                {{daily_growth|default:0|floatformat:0 }}%&nbsp;</span
+              >decrease compare to yesterday {% endif %}
             </p>
           </div>
           <img
@@ -72,10 +74,10 @@
               alt="img"
             />
           </div>
-          <h3 class="counters" data-count="{{ total_sales_count }}">
-            {{ total_sales_count }}+
+          <h3 class="counters" data-count="{{ total_sales_count|default:0 }}">
+            {{ total_sales_count|default:0 }}
           </h3>
-          <p>No of Total Sales</p>
+          <p>Total Sales</p>
           <i
             data-feather="rotate-ccw"
             class="feather-16"
@@ -93,8 +95,11 @@
               alt="img"
             />
           </div>
-          <h3 class="counters" data-count="{{ monthly_sales_count }}">
-            {{ monthly_sales_count }}+
+          <h3
+            class="counters"
+            data-count="{{ monthly_sales_amount|default:0 }}"
+          >
+            GHC{{ monthly_sales_amount|default:0|floatformat:0 }}
           </h3>
           <p>This Month's Sales</p>
           <i
@@ -114,17 +119,17 @@
             class="card-header d-flex justify-content-between align-items-center"
           >
             <h4 class="card-title mb-0">Recent Transactions</h4>
-			 <div class="input-icon-start position-relative me-2">
-				<span class="input-icon-addon fs-16 text-gray-9">
-					<i class="ti ti-search"></i>
-				</span>
-				<input
-					type="text"
-					id="searchSales"
-					class="form-control"
-					placeholder="Search by reference or customer..."
-				/>
-			 </div>
+            <div class="input-icon-start position-relative me-2">
+              <span class="input-icon-addon fs-16 text-gray-9">
+                <i class="ti ti-search"></i>
+              </span>
+              <input
+                type="text"
+                id="searchSales"
+                class="form-control"
+                placeholder="Search by reference or customer..."
+              />
+            </div>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -180,7 +185,7 @@
                         class="badge badge-success badge-xs d-inline-flex align-items-center"
                       >
                         <i class="ti ti-circle-filled fs-5 me-1"></i>
-						{{ sale.status }}
+                        {{ sale.status }}
                       </span>
                       {% elif sale.status == 'Pending' %}
                       <span

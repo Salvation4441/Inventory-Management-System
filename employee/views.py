@@ -9,39 +9,37 @@ from datetime import datetime, timedelta
 def employee_dashboard(request):
     user = request.user
     today = datetime.now().date()
-    week_ago = today - timedelta(days=7)
     
     # Get sales data for the current salesperson
     user_sales = Sales.objects.filter(user=user, status='Completed')
     
-    # Weekly earnings - total sales amount for the last 7 days
-    weekly_earnings = user_sales.filter(
-        sale_date__date__gte=week_ago
+    # Daily sales amount - total sales amount for today
+    daily_sales_amount = user_sales.filter(
+        sale_date__date=today
     ).aggregate(total=Sum('total_amount'))['total'] or 0
     
-    # Calculate weekly earnings growth (compare to previous week)
-    previous_week_start = week_ago - timedelta(days=7)
-    previous_week_earnings = user_sales.filter(
-        sale_date__date__gte=previous_week_start,
-        sale_date__date__lt=week_ago
+    # Calculate daily sales growth (compare to yesterday)
+    yesterday = today - timedelta(days=1)
+    yesterday_sales = user_sales.filter(
+        sale_date__date=yesterday
     ).aggregate(total=Sum('total_amount'))['total'] or 0
     
-    weekly_growth = 0
-    if previous_week_earnings > 0:
-        weekly_growth = ((weekly_earnings - previous_week_earnings) / previous_week_earnings) * 100
-    elif weekly_earnings > 0:
-        weekly_growth = 100
+    daily_growth = 0
+    if yesterday_sales > 0:
+        daily_growth = ((daily_sales_amount - yesterday_sales) / yesterday_sales) * 100
+    elif daily_sales_amount > 0:
+        daily_growth = 100
+    
+    # Monthly sales amount - total sales amount for current month
+    current_month = today.month
+    current_year = today.year
+    monthly_sales_amount = user_sales.filter(
+        sale_date__month=current_month,
+        sale_date__year=current_year
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
     
     # Total number of sales
     total_sales_count = user_sales.count()
-    
-    # Total sales this month
-    current_month = today.month
-    current_year = today.year
-    monthly_sales_count = user_sales.filter(
-        sale_date__month=current_month,
-        sale_date__year=current_year
-    ).count()
     
     # Recent transactions (last 5 sales)
     recent_transactions = Sales.objects.filter(
@@ -53,10 +51,10 @@ def employee_dashboard(request):
     context = {
         'isSalesPerson': True,
         'user': user,
-        'weekly_earnings': weekly_earnings,
-        'weekly_growth': weekly_growth,
+        'daily_sales_amount': daily_sales_amount,
+        'daily_growth': daily_growth,
+        'monthly_sales_amount': monthly_sales_amount,
         'total_sales_count': total_sales_count,
-        'monthly_sales_count': monthly_sales_count,
         'recent_transactions': recent_transactions,
     }
     
