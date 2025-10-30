@@ -154,7 +154,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% if recent_transactions %} {% for sale in recent_transactions %}
+                  {% if recent_transactions %} 
+				  {% for sale in recent_transactions %}
                   <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>
