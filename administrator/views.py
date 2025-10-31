@@ -1488,9 +1488,9 @@ def sales(request):
     user = request.user  # current logged-in user
     
     if user.role == 'ADMIN':  
-        sales = Sales.objects.all()
+        sales = Sales.objects.all().order_by('-id')
     else:
-        sales = Sales.objects.filter(user=user)  # assuming Sales has a ForeignKey to User
+        sales = Sales.objects.filter(user=user).order_by('-id')  # assuming Sales has a ForeignKey to User
 
     return render(request, 'screens/administrator/sales.html', {'sales': sales})
 
@@ -1498,8 +1498,11 @@ def sales(request):
 @transaction.atomic
 def addSales(request):
     if request.method == 'POST':
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        
         try:
             customer_id = request.POST.get('customer_id')
+            customer_name = request.POST.get('customer_name')
             status = request.POST.get('status', 'Completed')
             payment_mode = request.POST.get('payment_mode', 'Cash')
 
@@ -1511,13 +1514,19 @@ def addSales(request):
 
             # Validate that at least one product has been added
             if not product_ids or len(product_ids) == 0:
-                messages.error(request, "Please add at least one product before submitting the sale.")
+                error_msg = "Please add at least one product before submitting the sale."
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': error_msg})
+                messages.error(request, error_msg)
                 return redirect('add-sales')
             
             # Filter out empty product IDs and validate
             valid_products = [pid for pid in product_ids if pid and pid.strip()]
             if len(valid_products) == 0:
-                messages.error(request, "Please add at least one valid product before submitting the sale.")
+                error_msg = "Please add at least one valid product before submitting the sale."
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': error_msg})
+                messages.error(request, error_msg)
                 return redirect('add-sales')
             
             # Validate quantities and selling prices
@@ -1527,22 +1536,39 @@ def addSales(request):
                     
                 # Check quantity
                 if i >= len(quantities) or not quantities[i] or int(quantities[i]) <= 0:
-                    messages.error(request, f"Invalid quantity for product. All products must have a quantity greater than 0.")
+                    error_msg = f"Invalid quantity for product. All products must have a quantity greater than 0."
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'message': error_msg})
+                    messages.error(request, error_msg)
                     return redirect('add-sales')
                 
                 # Check selling price  
                 if i >= len(selling_prices) or not selling_prices[i] or float(selling_prices[i]) <= 0:
-                    messages.error(request, f"Invalid selling price for product. All products must have a selling price greater than 0.")
+                    error_msg = f"Invalid selling price for product. All products must have a selling price greater than 0."
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'message': error_msg})
+                    messages.error(request, error_msg)
                     return redirect('add-sales')
 
-            print('Products',product_ids)
-            print('Quantities',quantities)
-            print('Selling Prices',selling_prices)
 
             # Check if customer_id exists
             customer = None
             if customer_id:
                 customer = Customer.objects.get(id=customer_id)
+            else:
+                # Split customer name into first and last name if it contains a space
+                if customer_name and ' ' in customer_name.strip():
+                    name_parts = customer_name.strip().split(' ', 1)
+                    first_name = name_parts[0]
+                    last_name = name_parts[1] if len(name_parts) > 1 else ''
+                else:
+                    first_name = customer_name.strip() if customer_name else 'Walk-in'
+                    last_name = 'Customer'
+                
+                customer = Customer.objects.create(
+                    first_name=first_name,
+                    last_name=last_name
+                )
 
             sale = Sales.objects.create(
                 customer=customer,
@@ -1577,7 +1603,10 @@ def addSales(request):
             if created_items_count == 0:
                 # Delete the sale if no items were created
                 sale.delete()
-                messages.error(request, "No valid products were added to the sale. Please try again.")
+                error_msg = "No valid products were added to the sale. Please try again."
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': error_msg})
+                messages.error(request, error_msg)
                 return redirect('add-sales')
 
             # Create activity notification
@@ -1591,10 +1620,23 @@ def addSales(request):
             )
             
             messages.success(request, f"Sale added successfully! Created sale #{sale.reference} with {created_items_count} items.")
+            
+            # Check if this is an AJAX request
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': f"Sale added successfully! Created sale #{sale.reference} with {created_items_count} items.",
+                    'sale_id': sale.id,
+                    'sale_reference': sale.reference
+                })
+            
             return redirect('sale-receipt', sale_id=sale.id)
 
         except Exception as e:
-            messages.error(request, f"Error adding sale: {e}")
+            error_msg = f"Error adding sale: {e}"
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': error_msg})
+            messages.error(request, error_msg)
             print("Error adding sale:", e)
             return redirect('add-sales')
 
@@ -1686,6 +1728,10 @@ def sale_receipt(request, sale_id):
         'company_info': company_info,
         'isSalesPerson': getattr(request.user, 'role', '').upper() == 'SALESPERSON',
     }
+    
+    # Check if this is an AJAX request for modal content
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'modal' in request.GET:
+        return render(request, 'screens/administrator/receipt-content.html', context)
     
     return render(request, 'screens/administrator/sale-receipt.html', context)
 
