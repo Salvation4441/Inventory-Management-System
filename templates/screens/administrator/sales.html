@@ -1,295 +1,405 @@
-{% extends 'base.html' %}
-{% block content %}
-{% load static %}
+{% extends 'base.html' %} {% block content %} {% load static %}
 <div class="page-wrapper">
-	<div class="content">
-		<div class="page-header">
-			<div class="add-item d-flex">
-				<div class="page-title">
-					<h4>Sales</h4>
-					<h6>Manage Your Sales</h6>
-				</div>
-			</div>
-			<ul class="table-top-head">
-				<li>
-					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
-							src="{%static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
-				</li>
-				<li>
-					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"><img
-							src="{%static 'assets/img/icons/excel.svg' %}" alt="img"></a>
-				</li>
-				<li>
-					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i
-							class="ti ti-refresh"></i></a>
-				</li>
-				<li>
-					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
-							class="ti ti-chevron-up"></i></a>
-				</li>
-			</ul>
-			<div class="page-btn">
-				<a href="{%url 'add-sales'%}" class="btn btn-primary" data-bs-target="#add-sales-new"><i
-						class="ti ti-circle-plus me-1"></i>Add Sales</a>
-			</div>
-		</div>
+  <div class="content">
+    <div class="page-header">
+      <div class="add-item d-flex">
+        <div class="page-title">
+          <h4>Sales</h4>
+          <h6>Manage Your Sales</h6>
+        </div>
+      </div>
+      <ul class="table-top-head">
+        <li>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"
+            ><img src="{%static 'assets/img/icons/pdf.svg' %}" alt="img"
+          /></a>
+        </li>
+        <li>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"
+            ><img src="{%static 'assets/img/icons/excel.svg' %}" alt="img"
+          /></a>
+        </li>
+        <li>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"
+            ><i class="ti ti-refresh"></i
+          ></a>
+        </li>
+        <li>
+          <a
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Collapse"
+            id="collapse-header"
+            ><i class="ti ti-chevron-up"></i
+          ></a>
+        </li>
+      </ul>
+      <div class="page-btn">
+        <a
+          href="{%url 'add-sales'%}"
+          class="btn btn-primary"
+          data-bs-target="#add-sales-new"
+          ><i class="ti ti-circle-plus me-1"></i>Add Sales</a
+        >
+      </div>
+    </div>
 
-		<div class="card">
-			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-				<div class="search-set">
-					<div class="search-input">
-						<span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
-					</div>
-				</div>			
-			</div>
-			<div class="card-body p-0">
-				<div class="table-responsive">
-					<table class="table datatable">
-						<thead class="thead-light">
-							<tr>
-								<th class="no-sort">
-									<label class="checkboxs">
-										<input type="checkbox" id="select-all">
-										<span class="checkmarks"></span>
-									</label>
-								</th>
-								<th>Customer</th>
-								<th>Reference</th>
-								<th>Date</th>
-								<th>Status</th>
-								<th>Grand Total</th>
-								<th>Payment Status</th>
-								<th>Biller</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody class="sales-list">
-							{% for sale in sales %}
-							<tr>
-								<td>
-									<label class="checkboxs">
-										<input type="checkbox">
-										<span class="checkmarks"></span>
-									</label>
-								</td>
-								<td>
-									<div class="d-flex align-items-center">
-										<a href="javascript:void(0);" class="avatar avatar-md me-2">
-											<img src="{%static 'assets/img/users/user-27.jpg' %}" alt="product">
-										</a>
-										<a href="javascript:void(0);">{{sale.customer}}</a>
-									</div>
-								</td>
-								<td>{{sale.reference}}</td>
-								<td>{{sale.sale_date}}</td>
-								{% if sale.status == 'Completed' %}
-									<td><span class="badge badge-success">{{sale.status}}</span></td>
-								{% elif sale.status == 'Pending' %}
-									<td><span class="badge badge-warning">{{sale.status}}</span></td>
-								{% endif %}
-								<td>GH {{sale.total_amount}}</td>
-								<td><span class="badge badge-soft-success shadow-none badge-xs"><i
-											class="ti ti-point-filled me-1"></i>Paid</span></td>
-								<td>{{sale.user}}</td>
-								<td class="text-center">
-									<a class="action-set" href="javascript:void(0);" data-bs-toggle="dropdown"
-										aria-expanded="true">
-										<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-									</a>
-									<ul class="dropdown-menu">
-										<li>
-											<a href="javascript:void(0);" class="dropdown-item btn-sale-detail"
-												data-sale-id="{{ sale.id }}" data-bs-toggle="modal"
-												data-bs-target="#sales-details-new">
-												<i data-feather="eye" class="info-img"></i>Sale Detail
-											</a>
-										</li>
-										<li>
-											<a href="javascript:void(0);" 
-												class="dropdown-item mb-0 btn-delete-sale"
-												data-bs-toggle="modal" 
-												data-bs-target="#delete-sale-modal"
-												data-sale-id="{{ sale.id }}"
-												data-sale-reference="{{ sale.reference }}">
-												<i data-feather="trash-2" class="info-img"></i>Delete Sale
-											</a>
-										</li>
-									</ul>
-								</td>
-							</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-
+    <div class="card">
+      <div
+        class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3"
+      >
+        <div class="search-set">
+          <div class="search-input">
+            <span class="btn-searchset"
+              ><i class="ti ti-search fs-14 feather-search"></i
+            ></span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table datatable">
+            <thead class="thead-light">
+              <tr>
+                <th class="no-sort">
+                  <label class="checkboxs">
+                    <input type="checkbox" id="select-all" />
+                    <span class="checkmarks"></span>
+                  </label>
+                </th>
+                <th>Customer</th>
+                <th>Reference</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Grand Total</th>
+                <th>Payment Status</th>
+                <th>Biller</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody class="sales-list">
+              {% for sale in sales %}
+              <tr>
+                <td>
+                  <label class="checkboxs">
+                    <input type="checkbox" />
+                    <span class="checkmarks"></span>
+                  </label>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <a href="javascript:void(0);" class="avatar avatar-md me-2">
+                      <img
+                        src="{%static 'assets/img/users/user-27.jpg' %}"
+                        alt="product"
+                      />
+                    </a>
+                    <a href="javascript:void(0);">{{sale.customer}}</a>
+                  </div>
+                </td>
+                <td>{{sale.reference}}</td>
+                <td>{{sale.sale_date}}</td>
+                {% if sale.status == 'Completed' %}
+                <td>
+                  <span class="badge badge-success">{{sale.status}}</span>
+                </td>
+                {% elif sale.status == 'Pending' %}
+                <td>
+                  <span class="badge badge-warning">{{sale.status}}</span>
+                </td>
+                {% endif %}
+                <td>GH {{sale.total_amount}}</td>
+                <td>
+                  <span class="badge badge-soft-success shadow-none badge-xs"
+                    ><i class="ti ti-point-filled me-1"></i>Paid</span
+                  >
+                </td>
+                <td>{{sale.user}}</td>
+                <td class="text-center">
+                  <a
+                    class="action-set"
+                    href="javascript:void(0);"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="true"
+                  >
+                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a
+                        href="javascript:void(0);"
+                        class="dropdown-item btn-sale-detail"
+                        data-sale-id="{{ sale.id }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#sales-details-new"
+                      >
+                        <i data-feather="eye" class="info-img"></i>Sale Detail
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="javascript:void(0);"
+                        class="dropdown-item btn-print-receipt"
+                        data-sale-id="{{ sale.id }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#receipt-modal"
+                      >
+                        <i data-feather="printer" class="info-img"></i>Print
+                        Receipt
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="javascript:void(0);"
+                        class="dropdown-item mb-0 btn-delete-sale"
+                        data-bs-toggle="modal"
+                        data-bs-target="#delete-sale-modal"
+                        data-sale-id="{{ sale.id }}"
+                        data-sale-reference="{{ sale.reference }}"
+                      >
+                        <i data-feather="trash-2" class="info-img"></i>Delete
+                        Sale
+                      </a>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Modal -->
 <!-- details popup -->
 <div class="modal fade" id="sales-details-new">
+  <div class="modal-dialog sales-details-modal">
+    <div class="modal-content">
+      <div id="sale-loading" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary"></div>
+        <p>Loading sale details...</p>
+      </div>
+      <div class="page-header p-4 border-bottom mb-0">
+        <div class="add-item d-flex align-items-center">
+          <div class="page-title modal-datail">
+            <h4 class="mb-0 me-2">Sales Detail</h4>
+          </div>
+        </div>
+        <ul class="table-top-head">
+          <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"
+              ><img src="{%static 'assets/img/icons/pdf.svg' %}" alt="img"
+            /></a>
+          </li>
+          <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"
+              ><img src="{%static 'assets/img/icons/printer.svg' %}" alt="img"
+            /></a>
+          </li>
+        </ul>
+        <div class="page-btn">
+          <a
+            data-bs-dismiss="modal"
+            aria-label="Close"
+            class="btn btn-secondary"
+            ><i data-feather="arrow-left" class="me-2"></i> Back to Sales</a
+          >
+        </div>
+      </div>
 
-	<div class="modal-dialog sales-details-modal">
-		<div class="modal-content">
-			<div id="sale-loading" class="text-center py-4 d-none">
-				<div class="spinner-border text-primary"></div>
-				<p>Loading sale details...</p>
-			</div>
-			<div class="page-header p-4 border-bottom mb-0">
-				<div class="add-item d-flex align-items-center">
-					<div class="page-title modal-datail">
-						<h4 class="mb-0 me-2">Sales Detail</h4>
-					</div>
-				</div>
-				<ul class="table-top-head">
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
-								src="{%static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
-					</li>
-					<li>
-						<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
-								src="{%static 'assets/img/icons/printer.svg' %}" alt="img"></a>
-					</li>
-				</ul>
-				<div class="page-btn">
-					<a data-bs-dismiss="modal" aria-label="Close" class="btn btn-secondary"><i data-feather="arrow-left"
-							class="me-2"></i> Back to Sales</a>
-				</div>
-			</div>
-
-			<form>
-				<div class="card border-0">
-					<div class="card-body pb-0">
-						<div class="invoice-box table-height"
-							style="max-width: 1600px;width:100%;padding: 0;font-size: 14px;line-height: 24px;color: #555;">
-							<div class="row sales-details-items d-flex">
-								<div class="col-md-4 details-item">
-									<h6>Customer Info</h6>
-									<h4 class="mb-1">Carl Evans</h4>
-									<p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
-									<p class="mb-0">Email<span><a href="" class="__cf_email__"
-												data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe">[email&#160;protected]</a></span>
-									</p>
-									<p class="mb-0">Phone<span>+1 987 471 6589</span></p>
-								</div>
-								<div class="opacity-0 col-md-4 details-item">
-									<h6>Company Info</h6>
-									<h4 class="mb-1">DGT</h4>
-									<p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
-									<p class="mb-0">Email<span><a href="" class="__cf_email__"
-												data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></span>
-									</p>
-									<p class="mb-0">Phone<span>+1 893 174 0385</span></p>
-								</div>
-								<div class="col-md-4 details-item">
-									<h6>Invoice Info</h6>
-									<p class="mb-0">Reference: <span class="fs-16 text-primary ms-2">#SL0101</span></p>
-									<p class="mb-0">Reference: <span class="ms-2 text-gray-9">Dec 24, 2024</span></p>
-									<p class="mb-0">Status: <span class="badge badge-success ms-2">Completed</span></p>
-									<p class="mb-0">Payment Status: <span
-											class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2">
-											<i class="ti ti-point-filled"></i>Paid</span></p>
-								</div>
-							</div>
-							<h5 class="order-text">Order Summary</h5>
-							<div class="table-responsive no-pagination mb-3">
-								<table id="productTableBody" class="table border">
-									<thead>
-										<tr>
-											<th>Name</th>
-											<th>Selling Price</th>
-											<th>Subtotal</th>
-											<th>Quantity</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-lg-6 ms-auto">
-								<div class="total-order w-100 max-widthauto m-auto mb-4">
-									<ul class="border-1 rounded-2">
-										<li class="border-bottom">
-											<h4 class="border-end">Grand Total</h4>
-											<h5 id="grandTotal">GH 0.00</h5>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				
-			</form>
-		</div>
-	</div>
+      <form>
+        <div class="card border-0">
+          <div class="card-body pb-0">
+            <div
+              class="invoice-box table-height"
+              style="
+                max-width: 1600px;
+                width: 100%;
+                padding: 0;
+                font-size: 14px;
+                line-height: 24px;
+                color: #555;
+              "
+            >
+              <div class="row sales-details-items d-flex">
+                <div class="col-md-4 details-item">
+                  <h6>Customer Info</h6>
+                  <h4 class="mb-1">Carl Evans</h4>
+                  <p class="mb-0">3103 Trainer Avenue Peoria, IL 61602</p>
+                  <p class="mb-0">
+                    Email<span
+                      ><a
+                        href=""
+                        class="__cf_email__"
+                        data-cfemail="93f0f2e1fff6e5f2fde0a1a7a2d3f6ebf2fee3fff6bdf0fcfe"
+                        >[email&#160;protected]</a
+                      ></span
+                    >
+                  </p>
+                  <p class="mb-0">Phone<span>+1 987 471 6589</span></p>
+                </div>
+                <div class="opacity-0 col-md-4 details-item">
+                  <h6>Company Info</h6>
+                  <h4 class="mb-1">DGT</h4>
+                  <p class="mb-0">2077 Chicago Avenue Orosi, CA 93647</p>
+                  <p class="mb-0">
+                    Email<span
+                      ><a
+                        href=""
+                        class="__cf_email__"
+                        data-cfemail="80e1e4ede9eec0e5f8e1edf0ece5aee3efed"
+                        >[email&#160;protected]</a
+                      ></span
+                    >
+                  </p>
+                  <p class="mb-0">Phone<span>+1 893 174 0385</span></p>
+                </div>
+                <div class="col-md-4 details-item">
+                  <h6>Invoice Info</h6>
+                  <p class="mb-0">
+                    Reference:
+                    <span class="fs-16 text-primary ms-2">#SL0101</span>
+                  </p>
+                  <p class="mb-0">
+                    Reference:
+                    <span class="ms-2 text-gray-9">Dec 24, 2024</span>
+                  </p>
+                  <p class="mb-0">
+                    Status:
+                    <span class="badge badge-success ms-2">Completed</span>
+                  </p>
+                  <p class="mb-0">
+                    Payment Status:
+                    <span
+                      class="badge badge-soft-success shadow-none badge-xs d-inline-flex align-items-center ms-2"
+                    >
+                      <i class="ti ti-point-filled"></i>Paid</span
+                    >
+                  </p>
+                </div>
+              </div>
+              <h5 class="order-text">Order Summary</h5>
+              <div class="table-responsive no-pagination mb-3">
+                <table id="productTableBody" class="table border">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Selling Price</th>
+                      <th>Subtotal</th>
+                      <th>Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 ms-auto">
+                <div class="total-order w-100 max-widthauto m-auto mb-4">
+                  <ul class="border-1 rounded-2">
+                    <li class="border-bottom">
+                      <h4 class="border-end">Grand Total</h4>
+                      <h5 id="grandTotal">GH 0.00</h5>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 <!-- /details popup -->
 
 <!-- Delete Sale Modal -->
 <div class="modal fade modal-default" id="delete-sale-modal">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-body p-0">
-				<div class="success-wrap text-center">
-					<form method="POST" id="delete-sale-form">
-						{% csrf_token %}
-						<div class="icon-success bg-danger-transparent text-danger mb-2">
-							<i class="ti ti-trash"></i>
-						</div>
-						<h3 class="mb-2">Delete Sale</h3>
-						<p class="fs-16 mb-3" id="delete-sale-text">
-							Are you sure you want to delete this sale?
-						</p>
-						<div class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-3">
-							<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
-								No, Cancel
-							</button>
-							<button type="submit" class="btn btn-md btn-primary">Yes, Delete</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <div class="success-wrap text-center">
+          <form method="POST" id="delete-sale-form">
+            {% csrf_token %}
+            <div class="icon-success bg-danger-transparent text-danger mb-2">
+              <i class="ti ti-trash"></i>
+            </div>
+            <h3 class="mb-2">Delete Sale</h3>
+            <p class="fs-16 mb-3" id="delete-sale-text">
+              Are you sure you want to delete this sale?
+            </p>
+            <div
+              class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-3"
+            >
+              <button
+                type="button"
+                class="btn btn-md btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                No, Cancel
+              </button>
+              <button type="submit" class="btn btn-md btn-primary">
+                Yes, Delete
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		const detailButtons = document.querySelectorAll(".btn-sale-detail");
-		const loading = document.querySelector("#sale-loading");
-		const deleteButtons = document.querySelectorAll(".btn-delete-sale");
-    	const deleteForm = document.getElementById("delete-sale-form");
-    	const deleteText = document.getElementById("delete-sale-text");
+  document.addEventListener("DOMContentLoaded", function () {
+    const detailButtons = document.querySelectorAll(".btn-sale-detail");
+    const loading = document.querySelector("#sale-loading");
+    const deleteButtons = document.querySelectorAll(".btn-delete-sale");
+    const deleteForm = document.getElementById("delete-sale-form");
+    const deleteText = document.getElementById("delete-sale-text");
 
-		loading.classList.remove("d-none");
-		detailButtons.forEach(btn => {
-			btn.addEventListener("click", function () {
-				const saleId = this.getAttribute("data-sale-id");
+    loading.classList.remove("d-none");
+    detailButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const saleId = this.getAttribute("data-sale-id");
 
-				fetch(`/sales/${saleId}/detail/`)
-					.then(response => response.json())
-					.then(data => {
-						// Populate customer info
-						document.querySelector("#sales-details-new .details-item:nth-child(1) h4").textContent = data.customer.name;
-						document.querySelector("#sales-details-new .details-item:nth-child(1) p:nth-child(3)").textContent = data.customer.address;
-						document.querySelector("#sales-details-new .details-item:nth-child(1) p:nth-child(4) span").textContent = data.customer.email;
-						document.querySelector("#sales-details-new .details-item:nth-child(1) p:nth-child(5) span").textContent = data.customer.phone;
+        fetch(`/sales/${saleId}/detail/`)
+          .then((response) => response.json())
+          .then((data) => {
+            // Populate customer info
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(1) h4"
+            ).textContent = data.customer.name;
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(1) p:nth-child(3)"
+            ).textContent = data.customer.address;
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(1) p:nth-child(4) span"
+            ).textContent = data.customer.email;
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(1) p:nth-child(5) span"
+            ).textContent = data.customer.phone;
 
-						// Populate invoice info
-						document.querySelector("#sales-details-new .details-item:nth-child(3) span.text-primary").textContent = `#${data.reference}`;
-						document.querySelector("#sales-details-new .details-item:nth-child(3) .text-gray-9").textContent = data.sale_date;
-						document.querySelector("#sales-details-new .details-item:nth-child(3) .badge-success").textContent = data.status;
-						document.querySelector("#grandTotal").textContent = data.total_amount.toFixed(2);
+            // Populate invoice info
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(3) span.text-primary"
+            ).textContent = `#${data.reference}`;
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(3) .text-gray-9"
+            ).textContent = data.sale_date;
+            document.querySelector(
+              "#sales-details-new .details-item:nth-child(3) .badge-success"
+            ).textContent = data.status;
+            document.querySelector("#grandTotal").textContent =
+              data.total_amount.toFixed(2);
 
-						// Populate items table
-						const tbody = document.querySelector("#productTableBody tbody");
-						
-						tbody.innerHTML = "";
-						data.items.forEach(item => {
-							tbody.innerHTML += `
+            // Populate items table
+            const tbody = document.querySelector("#productTableBody tbody");
+
+            tbody.innerHTML = "";
+            data.items.forEach((item) => {
+              tbody.innerHTML += `
                             <tr>
 								<td>
 									${item.product}
@@ -305,29 +415,207 @@
 								</td>
                             </tr>
                         `;
-						});
-
-					})
-					.then(data => { loading.classList.add("d-none") })
-					.catch(error => {
-						console.error("Error loading sale detail:", error);
-					});
-			});
-		});
-		
-		deleteButtons.forEach(button => {
-        button.addEventListener("click", function() {
-            const saleId = this.getAttribute("data-sale-id");
-            const reference = this.getAttribute("data-sale-reference");
-
-            // Update modal text
-            deleteText.textContent = `Are you sure you want to delete sale ${reference}?`;
-
-            // Set the form action
-            deleteForm.action = `/sales/${saleId}/delete/`;
-        });
+            });
+          })
+          .then((data) => {
+            loading.classList.add("d-none");
+          })
+          .catch((error) => {
+            console.error("Error loading sale detail:", error);
+          });
+      });
     });
-	});
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const saleId = this.getAttribute("data-sale-id");
+        const reference = this.getAttribute("data-sale-reference");
+
+        // Update modal text
+        deleteText.textContent = `Are you sure you want to delete sale ${reference}?`;
+
+        // Set the form action
+        deleteForm.action = `/sales/${saleId}/delete/`;
+      });
+    });
+  });
 </script>
+
+<!-- Receipt Modal -->
+<div
+  class="modal fade"
+  id="receipt-modal"
+  tabindex="-1"
+  aria-labelledby="receiptModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="receiptModalLabel">
+          <i class="ti ti-receipt me-2"></i>Sale Receipt
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="receipt-loading" class="text-center py-5 d-none">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted">Loading receipt...</p>
+        </div>
+        <div id="receipt-content" class="receipt-container">
+          <!-- Receipt content will be loaded here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="ti ti-x me-1"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="printReceiptBtn">
+          <i class="ti ti-printer me-1"></i>Print Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Receipt modal functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    const printReceiptButtons = document.querySelectorAll(".btn-print-receipt");
+    const receiptModal = document.getElementById("receipt-modal");
+    const receiptContent = document.getElementById("receipt-content");
+    const receiptLoading = document.getElementById("receipt-loading");
+    const printReceiptBtn = document.getElementById("printReceiptBtn");
+
+    printReceiptButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const saleId = this.dataset.saleId;
+        loadReceipt(saleId);
+      });
+    });
+
+    function loadReceipt(saleId) {
+      receiptLoading.classList.remove("d-none");
+      receiptContent.innerHTML = "";
+
+      fetch(`/sales/${saleId}/receipt/?modal=true`, {
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.text())
+        .then((html) => {
+          receiptLoading.classList.add("d-none");
+          receiptContent.innerHTML = html;
+        })
+        .catch((error) => {
+          receiptLoading.classList.add("d-none");
+          receiptContent.innerHTML =
+            '<div class="alert alert-danger">Error loading receipt: ' +
+            error.message +
+            "</div>";
+          console.error("Error loading receipt:", error);
+        });
+    }
+
+    printReceiptBtn.addEventListener("click", function () {
+      const receiptHtml = receiptContent.innerHTML;
+      if (receiptHtml) {
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Receipt</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .receipt-card { box-shadow: none !important; border: none !important; }
+                            .page-header, .btn, .modal-footer { display: none !important; }
+                            @media print {
+                                body { margin: 0; }
+                                .receipt-card { box-shadow: none !important; border: none !important; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${receiptHtml}
+                    </body>
+                    </html>
+                `);
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Receipt Modal Styles */
+  #receipt-modal .modal-dialog {
+    max-width: 900px;
+  }
+
+  #receipt-modal .receipt-container {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  #receipt-modal .receipt-card {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  #receipt-modal .receipt-card .card-body {
+    padding: 2rem;
+  }
+
+  /* Print styles for modal */
+  @media print {
+    .modal,
+    .modal-backdrop {
+      display: none !important;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .receipt-card,
+    .receipt-card * {
+      visibility: visible;
+    }
+
+    .receipt-card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 20px !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+  }
+
+  /* Badge styles */
+  .badge-success {
+    background-color: #28a745;
+    color: white;
+  }
+
+  .badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+</style>
 
 {%endblock%}
