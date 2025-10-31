@@ -1,7 +1,8 @@
 import code
+import json
+from decimal import Decimal
 from os import name
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.urls import reverse
 from administrator.forms import CustomerForm
 from administrator.models import Category, Customer, Product
@@ -19,7 +20,6 @@ from django.utils.dateparse import parse_date
 from django.db import transaction
 from .models import Category, Product, SalesItem
 from django.db.models import Sum
-from django.db.models import Q
 from django.db.models import Count, Sum, F, Q
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -602,15 +602,230 @@ def deleteManageStock(request, stock_id):
 
 
 # annual report page
+@admin_only
 def annualReport(request):
-    return render(request,'screens/administrator/annual-report.html')
+    # Get selected year from request or default to current year
+    selected_year = int(request.GET.get('year', datetime.now().year))
+    
+    # Date range for the selected year
+    year_start = datetime(selected_year, 1, 1).date()
+    year_end = datetime(selected_year, 12, 31).date()
+    
+    # Get previous year for comparison
+    prev_year = selected_year - 1
+    prev_year_start = datetime(prev_year, 1, 1).date()
+    prev_year_end = datetime(prev_year, 12, 31).date()
+    
+    # Annual Financial Metrics
+    yearly_sales = Sales.objects.filter(
+        status='Completed',
+        sale_date__date__range=[year_start, year_end]
+    )
+    
+    # Calculate yearly totals
+    annual_revenue = yearly_sales.aggregate(total=Sum('total_amount'))['total'] or 0
+    annual_orders = yearly_sales.count()
+    annual_customers = yearly_sales.values('customer').distinct().count()
+    
+    # Calculate annual profit
+    yearly_items = SalesItem.objects.filter(
+        sale__status='Completed',
+        sale__sale_date__date__range=[year_start, year_end]
+    )
+    
+    annual_profit = yearly_items.aggregate(
+        profit=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+    )['profit'] or 0
+    
+    annual_cogs = yearly_items.aggregate(
+        cogs=Sum(F('quantity') * F('product__product_cost_price'))
+    )['cogs'] or 0
+    
+    # Calculate profit margin
+    overall_profit_margin = (annual_profit / annual_revenue * 100) if annual_revenue > 0 else 0
+    
+    # Previous year data for comparison
+    prev_year_revenue = Sales.objects.filter(
+        status='Completed',
+        sale_date__date__range=[prev_year_start, prev_year_end]
+    ).aggregate(total=Sum('total_amount'))['total'] or 0
+    
+    # Year-over-year growth
+    year_over_year_growth = 0
+    if prev_year_revenue > 0:
+        year_over_year_growth = ((annual_revenue - prev_year_revenue) / prev_year_revenue) * 100
+    
+    # Monthly breakdown for the selected year
+    monthly_data = []
+    for month in range(1, 13):
+        month_start = datetime(selected_year, month, 1).date()
+        if month == 12:
+            month_end = datetime(selected_year, 12, 31).date()
+        else:
+            month_end = datetime(selected_year, month + 1, 1).date() - timedelta(days=1)
+        
+        month_sales = Sales.objects.filter(
+            status='Completed',
+            sale_date__date__range=[month_start, month_end]
+        )
+        
+        month_revenue = month_sales.aggregate(total=Sum('total_amount'))['total'] or 0
+        month_orders = month_sales.count()
+        month_customers = month_sales.values('customer').distinct().count()
+        
+        # Month profit
+        month_items = SalesItem.objects.filter(
+            sale__status='Completed',
+            sale__sale_date__date__range=[month_start, month_end]
+        )
+        
+        month_profit = month_items.aggregate(
+            profit=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+        )['profit'] or 0
+        
+        month_profit_margin = (month_profit / month_revenue * 100) if month_revenue > 0 else 0
+        
+        # Calculate growth rate compared to previous month
+        growth_rate = 0
+        if len(monthly_data) > 0:
+            prev_month_revenue = monthly_data[-1]['revenue']
+            if prev_month_revenue > 0:
+                growth_rate = ((month_revenue - prev_month_revenue) / prev_month_revenue) * 100
+        
+        monthly_data.append({
+            'month': month,
+            'month_name': datetime(selected_year, month, 1).strftime('%B'),
+            'revenue': month_revenue,
+            'profit': month_profit,
+            'orders': month_orders,
+            'customers': month_customers,
+            'profit_margin': month_profit_margin,
+            'growth_rate': growth_rate if len(monthly_data) > 0 else None,
+        })
+    
+    # Find best performing month
+    best_month = max(monthly_data, key=lambda x: x['revenue']) if monthly_data else None
+    
+    # Top selling products for the year
+    top_products = Product.objects.annotate(
+        total_quantity=Sum(
+            'salesitem__quantity',
+            filter=Q(
+                salesitem__sale__status='Completed',
+                salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        ),
+        total_revenue=Sum(
+            F('salesitem__quantity') * F('salesitem__selling_price'),
+            filter=Q(
+                salesitem__sale__status='Completed',
+                salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        ),
+        total_profit=Sum(
+            F('salesitem__quantity') * (F('salesitem__selling_price') - F('product_cost_price')),
+            filter=Q(
+                salesitem__sale__status='Completed',
+                salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        )
+    ).filter(total_quantity__isnull=False).order_by('-total_revenue')[:10]
+    
+    # Top customers for the year
+    top_customers = Customer.objects.annotate(
+        total_spent=Sum(
+            'sales__total_amount',
+            filter=Q(
+                sales__status='Completed',
+                sales__sale_date__date__range=[year_start, year_end]
+            )
+        ),
+        order_count=Count(
+            'sales',
+            filter=Q(
+                sales__status='Completed',
+                sales__sale_date__date__range=[year_start, year_end]
+            )
+        )
+    ).filter(total_spent__isnull=False).order_by('-total_spent')[:10]
+    
+    # Category performance
+    category_performance = Category.objects.annotate(
+        total_quantity=Sum(
+            'products__salesitem__quantity',
+            filter=Q(
+                products__salesitem__sale__status='Completed',
+                products__salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        ),
+        total_revenue=Sum(
+            F('products__salesitem__quantity') * F('products__salesitem__selling_price'),
+            filter=Q(
+                products__salesitem__sale__status='Completed',
+                products__salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        ),
+        total_profit=Sum(
+            F('products__salesitem__quantity') * (F('products__salesitem__selling_price') - F('products__product_cost_price')),
+            filter=Q(
+                products__salesitem__sale__status='Completed',
+                products__salesitem__sale__sale_date__date__range=[year_start, year_end]
+            )
+        )
+    ).filter(total_quantity__isnull=False)
+    
+    # Add profit margin calculation to categories
+    for category in category_performance:
+        if category.total_revenue and category.total_revenue > 0:
+            category.profit_margin = (category.total_profit / category.total_revenue) * 100
+        else:
+            category.profit_margin = 0
+    
+    category_performance = category_performance.order_by('-total_revenue')[:8]
+    
+    # Available years for dropdown (include past sales years + current + future years)
+    sales_years = Sales.objects.dates('sale_date', 'year').values_list('sale_date__year', flat=True)
+    current_year = datetime.now().year
+    
+    # Create a comprehensive list including sales years and future years (up to 3 years ahead)
+    all_years = set(sales_years)
+    for i in range(4):  # current year + 3 future years
+        all_years.add(current_year + i)
+    
+    available_years = sorted(all_years, reverse=True)
+    
+    # Monthly totals for summary cards
+    monthly_totals = {
+        'revenue': annual_revenue,
+        'profit': annual_profit,
+        'orders': annual_orders,
+        'customers': annual_customers,
+    }
+    
+    context = {
+        'selected_year': selected_year,
+        'prev_year': prev_year,
+        'annual_revenue': annual_revenue,
+        'annual_profit': annual_profit,
+        'annual_cogs': annual_cogs,
+        'annual_orders': annual_orders,
+        'annual_customers': annual_customers,
+        'overall_profit_margin': overall_profit_margin,
+        'year_over_year_growth': year_over_year_growth,
+        'monthly_data': monthly_data,
+        'best_month': best_month,
+        'top_products': top_products,
+        'top_customers': top_customers,
+        'category_performance': category_performance,
+        'available_years': available_years if available_years else [datetime.now().year],
+        'monthly_totals': monthly_totals,
+    }
+    return render(request,'screens/administrator/annual-report.html', context)
 
 # Diagnostic function to check profit issues
 def diagnose_profit_issues():
     """Helper function to diagnose negative profit issues"""
-    from django.db.models import Sum, F, Count
-    
-    print("\n=== PROFIT DIAGNOSIS ===")
+  
     
     # Check total items
     total_items = SalesItem.objects.filter(sale__status=['Completed','Pending']).count()
@@ -652,12 +867,26 @@ def diagnose_profit_issues():
     print(f"\nTotal calculated profit: GHC{total_profit:.2f}")
     return total_profit
 
-# profit and loss page
+# Enhanced Professional Profit and Loss Report
 @admin_only
 def profit_and_loss(request):
+    """
+    Generate comprehensive Profit & Loss report with professional metrics
+    """
+    # Define safe float conversion function at the top
+    def safe_float_convert(value):
+        """Safely convert value to float, handling lists and other types"""
+        if value is None:
+            return 0.0
+        if isinstance(value, list):
+            # If it's a list, take the first element or return 0
+            return float(value[0]) if value and value[0] is not None else 0.0
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
     
-    
-    # Get date range from request or default to last 12 months
+    # Get date range from request or default to current year
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
@@ -666,15 +895,17 @@ def profit_and_loss(request):
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         except ValueError:
-            # Default to last 12 months if invalid dates
-            end_date = datetime.now().date()
-            start_date = end_date - timedelta(days=365)
+            # Default to current year if invalid dates
+            current_date = datetime.now().date()
+            start_date = current_date.replace(month=1, day=1)
+            end_date = current_date
     else:
-        # Default to last 12 months
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=365)
+        # Default to current year
+        current_date = datetime.now().date()
+        start_date = current_date.replace(month=1, day=1)
+        end_date = current_date
     
-    # Generate monthly data for the selected period
+    # Generate comprehensive monthly data for the selected period
     monthly_data = []
     current_date = start_date.replace(day=1)  # Start from first day of start month
     
@@ -692,63 +923,122 @@ def profit_and_loss(request):
             sale_date__lt=next_month
         )
         
-        # Calculate revenue (total sales amount)
-        revenue = month_sales.aggregate(
-            total=Sum('total_amount')
-        )['total'] or 0
+        # Calculate revenue metrics
+        revenue_aggregate = month_sales.aggregate(total=Sum('total_amount'))['total'] or 0
+        revenue = safe_float_convert(revenue_aggregate)
+        sales_count = month_sales.count()
+        unique_customers = month_sales.values('customer').distinct().count()
         
         # Calculate cost of goods sold
-        cogs = SalesItem.objects.filter(
+        cogs_aggregate = SalesItem.objects.filter(
             sale__in=month_sales
         ).aggregate(
             total=Sum(F('quantity') * F('product__product_cost_price'))
         )['total'] or 0
+        cogs = safe_float_convert(cogs_aggregate)
         
-        # Calculate gross profit
+        # Calculate gross profit and net profit
         gross_profit = revenue - cogs
-        
-        # Calculate profit from individual items (considering actual selling prices)
-        profit_from_sales = SalesItem.objects.filter(
+        net_profit_aggregate = SalesItem.objects.filter(
             sale__in=month_sales
         ).aggregate(
             total=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
         )['total'] or 0
         
-        # Ensure profit is not None and convert to float
-        profit_from_sales = float(profit_from_sales) if profit_from_sales is not None else 0.0
+        # Convert to float for calculations using safe conversion
+        net_profit = safe_float_convert(net_profit_aggregate)
+        gross_profit = safe_float_convert(gross_profit)
         
-        # Debug: Check for negative profit in this month
-        month_negative_items = SalesItem.objects.filter(
-            sale__in=month_sales,
-            selling_price__lt=F('product__product_cost_price')
-        ).count()
+        # Calculate key performance metrics
+        profit_margin = safe_float_convert((net_profit / revenue * 100) if revenue > 0 else 0)
+        gross_margin = safe_float_convert((gross_profit / revenue * 100) if revenue > 0 else 0)
+        avg_order_value = safe_float_convert((revenue / sales_count) if sales_count > 0 else 0)
         
-        if month_negative_items > 0:
-            print(f"Month {current_date.strftime('%b %Y')}: {month_negative_items} items with negative profit")
-        
-        # Calculate profit margin percentage
-        profit_margin = (profit_from_sales / revenue * 100) if revenue > 0 else 0
+        # Calculate growth metrics (compare with previous month if available)
+        revenue_growth = 0
+        profit_growth = 0
+        if monthly_data:  # If there's a previous month
+            prev_revenue = safe_float_convert(monthly_data[-1]['revenue'])
+            prev_profit = safe_float_convert(monthly_data[-1]['net_profit'])
+            revenue_growth = safe_float_convert(((revenue - prev_revenue) / prev_revenue * 100) if prev_revenue > 0 else 0)
+            profit_growth = safe_float_convert(((net_profit - prev_profit) / prev_profit * 100) if prev_profit > 0 else 0)
         
         monthly_data.append({
             'month': current_date.strftime('%b %Y'),
             'month_short': current_date.strftime('%b'),
+            'month_num': current_date.month,
             'year': current_date.year,
             'revenue': revenue,
             'cogs': cogs,
             'gross_profit': gross_profit,
-            'profit_from_sales': profit_from_sales,
+            'net_profit': net_profit,
             'profit_margin': profit_margin,
-            'sales_count': month_sales.count(),
+            'gross_margin': gross_margin,
+            'sales_count': sales_count,
+            'unique_customers': unique_customers,
+            'avg_order_value': avg_order_value,
+            'revenue_growth': revenue_growth,
+            'profit_growth': profit_growth,
         })
         
         current_date = next_month
     
-    # Calculate totals for the entire period
-    total_revenue = sum(month['revenue'] for month in monthly_data)
-    total_cogs = sum(month['cogs'] for month in monthly_data)
-    total_gross_profit = sum(month['gross_profit'] for month in monthly_data)
-    total_profit = sum(month['profit_from_sales'] for month in monthly_data)
-    overall_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+    # Calculate comprehensive totals and KPIs for the entire period
+    total_revenue = safe_float_convert(sum(month['revenue'] for month in monthly_data if month['revenue'] is not None))
+    total_cogs = safe_float_convert(sum(month['cogs'] for month in monthly_data if month['cogs'] is not None))
+    total_gross_profit = safe_float_convert(sum(month['gross_profit'] for month in monthly_data if month['gross_profit'] is not None))
+    total_net_profit = safe_float_convert(sum(month['net_profit'] for month in monthly_data if month['net_profit'] is not None))
+    total_sales = sum(month['sales_count'] for month in monthly_data if month['sales_count'] is not None)
+    
+    # Calculate key performance indicators
+    overall_profit_margin = safe_float_convert((total_net_profit / total_revenue * 100) if total_revenue > 0 else 0)
+    overall_gross_margin = safe_float_convert((total_gross_profit / total_revenue * 100) if total_revenue > 0 else 0)
+    avg_monthly_revenue = safe_float_convert(total_revenue / len(monthly_data) if monthly_data else 0)
+    avg_monthly_profit = safe_float_convert(total_net_profit / len(monthly_data) if monthly_data else 0)
+    total_customers = sum(month['unique_customers'] for month in monthly_data)
+    avg_order_value = safe_float_convert(total_revenue / total_sales if total_sales > 0 else 0)
+    
+    # Find best and worst performing months
+    best_month = max(monthly_data, key=lambda x: x['net_profit']) if monthly_data else None
+    worst_month = min(monthly_data, key=lambda x: x['net_profit']) if monthly_data else None
+    
+    # Calculate year-over-year comparison if we have previous year data
+    prev_year_start = start_date.replace(year=start_date.year - 1)
+    prev_year_end = end_date.replace(year=end_date.year - 1)
+    
+    prev_year_sales = Sales.objects.filter(
+        status='Completed',
+        sale_date__gte=prev_year_start,
+        sale_date__lte=prev_year_end
+    )
+    
+    prev_year_revenue_aggregate = prev_year_sales.aggregate(total=Sum('total_amount'))['total'] or 0
+    prev_year_revenue = safe_float_convert(prev_year_revenue_aggregate)
+        
+    prev_year_profit_aggregate = SalesItem.objects.filter(
+        sale__in=prev_year_sales
+    ).aggregate(
+        total=Sum(F('quantity') * (F('selling_price') - F('product__product_cost_price')))
+    )['total'] or 0
+    prev_year_profit = safe_float_convert(prev_year_profit_aggregate)
+    
+    # Calculate growth rates
+    revenue_growth = safe_float_convert(((total_revenue - prev_year_revenue) / prev_year_revenue * 100) if prev_year_revenue > 0 else 0)
+    profit_growth = safe_float_convert(((total_net_profit - prev_year_profit) / prev_year_profit * 100) if prev_year_profit > 0 else 0)
+    
+    # Prepare chart data for visualizations (ensure all values are properly converted)
+    chart_data = {
+        'months': [month['month_short'] for month in monthly_data],
+        'revenue': [safe_float_convert(month['revenue']) for month in monthly_data],
+        'profit': [safe_float_convert(month['net_profit']) for month in monthly_data],
+        'margin': [safe_float_convert(month['profit_margin']) for month in monthly_data],
+    }
+    chart_data_json = json.dumps(chart_data)
+    
+    # Calculate helpful derived values for template
+    monthly_count = len(monthly_data) if monthly_data else 1
+    avg_sales_per_month = safe_float_convert(total_sales / monthly_count) if monthly_count > 0 else 0
+    avg_customers_per_month = safe_float_convert(total_customers / monthly_count) if monthly_count > 0 else 0
     
     context = {
         'monthly_data': monthly_data,
@@ -757,9 +1047,26 @@ def profit_and_loss(request):
         'total_revenue': total_revenue,
         'total_cogs': total_cogs,
         'total_gross_profit': total_gross_profit,
-        'total_profit': total_profit,
-        'overall_margin': overall_margin,
+        'total_net_profit': total_net_profit,
+        'total_sales': total_sales,
+        'total_customers': total_customers,
+        'overall_profit_margin': overall_profit_margin,
+        'overall_gross_margin': overall_gross_margin,
+        'avg_monthly_revenue': avg_monthly_revenue,
+        'avg_monthly_profit': avg_monthly_profit,
+        'avg_order_value': avg_order_value,
+        'best_month': best_month,
+        'worst_month': worst_month,
+        'revenue_growth': revenue_growth,
+        'profit_growth': profit_growth,
+        'prev_year_revenue': prev_year_revenue,
+        'prev_year_profit': prev_year_profit,
+        'chart_data': chart_data_json,
         'date_range': f"{start_date.strftime('%B %Y')} - {end_date.strftime('%B %Y')}",
+        'report_generated': datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+        'monthly_count': monthly_count,
+        'avg_sales_per_month': avg_sales_per_month,
+        'avg_customers_per_month': avg_customers_per_month,
     }
     
     return render(request,'screens/administrator/profit-and-loss.html', context)

@@ -1,136 +1,307 @@
-{%extends 'base.html'%} {%block content%} {%load static%}
+{% extends 'base.html' %}
+{% load static %}
+{% load math_filters %}
+
+{% block content %}
+<!-- Date Range Picker CSS -->
+<link rel="stylesheet" href="{% static 'assets/plugins/daterangepicker/daterangepicker.css' %}">
+
+<!-- jQuery (required for daterangepicker) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Moment.js -->
+<script src="{% static 'assets/plugins/moment/moment.min.js' %}"></script>
+<!-- Date Range Picker -->
+<script src="{% static 'assets/plugins/daterangepicker/daterangepicker.js' %}"></script>
 <div class="page-wrapper">
   <div class="content">
-    <div class="page-header">
-      <div class="add-item d-flex justify-content-between align-items-center w-100">
-        <div class="page-title">
-          <h4>Profit & Loss Report</h4>
-          <h6>{{ date_range }} - Financial Performance Analysis</h6>
-        </div>
-        <div class="d-flex align-items-center">
-          <!-- Date Range Selector moved to far right -->
-          <div class="me-3">
-            <input type="text" class="form-control date-range bookingrange" placeholder="Select Date Range" id="dateRangePicker">
+    <!-- Professional Financial Data Table -->
+    <div class="financial-card">
+      <div class="card-header-professional">
+        <div class="header-gradient p-4 rounded-3 mb-3">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <div class="header-content">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="header-icon me-3">
+                    <i class="ti ti-chart-line"></i>
+                  </div>
+                  <div>
+                    <h1 class="header-title mb-1">Profit & Loss Statement</h1>
+                    <p class="header-subtitle mb-0">{{ date_range }} • Generated {{ report_generated }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="header-controls d-flex justify-content-end align-items-center gap-2">
+                <div class="date-picker-wrapper">
+                  <input type="text" class="form-control date-range-input" placeholder="Select Date Range" id="dateRangePicker">
+                  <i class="ti ti-calendar date-picker-icon"></i>
+                </div>
+                <div class="btn-group">
+                  <button class="btn btn-header-primary" onclick="exportReport()">
+                    <i class="ti ti-download me-1"></i>Export
+                  </button>
+                  <button class="btn btn-header-secondary" onclick="printReport()">
+                    <i class="ti ti-printer me-1"></i>Print
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <ul class="table-top-head mb-0">
-            <li class="me-2">
-              <a href="{% url 'profit-and-loss' %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i class="ti ti-refresh"></i></a>
-            </li>
-            <li>
-              <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
-                  class="ti ti-chevron-up"></i></a>
-            </li>
-          </ul>
         </div>
+        <!-- <div class="row align-items-center">
+          <div class="col">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="ti ti-table"></i>
+              </div>
+              <div class="card-title-text">
+                <h4 class="card-title-main mb-1">Financial Statement</h4>
+                
+              </div>
+            </div>
+          </div>
+        </div> -->
       </div>
-    </div>
-    <!-- Monthly P&L Table -->
-    <div class="card">
-      <div class="card-header">
-        <h5 class="card-title">Monthly Profit & Loss Statement</h5>
-      </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         {% if monthly_data %}
         <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead class="table-light">
+          <table class="table table-bordered table-striped mb-0" id="plTable">
+            <thead class="table-header-professional">
               <tr>
-                <th class="text-start">Period</th>
+                <th class="th-account" style="width: 25%; min-width: 180px;">
+                  <div class="th-content">
+                    <i class="ti ti-list me-2"></i>
+                    <strong>Financial Account</strong>
+                  </div>
+                </th>
                 {% for month in monthly_data %}
-                <th class="text-center">{{ month.month }}</th>
+                <th class="th-month" style="min-width: 110px;">
+                  <div class="th-month-content">
+                    <div class="month-name">{{ month.month_short }}</div>
+                    <div class="month-year">{{ month.year }}</div>
+                  </div>
+                </th>
                 {% endfor %}
-                <th class="text-center bg-primary text-white">Total</th>
+                <th class="th-total" style="min-width: 120px;">
+                  <div class="th-content">
+                    <i class="ti ti-sum me-1"></i>
+                    <strong>TOTAL</strong>
+                  </div>
+                </th>
+                <th class="th-average" style="min-width: 110px;">
+                  <div class="th-content">
+                    <i class="ti ti-chart-bar me-1"></i>
+                    <strong>AVG</strong>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
-              <!-- Revenue Section -->
-              <tr class="table-info">
-                <td colspan="{{ monthly_data|length|add:2 }}"><strong>REVENUE</strong></td>
+              <!-- REVENUE SECTION -->
+              <tr class="section-header revenue-section">
+                <td colspan="{{ monthly_count|add:3 }}" class="section-title">
+                  <div class="section-content">
+                    <div class="section-icon">
+                      <i class="ti ti-trending-up"></i>
+                    </div>
+                    <div class="section-text">
+                      <span class="section-name">REVENUE</span>
+                      <small class="section-desc">Income from sales</small>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="data-row">
+                <td class="account-name">
+                  <div class="account-content">
+                    <span class="account-label">Sales Revenue</span>
+                  </div>
+                </td>
+                {% for month in monthly_data %}
+                <td class="data-cell positive-value">
+                  <span class="currency-value">GHC {{ month.revenue|floatformat:2 }}</span>
+                </td>
+                {% endfor %}
+                <td class="total-cell">
+                  <span class="total-value">GHC {{ total_revenue|floatformat:2 }}</span>
+                </td>
+                <td class="average-cell">
+                  <span class="average-value">GHC {{ avg_monthly_revenue|floatformat:2 }}</span>
+                </td>
+              </tr>
+              
+              <!-- COST OF GOODS SOLD SECTION -->
+              <tr class="section-header cost-section">
+                <td colspan="{{ monthly_count|add:3 }}" class="section-title">
+                  <div class="section-content">
+                    <div class="section-icon">
+                      <i class="ti ti-trending-down"></i>
+                    </div>
+                    <div class="section-text">
+                      <span class="section-name">COST OF GOODS SOLD</span>
+                      <small class="section-desc">Direct product costs</small>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr>
-                <td><strong>Sales Revenue</strong></td>
+                <td class="ps-4 fw-semibold">Product Costs</td>
                 {% for month in monthly_data %}
-                <td class="text-center">GHC {{ month.revenue|floatformat:0 }}</td>
+                <td class="text-end px-2 fw-semibold" style="color: #FF0000;">GHC {{ month.cogs|floatformat:2 }}</td>
                 {% endfor %}
-                <td class="text-center bg-light"><strong>GHC {{ total_revenue|floatformat:0 }}</strong></td>
+                <td class="total-cell">
+                  <span class="total-value">GHC {{ total_cogs|floatformat:2 }}</span>
+                </td>
+                <td class="average-cell">
+                  <span class="average-value">GHC {{ total_cogs|div:monthly_count|floatformat:2 }}</span>
+                </td>
+              </tr>
+              
+              <!-- GROSS PROFIT SECTION -->
+              <tr class="section-header gross-profit-section">
+                <td colspan="{{ monthly_count|add:3 }}" class="section-title">
+                  <div class="section-content">
+                    <div class="section-icon">
+                      <i class="ti ti-calculator"></i>
+                    </div>
+                    <div class="section-text">
+                      <span class="section-name">GROSS PROFIT</span>
+                      <small class="section-desc">Revenue minus COGS</small>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-bottom border-2">
+                <td class="ps-4 fw-bold">Gross Profit</td>
+                {% for month in monthly_data %}
+                <td class="text-end px-2 fw-semibold {% if month.gross_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+                  GHC {{ month.gross_profit|floatformat:2 }}
+                </td>
+                {% endfor %}
+                <td class="total-cell">
+                  <span class="total-value">GHC {{ total_gross_profit|floatformat:2 }}</span>
+                </td>
+                <td class="average-cell">
+                  <span class="average-value">GHC {{ total_gross_profit|div:monthly_count|floatformat:2 }}</span>
+                </td>
+              </tr>
+              
+            
+              <!-- PERFORMANCE RATIOS SECTION -->
+              <tr class="section-header performance-section">
+                <td colspan="{{ monthly_count|add:3 }}" class="section-title">
+                  <div class="section-content">
+                    <div class="section-icon">
+                      <i class="ti ti-percentage"></i>
+                    </div>
+                    <div class="section-text">
+                      <span class="section-name">PERFORMANCE RATIOS</span>
+                      <small class="section-desc">Profitability margins</small>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr>
-                <td><strong>Sales Count</strong></td>
+                <td class="ps-4">Gross Profit Margin %</td>
                 {% for month in monthly_data %}
-                <td class="text-center text-muted">{{ month.sales_count }} orders</td>
+                <td class="text-center px-2">
+                  <span class="badge {% if month.gross_margin >= 30 %}badge-excellent{% elif month.gross_margin >= 15 %}badge-good{% else %}badge-poor{% endif %}">
+                    {{ month.gross_margin|floatformat:1 }}%
+                  </span>
+                </td>
                 {% endfor %}
-                <td class="text-center bg-light text-muted">
-                  <strong>{{ monthly_data|length }} months</strong>
+                <td class="total-cell text-center">
+                  <span class="badge badge-total">{{ overall_gross_margin|floatformat:1 }}%</span>
+                </td>
+                <td class="average-cell text-center">
+                  <span class="average-value">-</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="ps-4">Net Profit Margin %</td>
+                {% for month in monthly_data %}
+                <td class="text-center px-2">
+                  <span class="badge {% if month.profit_margin >= 20 %}badge-excellent{% elif month.profit_margin >= 10 %}badge-good{% else %}badge-poor{% endif %}">
+                    {{ month.profit_margin|floatformat:1 }}%
+                  </span>
+                </td>
+                {% endfor %}
+                <td class="total-cell text-center">
+                  <span class="badge badge-total">{{ overall_profit_margin|floatformat:1 }}%</span>
+                </td>
+                <td class="average-cell text-center">
+                  <span class="average-value">-</span>
+                </td>
+              </tr>
+              
+              <!-- SALES STATISTICS SECTION -->
+              <tr class="section-header statistics-section">
+                <td colspan="{{ monthly_count|add:3 }}" class="section-title">
+                  <div class="section-content">
+                    <div class="section-icon">
+                      <i class="ti ti-chart-bar"></i>
+                    </div>
+                    <div class="section-text">
+                      <span class="section-name">SALES STATISTICS</span>
+                      <small class="section-desc">Volume & customer metrics</small>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="ps-4 fw-semibold">Number of Sales</td>
+                {% for month in monthly_data %}
+                <td class="text-center px-2 fw-semibold">{{ month.sales_count }}</td>
+                {% endfor %}
+                <td class="total-cell text-center">
+                  <span class="total-value">{{ total_sales }}</span>
+                </td>
+                <td class="average-cell text-center">
+                  <span class="average-value">{{ avg_sales_per_month|floatformat:0 }}</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="ps-4 fw-semibold">Unique Customers</td>
+                {% for month in monthly_data %}
+                <td class="text-center px-2 fw-semibold">{{ month.unique_customers }}</td>
+                {% endfor %}
+                <td class="total-cell text-center">
+                  <span class="total-value">{{ total_customers }}</span>
+                </td>
+                <td class="average-cell text-center">
+                  <span class="average-value">{{ avg_customers_per_month|floatformat:0 }}</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="ps-4 fw-semibold">Avg Order Value</td>
+                {% for month in monthly_data %}
+                <td class="text-end px-2 fw-semibold">GHC {{ month.avg_order_value|floatformat:2 }}</td>
+                {% endfor %}
+                <td class="total-cell">
+                  <span class="total-value">GHC {{ avg_order_value|floatformat:2 }}</span>
+                </td>
+                <td class="average-cell">
+                  <span class="average-value">-</span>
                 </td>
               </tr>
 
-              <!-- Cost of Goods Sold Section -->
-              <tr class="table-warning">
-                <td colspan="{{ monthly_data|length|add:2 }}"><strong>COST OF GOODS SOLD</strong></td>
-              </tr>
-              <tr>
-                <td><strong>Product Costs</strong></td>
-                {% for month in monthly_data %}
-                <td class="text-center">GHC {{ month.cogs|floatformat:0 }}</td>
-                {% endfor %}
-                <td class="text-center bg-light"><strong>GHC {{ total_cogs|floatformat:0 }}</strong></td>
-              </tr>
 
-              <!-- Gross Profit Section -->
-              <tr class="table-success">
-                <td colspan="{{ monthly_data|length|add:2 }}"><strong>GROSS PROFIT</strong></td>
-              </tr>
-              <tr>
-                <td><strong>Gross Profit</strong></td>
-                {% for month in monthly_data %}
-                <td class="text-center {% if month.gross_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
-                  GHC {{ month.gross_profit|floatformat:0 }}
-                </td>
-                {% endfor %}
-                <td class="text-center bg-light {% if total_gross_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
-                  <strong>GHC {{ total_gross_profit|floatformat:0 }}</strong>
-                </td>
-              </tr>
-
-              <!-- Net Profit Section -->
-              <tr class="table-primary">
-                <td colspan="{{ monthly_data|length|add:2 }}"><strong>NET PROFIT</strong></td>
-              </tr>
-              <tr>
-                <td><strong>Net Profit</strong></td>
-                {% for month in monthly_data %}
-                <td class="text-center {% if month.profit_from_sales >= 0 %}text-success{% else %}text-danger{% endif %}">
-                  <strong>GHC {{ month.profit_from_sales|floatformat:0 }}</strong>
-                </td>
-                {% endfor %}
-                <td class="text-center bg-primary text-white">
-                  <strong>GHC {{ total_profit|floatformat:0 }}</strong>
-                </td>
-              </tr>
-
-              <!-- Profit Margin Section -->
-              <tr>
-                <td><strong>Profit Margin %</strong></td>
-                {% for month in monthly_data %}
-                <td class="text-center {% if month.profit_margin >= 20 %}text-success{% elif month.profit_margin >= 10 %}text-warning{% else %}text-danger{% endif %}">
-                  {{ month.profit_margin|floatformat:1 }}%
-                </td>
-                {% endfor %}
-                <td class="text-center bg-light {% if overall_margin >= 20 %}text-success{% elif overall_margin >= 10 %}text-warning{% else %}text-danger{% endif %}">
-                  <strong>{{ overall_margin|floatformat:1 }}%</strong>
-                </td>
-              </tr>
             </tbody>
           </table>
         </div>
         {% else %}
-        <div class="text-center py-4">
+        <div class="text-center py-5">
           <div class="avatar avatar-xl bg-light mx-auto mb-3">
             <i class="ti ti-chart-line text-muted"></i>
           </div>
-          <h5>No Data Available</h5>
-          <p class="text-muted">No sales data found for the selected date range.</p>
-          <p class="text-muted">{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
+          <h5>No Financial Data Available</h5>
+          <p class="text-muted mb-3">No sales data found for the selected date range.</p>
+          <p class="text-muted"><strong>{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</strong></p>
+          <button class="btn btn-primary" onclick="$('#dateRangePicker').focus()">
+            <i class="ti ti-calendar me-1"></i>Select Different Date Range
+          </button>
         </div>
         {% endif %}
       </div>
@@ -141,101 +312,744 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const dateRangePicker = document.getElementById('dateRangePicker');
-    
-    // Initialize date range picker (assuming you're using a date range picker library)
-    if (dateRangePicker) {
-      // Auto-populate table when date range is selected
-      dateRangePicker.addEventListener('change', function() {
-        const selectedDateRange = this.value;
-        if (selectedDateRange) {
-          // Parse the date range and redirect with parameters
-          autoPopulateTable(selectedDateRange);
-        }
-      });
-      
-      // Also listen for date picker specific events if using a library like daterangepicker
-      $(dateRangePicker).on('apply.daterangepicker', function(ev, picker) {
-        const startDate = picker.startDate.format('YYYY-MM-DD');
-        const endDate = picker.endDate.format('YYYY-MM-DD');
-        autoPopulateTable(null, startDate, endDate);
-      });
-    }
-    
-    function autoPopulateTable(dateRange, startDate = null, endDate = null) {
-      // Show loading state
-      showLoadingState();
-      
-      // Construct URL with date parameters
-      let url = new URL(window.location.href);
-      url.search = ''; // Clear existing parameters
-      
-      if (startDate && endDate) {
-        url.searchParams.set('start_date', startDate);
-        url.searchParams.set('end_date', endDate);
-      } else if (dateRange) {
-        // Parse common date range formats
-        const dates = parseDateRange(dateRange);
-        if (dates.start && dates.end) {
-          url.searchParams.set('start_date', dates.start);
-          url.searchParams.set('end_date', dates.end);
-        }
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize date range picker
+  const dateRangePicker = document.getElementById('dateRangePicker');
+  
+  // Date range picker functionality
+  if (dateRangePicker) {
+    $(dateRangePicker).daterangepicker({
+      startDate: moment('{{ start_date|date:"Y-m-d" }}'),
+      endDate: moment('{{ end_date|date:"Y-m-d" }}'),
+      locale: {
+        format: 'YYYY-MM-DD'
+      },
+      ranges: {
+        'This Month': [moment().startOf('month'), moment().endOf('month')],
+        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        'This Quarter': [moment().startOf('quarter'), moment().endOf('quarter')],
+        'Last Quarter': [moment().subtract(1, 'quarter').startOf('quarter'), moment().subtract(1, 'quarter').endOf('quarter')],
+        'This Year': [moment().startOf('year'), moment().endOf('year')],
+        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
       }
-      
-      // Redirect to update the page with new data
-      window.location.href = url.toString();
-    }
-    
-    function parseDateRange(dateRange) {
-      // Handle common date range formats
-      // Example: "01/10/2025 - 27/10/2025" or "2025-10-01 to 2025-10-27"
-      const formats = [
-        /(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/, // DD/MM/YYYY - DD/MM/YYYY
-        /(\d{4}-\d{2}-\d{2})\s*to\s*(\d{4}-\d{2}-\d{2})/, // YYYY-MM-DD to YYYY-MM-DD
-        /(\d{2}-\d{2}-\d{4})\s*to\s*(\d{2}-\d{2}-\d{4})/ // DD-MM-YYYY to DD-MM-YYYY
-      ];
-      
-      for (let format of formats) {
-        const match = dateRange.match(format);
-        if (match) {
-          let startDate = match[1];
-          let endDate = match[2];
-          
-          // Convert DD/MM/YYYY to YYYY-MM-DD if needed
-          if (startDate.includes('/')) {
-            const [day, month, year] = startDate.split('/');
-            startDate = `${year}-${month}-${day}`;
-          }
-          if (endDate.includes('/')) {
-            const [day, month, year] = endDate.split('/');
-            endDate = `${year}-${month}-${day}`;
-          }
-          
-          return { start: startDate, end: endDate };
-        }
-      }
-      
-      return { start: null, end: null };
-    }
-    
-    function showLoadingState() {
-      // Add loading spinner to table
-      const tableBody = document.querySelector('.table tbody');
-      if (tableBody) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="100%" class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2 text-muted">Updating report data...</p>
-            </td>
-          </tr>
-        `;
-      }
-    }
+    }, function(start, end, label) {
+      updateReport(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+    });
+  }
+});
+
+// Utility functions
+function updateReport(startDate, endDate) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('start_date', startDate);
+  url.searchParams.set('end_date', endDate);
+  window.location.href = url.toString();
+}
+
+function exportReport() {
+  window.print();
+}
+
+function printReport() {
+  window.print();
+}
+
+function exportToExcel() {
+  // Get table element
+  const table = document.getElementById('plTable');
+  
+  // Create a copy of the table for export
+  const tableClone = table.cloneNode(true);
+  
+  // Remove any styling classes that might interfere
+  const rows = tableClone.querySelectorAll('tr');
+  rows.forEach(row => {
+    row.className = '';
+    const cells = row.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      cell.className = '';
+      // Remove any HTML tags and keep only text
+      cell.innerHTML = cell.textContent;
+    });
   });
+  
+  // Convert table to CSV format
+  let csv = '';
+  const tableRows = tableClone.querySelectorAll('tr');
+  
+  tableRows.forEach(row => {
+    const cells = row.querySelectorAll('td, th');
+    const rowData = [];
+    
+    cells.forEach(cell => {
+      let cellText = cell.textContent.trim();
+      // Handle cells that span multiple columns
+      if (cell.getAttribute('colspan')) {
+        const colspan = parseInt(cell.getAttribute('colspan'));
+        rowData.push(cellText);
+        // Add empty cells for the spanned columns
+        for (let i = 1; i < colspan; i++) {
+          rowData.push('');
+        }
+      } else {
+        rowData.push(cellText);
+      }
+    });
+    
+    csv += rowData.join(',') + '\n';
+  });
+  
+  // Create and download the file
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('hidden', '');
+  a.setAttribute('href', url);
+  a.setAttribute('download', 'profit-loss-statement.csv');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}
 </script>
 
-{%endblock%}
+<style>
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Use existing style.css colors */
+:root {
+  --primary-color: #FE9F43;
+  --secondary-color: #092C4C;
+  --success-color: #3EB780;
+  --danger-color: #FF0000;
+  --warning-color: #FFCA18;
+  --info-color: #155EEF;
+  --text-dark: #212B36;
+  --text-light: #646B72;
+  --light-bg: #F7F7F7;
+  --white: #FFFFFF;
+}
+
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+  vertical-align: middle;
+  font-size: 0.9rem;
+  padding: 12px 8px;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0,123,255,0.05);
+}
+
+/* Professional Orange Theme Styling */
+.professional-header {
+  margin: 0 -15px 30px -15px;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #FE9F43 0%, #E04F16 50%, #FBB034 100%);
+  box-shadow: 0 8px 32px rgba(254, 159, 67, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.header-title {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.date-picker-wrapper {
+  position: relative;
+}
+
+.date-range-input {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 12px 45px 12px 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+  width: 220px;
+}
+
+.date-picker-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  font-size: 18px;
+}
+
+.btn-header-primary {
+  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(224, 79, 22, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-header-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.financial-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(254, 159, 67, 0.15);
+  overflow: hidden;
+  border: 2px solid rgba(254, 159, 67, 0.2);
+}
+
+.card-header-professional {
+  background: linear-gradient(135deg, #F9FAFB 0%, #ffffff 100%);
+  padding: 25px 30px;
+  border-bottom: 2px solid rgba(254, 159, 67, 0.2);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #092C4C 0%, #155EEF 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  margin-right: 15px;
+  box-shadow: 0 4px 15px rgba(9, 44, 76, 0.3);
+}
+
+.card-title-main {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.card-title-sub {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-professional-active {
+  background: linear-gradient(to right, #FE9F43 0%, #8e77fa 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(254, 159, 67, 0.3);
+}
+
+.btn-professional {
+  background: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+}
+
+#plTable {
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.table-header-professional {
+  background: linear-gradient(135deg, #092C4C 0%, #155EEF 50%, #28b7f9 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-header-professional th {
+  border: none;
+  padding: 20px 15px;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th-month-content {
+  text-align: center;
+}
+
+.month-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.month-year {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.th-total {
+  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%) !important;
+}
+
+.th-average {
+  background: linear-gradient(to right, #155EEF 0%, #00f2fe 100%) !important;
+}
+
+/* Section Headers */
+.section-header {
+  background: linear-gradient(135deg, #3EB780 0%, #5cf9e2 100%);
+  border-top: 3px solid #FE9F43;
+}
+
+.section-title {
+  padding: 20px 25px;
+}
+
+.section-content {
+  display: flex;
+  align-items: center;
+}
+
+.section-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  margin-right: 18px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.section-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.section-name {
+  color: #000000;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+}
+
+.section-desc {
+  color: #333333;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Data Rows */
+.data-row {
+  background: white;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(254, 159, 67, 0.1);
+}
+
+.data-row:hover {
+  background: rgba(254, 159, 67, 0.03);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(254, 159, 67, 0.1);
+}
+
+.account-name {
+  padding: 18px 25px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.data-cell {
+  padding: 18px 15px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.positive-value .currency-value {
+  color: var(--success-color);
+  font-weight: 700;
+}
+
+.negative-value .currency-value {
+  color: var(--danger-color);
+  font-weight: 700;
+}
+
+.total-cell {
+  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%);
+  color: white;
+  text-align: right;
+  padding: 18px 15px;
+  font-weight: 700;
+}
+
+.total-value {
+  font-size: 1.05rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.average-cell {
+  background: linear-gradient(to right, #155EEF 0%, #00f2fe 100%);
+  color: white;
+  text-align: right;
+  padding: 18px 15px;
+  font-weight: 600;
+}
+
+.average-value {
+  font-size: 1rem;
+}
+
+/* Professional Badge System */
+.badge-excellent {
+  background: linear-gradient(to right, #3EB780 0%, #5cf9e2 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(62, 183, 128, 0.3);
+}
+
+.badge-good {
+  background: linear-gradient(to right, #FFCA18 0%, #fbc434 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 202, 24, 0.3);
+}
+
+.badge-poor {
+  background: linear-gradient(to right, #FF0000 0%, #fd4a68 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+}
+
+.badge-total {
+  background: white;
+  color: var(--text-dark);
+  border: 2px solid var(--primary-color);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* Section Gradient Backgrounds */
+.revenue-section {
+  background: linear-gradient(135deg, #a8e6cf, #88d8a3) !important;
+}
+
+.cost-section {
+  background: linear-gradient(135deg, #ffd93d, #ffcd02) !important;
+}
+
+.gross-profit-section {
+  background: linear-gradient(135deg, #74b9ff, #0084ff) !important;
+}
+
+.net-profit-section {
+  background: linear-gradient(135deg, #fd79a8, #e84393) !important;
+}
+
+.ratio-section {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7) !important;
+}
+
+.stats-section {
+  background: linear-gradient(135deg, #81ecec, #00cec9) !important;
+}
+
+/* Enhanced Badge Styling */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4em 0.8em;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Custom Money Colors */
+.money-positive {
+  color: #27ae60 !important;
+  font-weight: 700;
+}
+
+.money-negative {
+  color: #e74c3c !important;
+  font-weight: 700;
+}
+
+.money-neutral {
+  color: #74b9ff !important;
+  font-weight: 600;
+}
+
+/* Hover Effects */
+#plTable tbody tr {
+  transition: all 0.3s ease;
+}
+
+#plTable tbody tr:hover {
+  box-shadow: 0 4px 15px rgba(102,126,234,0.1);
+}
+
+/* Total Column Styling */
+td[style*="background: linear-gradient(135deg, #ff6b6b, #ee5a52)"] {
+  font-weight: 700 !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Average Column Styling */
+td[style*="background: linear-gradient(135deg, #4ecdc4, #44b09e)"] {
+  font-weight: 600 !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar-lg {
+  width: 56px;
+  height: 56px;
+}
+
+.avatar-xl {
+  width: 64px;
+  height: 64px;
+}
+
+@media print {
+  .page-header .btn,
+  .card-header .dropdown,
+  .btn-group {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .table-responsive {
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(254, 159, 67, 0.15);
+  }
+  
+  .account-name,
+  .data-cell,
+  .total-cell,
+  .average-cell {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    padding: 15px 20px;
+  }
+  
+  .section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .section-name {
+    font-size: 1rem;
+  }
+  
+  .page-header-content {
+    padding: 20px;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-3 {
+  animation-delay: 0.3s;
+}
+
+/* Loading State */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  z-index: 10;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(254, 159, 67, 0.3);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Professional Utility Classes */
+.text-success { 
+  color: var(--success-color) !important; 
+  font-weight: 600;
+}
+
+.text-danger { 
+  color: var(--danger-color) !important; 
+  font-weight: 600;
+}
+
+.text-warning { 
+  color: var(--warning-color) !important; 
+  font-weight: 600;
+}
+
+.text-info { 
+  color: var(--info-color) !important; 
+  font-weight: 600;
+}
+
+.text-primary { 
+  color: var(--primary-color) !important; 
+  font-weight: 600;
+}
+
+.currency-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+}
+
+.percentage-badge {
+  background: linear-gradient(to right, #FE9F43 0%, #8e77fa 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+</style>
+
+{% endblock %}

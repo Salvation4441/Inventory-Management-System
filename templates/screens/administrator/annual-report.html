@@ -1,98 +1,634 @@
 {%extends 'base.html'%} {%block content%} {%load static%}
 <div class="page-wrapper">
   <div class="content">
+    
+    <!-- Page Header -->
     <div class="page-header">
       <div class="add-item d-flex">
         <div class="page-title">
-          <h4>Annual Report</h4>
-          <h6>View Reports of Annual Report</h6>
+          <h4>Annual Business Report {{ selected_year }}</h4>
+          <h6>Comprehensive Financial Performance & Business Analytics</h6>
         </div>
       </div>
       <ul class="table-top-head">
         <li class="me-2">
-          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i class="ti ti-refresh"></i></a>
+          <a href="{% url 'annual-report' %}?year={{ selected_year }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh">
+            <i class="ti ti-refresh"></i>
+          </a>
+        </li>
+        <li class="me-2">
+          <a href="javascript:void(0);" onclick="window.print()" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Report">
+            <i class="ti ti-printer"></i>
+          </a>
         </li>
         <li>
-          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
-              class="ti ti-chevron-up"></i></a>
+          <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header">
+            <i class="ti ti-chevron-up"></i>
+          </a>
         </li>
       </ul>
     </div>
 
-    <div class="card">
+    <!-- Executive Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1">GHC {{ annual_revenue|floatformat:2 }}</h4>
+                <p>Annual Revenue</p>
+              </div>
+              <span class="revenue-icon bg-primary-transparent text-primary">
+                <i class="ti ti-chart-line fs-16"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <p class="mb-0">
+                <span class="fs-13 fw-bold {% if year_over_year_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+                  {% if year_over_year_growth >= 0 %}+{% endif %}{{ year_over_year_growth|floatformat:1 }}%
+                </span> vs {{ prev_year }}
+              </p>
+              <span class="badge bg-primary badge-xs">{{ selected_year }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1">GHC {{ annual_profit|floatformat:2 }}</h4>
+                <p>Annual Profit</p>
+              </div>
+              <span class="revenue-icon bg-success-transparent text-success">
+                <i class="ti ti-coin fs-16"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-info">{{ overall_profit_margin|floatformat:1 }}% Margin</span>
+              </p>
+              <span class="badge bg-success badge-xs">Profit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1">{{ annual_orders }}</h4>
+                <p>Total Orders</p>
+              </div>
+              <span class="revenue-icon bg-warning-transparent text-warning">
+                <i class="ti ti-shopping-cart fs-16"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-warning">{{ annual_customers }} Customers</span>
+              </p>
+              <span class="badge bg-warning badge-xs">{{ selected_year }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1">{{ best_month.month_name|default:"N/A" }}</h4>
+                <p>Best Month</p>
+              </div>
+              <span class="revenue-icon bg-danger-transparent text-danger">
+                <i class="ti ti-trophy fs-16"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-danger">GHC {{ best_month.revenue|default:0|floatformat:0 }}</span>
+              </p>
+              <span class="badge bg-danger badge-xs">Peak</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year Selector -->
+    <div class="card mb-4">
       <div class="card-body">
-        <form action="https://dreamspos.dreamstechnologies.com/html/template/sales-report.html">
+        <form method="GET" action="{% url 'annual-report' %}">
           <div class="row row-gap-2 align-items-end">
             <div class="col-md-3">
               <div>
-                <label class="form-label">Date</label>
+                <label class="form-label">Select Year</label>
                 <div class="input-icon position-relative">
                   <span class="input-icon-addon">
                     <i class="ti ti-calendar text-gray-9"></i>
                   </span>
-                  <input type="text" class="form-control yearpicker" value="2025" />
+                  <select name="year" class="form-control" onchange="this.form.submit()">
+                    {% for year in available_years %}
+                      {% now "Y" as current_year %}
+                      {% if year|add:0 <= current_year|add:0 %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                      {% else %}
+                        <option value="{{ year }}" disabled style="color: #999;">{{ year }} (Future)</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div>
-                <label class="form-label">Store</label>
-                <select class="select">
-                  <option>All Stores</option>
-                  <option>Electro Mart</option>
-                  <option>Quantum Gadgets</option>
-                  <option>Prime Bazaar</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6 text-end">
-              <button class="btn btn-primary">Generate Report</button>
+            <div class="col-md-9 text-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-refresh me-1"></i>Update Report
+              </button>
+              <button type="button" class="btn btn-outline-primary ms-2" onclick="window.print()">
+                <i class="ti ti-printer me-1"></i>Print Report
+              </button>
+              <button type="button" class="btn btn-outline-success ms-2" onclick="exportToExcel()">
+                <i class="ti ti-file-spreadsheet me-1"></i>Export Excel
+              </button>
             </div>
           </div>
         </form>
       </div>
     </div>
 
-    <div class="card">
+    <!-- Monthly Performance Chart -->
+    <div class="card mb-4">
       <div class="card-header">
-        <h4>2025 Reports</h4>
+        <h4 class="card-title">Monthly Performance Trends - {{ selected_year }}</h4>
       </div>
-      <div class="card-body p-0">
+      <div class="card-body">
+        <div id="monthly-performance-chart" style="height: 400px;"></div>
+      </div>
+    </div>
+
+    <!-- Key Performance Indicators -->
+    <div class="row mb-4">
+      <!-- Top Selling Products -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5 class="mb-0">Top Performing Products</h5>
+            <span class="badge bg-primary">{{ top_products|length }} Products</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                    <th>Profit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for product in top_products|slice:":5" %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xs me-2">
+                          <span class="avatar-initial rounded bg-primary-transparent text-primary">
+                            {{ product.product_name|first|upper }}
+                          </span>
+                        </div>
+                        <span>{{ product.product_name|truncatechars:30 }}</span>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-info">{{ product.total_quantity }}</span></td>
+                    <td class="fw-medium text-success">GHC {{ product.total_revenue|floatformat:0 }}</td>
+                    <td class="fw-medium text-primary">GHC {{ product.total_profit|floatformat:0 }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center py-3">
+                      <i class="ti ti-package-off fs-24 text-muted mb-2"></i>
+                      <p class="text-muted mb-0">No product data available for {{ selected_year }}</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Customers -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5 class="mb-0">Top Valued Customers</h5>
+            <span class="badge bg-success">{{ top_customers|length }} Customers</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for customer in top_customers|slice:":5" %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xs me-2">
+                          <span class="avatar-initial rounded bg-success-transparent text-success">
+                            {{ customer.first_name|first|upper }}{{ customer.last_name|first|upper }}
+                          </span>
+                        </div>
+                        <span>{{ customer.first_name }} {{ customer.last_name }}</span>
+                      </div>
+                    </td>
+                    <td><span class="badge bg-warning">{{ customer.order_count }}</span></td>
+                    <td class="fw-medium text-success">GHC {{ customer.total_spent|floatformat:0 }}</td>
+                    <td>
+                      {% if customer.total_spent > 5000 %}
+                        <span class="badge bg-success">VIP</span>
+                      {% elif customer.total_spent > 2000 %}
+                        <span class="badge bg-warning">Premium</span>
+                      {% else %}
+                        <span class="badge bg-secondary">Regular</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center py-3">
+                      <i class="ti ti-users-off fs-24 text-muted mb-2"></i>
+                      <p class="text-muted mb-0">No customer data available for {{ selected_year }}</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Performance Analysis -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="card-title">Business Segment Performance</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for category in category_performance %}
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border h-100">
+              <div class="card-body text-center">
+                <div class="mb-3">
+                  <div class="avatar avatar-lg mx-auto bg-primary-transparent">
+                    <i class="ti ti-category fs-24 text-primary"></i>
+                  </div>
+                </div>
+                <h5 class="mb-2">{{ category.category_name }}</h5>
+                <p class="text-muted mb-3">{{ category.total_quantity }} units sold</p>
+                
+                <div class="row text-start mb-3">
+                  <div class="col-6">
+                    <small class="text-muted">Revenue</small>
+                    <div class="fw-bold text-success">GHC {{ category.total_revenue|floatformat:0 }}</div>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Profit</small>
+                    <div class="fw-bold text-primary">GHC {{ category.total_profit|floatformat:0 }}</div>
+                  </div>
+                </div>
+                
+                <div class="progress mb-2" style="height: 8px;">
+                  <div class="progress-bar bg-primary" 
+                       style="width: {{ category.profit_margin|floatformat:0 }}%;" 
+                       role="progressbar"></div>
+                </div>
+                <small class="text-muted">{{ category.profit_margin|floatformat:1 }}% Profit Margin</small>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12 text-center py-5">
+            <i class="ti ti-category-off fs-48 text-muted mb-3"></i>
+            <h5 class="text-muted">No category data available</h5>
+            <p class="text-muted">Category performance will appear here once you have sales data.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Detailed Breakdown -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="card-title">Monthly Financial Breakdown - {{ selected_year }}</h4>
+      </div>
+      <div class="card-body">
         <div class="table-responsive">
-          <table class="table">
-            <thead class="thead-light">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
               <tr>
-                <th></th>
-                <th>Jan 2025</th>
-                <th>Feb 2025</th>
-                <th>Mar 2025</th>
-                <th>Apr 2025</th>
+                <th>Month</th>
+                <th>Orders</th>
+                <th>Customers</th>
+                <th>Revenue</th>
+                <th>Profit</th>
+                <th>Margin %</th>
+                <th>Growth</th>
+                <th>Performance</th>
               </tr>
             </thead>
             <tbody>
+              {% for month in monthly_data %}
               <tr>
-                <td>January</td>
-                <td>$50,000</td>
-                <td>$50,000</td>
-                <td>$50,000</td>
-                <td>$50,000</td>
-           
+                <td class="fw-medium">
+                  <i class="ti ti-calendar me-1"></i>{{ month.month_name }}
+                </td>
+                <td><span class="badge bg-info">{{ month.orders }}</span></td>
+                <td><span class="badge bg-success">{{ month.customers }}</span></td>
+                <td class="fw-medium text-success">GHC {{ month.revenue|floatformat:0 }}</td>
+                <td class="fw-medium text-primary">GHC {{ month.profit|floatformat:0 }}</td>
+                <td class="fw-medium">{{ month.profit_margin|floatformat:1 }}%</td>
+                <td>
+                  {% if month.growth_rate %}
+                    <span class="badge {% if month.growth_rate >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                      {% if month.growth_rate >= 0 %}+{% endif %}{{ month.growth_rate|floatformat:1 }}%
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary">Base</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if month.revenue >= best_month.revenue %}
+                    <i class="ti ti-crown text-warning" title="Best Month"></i>
+                  {% elif month.profit_margin >= 25 %}
+                    <i class="ti ti-trending-up text-success" title="High Margin"></i>
+                  {% elif month.profit_margin < 10 %}
+                    <i class="ti ti-trending-down text-danger" title="Low Margin"></i>
+                  {% else %}
+                    <i class="ti ti-minus text-muted" title="Average"></i>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center py-4">
+                  <i class="ti ti-calendar-off fs-24 text-muted mb-2"></i>
+                  <p class="text-muted mb-0">No monthly data available for {{ selected_year }}</p>
+                </td>
+              </tr>
+              {% endfor %}
             </tbody>
-            <tfoot>
-              <tr>
-                <td class="bg-light fw-bold p-3 fs-16">Total</td>
-                <td class="bg-light fw-bold p-3 fs-16">$8,000</td>
-                <td class="bg-light fw-bold p-3 fs-16">$8,000</td>
-                <td class="bg-light fw-bold p-3 fs-16">$8,000</td>
-                <td class="bg-light fw-bold p-3 fs-16">$8,000</td>
+            <tfoot class="table-light">
+              <tr class="fw-bold">
+                <td>TOTAL</td>
+                <td><span class="badge bg-info">{{ annual_orders }}</span></td>
+                <td><span class="badge bg-success">{{ annual_customers }}</span></td>
+                <td class="text-success">GHC {{ annual_revenue|floatformat:0 }}</td>
+                <td class="text-primary">GHC {{ annual_profit|floatformat:0 }}</td>
+                <td>{{ overall_profit_margin|floatformat:1 }}%</td>
+                <td colspan="2" class="text-center">
+                  <span class="badge {% if year_over_year_growth >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                    {% if year_over_year_growth >= 0 %}+{% endif %}{{ year_over_year_growth|floatformat:1 }}% YoY
+                  </span>
+                </td>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
     </div>
-  </div>
 
-  
+    <!-- Executive Summary -->
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Executive Summary & Insights</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <h5>Key Performance Highlights</h5>
+            <ul class="list-unstyled mb-4">
+              <li class="mb-2">
+                <i class="ti ti-circle-check text-success me-2"></i>
+                <strong>Annual Revenue:</strong> GHC {{ annual_revenue|floatformat:2 }} 
+                <span class="{% if year_over_year_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+                  ({% if year_over_year_growth >= 0 %}+{% endif %}{{ year_over_year_growth|floatformat:1 }}% vs {{ prev_year }})
+                </span>
+              </li>
+              <li class="mb-2">
+                <i class="ti ti-circle-check text-success me-2"></i>
+                <strong>Profit Margin:</strong> {{ overall_profit_margin|floatformat:1 }}% 
+                <span class="{% if overall_profit_margin >= 20 %}text-success{% elif overall_profit_margin >= 10 %}text-warning{% else %}text-danger{% endif %}">
+                  ({% if overall_profit_margin >= 20 %}Excellent{% elif overall_profit_margin >= 10 %}Good{% else %}Needs Improvement{% endif %})
+                </span>
+              </li>
+              <li class="mb-2">
+                <i class="ti ti-circle-check text-success me-2"></i>
+                <strong>Best Month:</strong> {{ best_month.month_name|default:"N/A" }} 
+                {% if best_month %}(GHC {{ best_month.revenue|floatformat:0 }} revenue){% endif %}
+              </li>
+              <li class="mb-2">
+                <i class="ti ti-circle-check text-success me-2"></i>
+                <strong>Customer Base:</strong> {{ annual_customers }} unique customers served
+              </li>
+            </ul>
+
+            <h5>Strategic Recommendations</h5>
+            <div class="alert alert-info">
+              <h6><i class="ti ti-lightbulb me-2"></i>Business Insights:</h6>
+              <ul class="mb-0">
+                {% if overall_profit_margin < 15 %}
+                <li>Consider reviewing pricing strategy to improve profit margins</li>
+                {% endif %}
+                {% if year_over_year_growth < 5 %}
+                <li>Focus on customer acquisition and retention strategies</li>
+                {% endif %}
+                {% if best_month %}
+                <li>Analyze {{ best_month.month_name }} performance to replicate success</li>
+                {% endif %}
+                <li>Optimize inventory management for top-performing products</li>
+                <li>Develop loyalty programs for premium customers</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light border-0">
+              <div class="card-body">
+                <h6>Financial Summary</h6>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Revenue</span>
+                    <strong>GHC {{ annual_revenue|floatformat:0 }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>COGS</span>
+                    <strong>GHC {{ annual_cogs|floatformat:0 }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Gross Profit</span>
+                    <strong class="text-success">GHC {{ annual_profit|floatformat:0 }}</strong>
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between">
+                    <span><strong>Profit Margin</strong></span>
+                    <strong class="text-primary">{{ overall_profit_margin|floatformat:1 }}%</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<!-- Chart Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Monthly Performance Chart
+    var monthlyOptions = {
+        series: [{
+            name: 'Revenue',
+            type: 'column',
+            data: [{% for month in monthly_data %}{{ month.revenue|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}]
+        }, {
+            name: 'Profit',
+            type: 'line',
+            data: [{% for month in monthly_data %}{{ month.profit|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}]
+        }],
+        chart: {
+            height: 400,
+            type: 'line',
+            stacked: false,
+            toolbar: {
+                show: true,
+                tools: {
+                    download: true,
+                    selection: false,
+                    zoom: false,
+                    zoomin: false,
+                    zoomout: false,
+                    pan: false,
+                    reset: false
+                }
+            }
+        },
+        colors: ['#3B82F6', '#10B981'],
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            width: [0, 4]
+        },
+        title: {
+            text: 'Revenue vs Profit Trend - {{ selected_year }}',
+            align: 'left',
+            style: {
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#333'
+            }
+        },
+        xaxis: {
+            categories: [{% for month in monthly_data %}'{{ month.month_name }}'{% if not forloop.last %},{% endif %}{% endfor %}]
+        },
+        yaxis: [{
+            title: {
+                text: 'Revenue (GHC)'
+            },
+            labels: {
+                formatter: function (val) {
+                    return 'GHC ' + val.toLocaleString();
+                }
+            }
+        }, {
+            opposite: true,
+            title: {
+                text: 'Profit (GHC)'
+            },
+            labels: {
+                formatter: function (val) {
+                    return 'GHC ' + val.toLocaleString();
+                }
+            }
+        }],
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: [{
+                formatter: function (y) {
+                    if (typeof y !== "undefined") {
+                        return "GHC " + y.toLocaleString();
+                    }
+                    return y;
+                }
+            }, {
+                formatter: function (y) {
+                    if (typeof y !== "undefined") {
+                        return "GHC " + y.toLocaleString();
+                    }
+                    return y;
+                }
+            }]
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right'
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            row: {
+                colors: ['#f3f3f3', 'transparent'],
+                opacity: 0.5
+            }
+        }
+    };
+
+    var monthlyChart = new ApexCharts(document.querySelector("#monthly-performance-chart"), monthlyOptions);
+    monthlyChart.render();
+});
+
+// Export to Excel function
+function exportToExcel() {
+    // Create CSV content
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Month,Orders,Customers,Revenue,Profit,Margin%,Growth%\n";
+    
+    {% for month in monthly_data %}
+    csvContent += "{{ month.month_name }},{{ month.orders }},{{ month.customers }},{{ month.revenue }},{{ month.profit }},{{ month.profit_margin|floatformat:1 }},{{ month.growth_rate|default:0|floatformat:1 }}\n";
+    {% endfor %}
+    
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "annual_report_{{ selected_year }}.csv");
+    document.body.appendChild(link);
+    link.click();
+}
+</script>
+
 {%endblock%}
