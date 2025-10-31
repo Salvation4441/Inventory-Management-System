@@ -11,7 +11,7 @@
         </a>
       </div>
     </div>
-    <form method="POST" action="{% url 'add-sales' %}">
+    <form method="POST" action="{% url 'add-sales' %}" id="salesForm">
       {% csrf_token %}
       <div class="card border-0">
         <div class="card-body pb-0">
@@ -154,7 +154,9 @@
         >
           Cancel
         </button>
-        <button type="submit" class="btn btn-primary add-sale">Submit</button>
+        <button type="submit" class="btn btn-primary add-sale" id="submitBtn">
+          Submit
+        </button>
       </div>
     </form>
   </div>
@@ -470,9 +472,25 @@
       return;
     }
 
+    // Check if price is above unit price - automatically revert
+    if (enteredPrice > price) {
+      input.value = price.toFixed(2);
+      input.classList.add("border-warning");
+      input.classList.remove("border-danger", "border-success");
+      input.title = `Maximum price: GH${price.toFixed(2)} (unit price)`;
+      if (messageEl) {
+        messageEl.textContent = `Maximum price: GH${price.toFixed(
+          2
+        )} (unit price)`;
+        messageEl.className = "form-text validation-message text-warning";
+      }
+      updateTotals();
+      return;
+    }
+
     // Check if price is below cost price - automatically revert
     if (enteredPrice < cost_price) {
-      input.value = price.toFixed(2);
+      input.value = cost_price.toFixed(2);
       input.classList.add("border-warning");
       input.classList.remove("border-danger", "border-success");
       input.title = `Minimum price: GH${cost_price.toFixed(2)} (cost price)`;

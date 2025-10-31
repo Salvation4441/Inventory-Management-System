@@ -66,3 +66,14 @@ def employee_dashboard(request):
     }
     
     return render(request, 'screens/employee/employee-dashboard.html', context)
+
+# Handle invalid employee URLs
+def handle_invalid_employee_url(request, invalid_path):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    
+    # Add specific error message with the invalid path
+    messages.warning(request, f"The employee page '/employee/{invalid_path}/' was not found. You've been redirected to your dashboard.")
+    
+    # Redirect to employee dashboard
+    return redirect('employee-dashboard')

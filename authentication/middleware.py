@@ -9,14 +9,17 @@ class RoleRedirectMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        login_path = reverse('login')
-
-        if request.user.is_authenticated and request.path == login_path:
-            role = getattr(request.user, 'role', '').upper()
-            if role == 'ADMIN' or request.user.is_superuser:
-                return redirect('admin-dashboard')
-            elif role == 'SALESPERSON':
-                return redirect('employee-dashboard')
+        # Only redirect if it's a GET request to avoid redirect loops on POST requests
+        if request.method == 'GET' and request.user.is_authenticated:
+            login_path = reverse('login')
+            
+            # Only redirect if user is trying to access the login page
+            if request.path == login_path:
+                role = getattr(request.user, 'role', '').upper()
+                if role == 'ADMIN' or request.user.is_superuser:
+                    return redirect('admin-dashboard')
+                elif role == 'SALESPERSON':
+                    return redirect('employee-dashboard')
 
         return self.get_response(request)
 

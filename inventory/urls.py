@@ -22,11 +22,16 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    path('',include('administrator.urls')),
+    # Authentication URLs first to avoid being caught by catch-all patterns
     path('',include('authentication.urls')),
     path('employee/',include('employee.urls')),
+    path('',include('administrator.urls')),
 
 ]
 
 # Serve media files during development
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Custom error handlers
+handler404 = 'administrator.views.custom_404'
+handler500 = 'administrator.views.custom_500'

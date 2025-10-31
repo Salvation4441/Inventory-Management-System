@@ -81,4 +81,7 @@ urlpatterns = [
     # NOTIFICATIONS
     # path('notifications/', views.notifications, name='notifications'),
 
+    # Catch-all pattern for invalid URLs (should be last)
+    path('<path:invalid_path>/', views.handle_invalid_url, name='handle-invalid-url'),
+
 ]
