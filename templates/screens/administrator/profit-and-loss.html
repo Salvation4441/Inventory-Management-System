@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
-{% load static %}
-{% load math_filters %}
-
-{% block content %}
+{% extends 'base.html' %} {% load static %} {% load math_filters %} {% block
+content %}
 <!-- Date Range Picker CSS -->
-<link rel="stylesheet" href="{% static 'assets/plugins/daterangepicker/daterangepicker.css' %}">
+<link
+  rel="stylesheet"
+  href="{% static 'assets/plugins/daterangepicker/daterangepicker.css' %}"
+/>
 
 <!-- jQuery (required for daterangepicker) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -27,22 +27,37 @@
                   </div>
                   <div>
                     <h1 class="header-title mb-1">Profit & Loss Statement</h1>
-                    <p class="header-subtitle mb-0">{{ date_range }} • Generated {{ report_generated }}</p>
+                    <p class="header-subtitle mb-0">
+                      {{ date_range }} • Generated {{ report_generated }}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             <div class="col-lg-4">
-              <div class="header-controls d-flex justify-content-end align-items-center gap-2">
+              <div
+                class="header-controls d-flex justify-content-end align-items-center gap-2"
+              >
                 <div class="date-picker-wrapper">
-                  <input type="text" class="form-control date-range-input" placeholder="Select Date Range" id="dateRangePicker">
+                  <input
+                    type="text"
+                    class="form-control date-range-input"
+                    placeholder="Select Date Range"
+                    id="dateRangePicker"
+                  />
                   <i class="ti ti-calendar date-picker-icon"></i>
                 </div>
                 <div class="btn-group">
-                  <button class="btn btn-header-primary" onclick="exportReport()">
+                  <button
+                    class="btn btn-header-primary"
+                    onclick="exportReport()"
+                  >
                     <i class="ti ti-download me-1"></i>Export
                   </button>
-                  <button class="btn btn-header-secondary" onclick="printReport()">
+                  <button
+                    class="btn btn-header-secondary"
+                    onclick="printReport()"
+                  >
                     <i class="ti ti-printer me-1"></i>Print
                   </button>
                 </div>
@@ -70,27 +85,27 @@
           <table class="table table-bordered table-striped mb-0" id="plTable">
             <thead class="table-header-professional">
               <tr>
-                <th class="th-account" style="width: 25%; min-width: 180px;">
+                <th class="th-account" style="width: 25%; min-width: 180px">
                   <div class="th-content">
                     <i class="ti ti-list me-2"></i>
                     <strong>Financial Account</strong>
                   </div>
                 </th>
                 {% for month in monthly_data %}
-                <th class="th-month" style="min-width: 110px;">
+                <th class="th-month" style="min-width: 110px">
                   <div class="th-month-content">
                     <div class="month-name">{{ month.month_short }}</div>
                     <div class="month-year">{{ month.year }}</div>
                   </div>
                 </th>
                 {% endfor %}
-                <th class="th-total" style="min-width: 120px;">
+                <th class="th-month" style="min-width: 120px">
                   <div class="th-content">
                     <i class="ti ti-sum me-1"></i>
                     <strong>TOTAL</strong>
                   </div>
                 </th>
-                <th class="th-average" style="min-width: 110px;">
+                <th class="th-month" style="min-width: 110px">
                   <div class="th-content">
                     <i class="ti ti-chart-bar me-1"></i>
                     <strong>AVG</strong>
@@ -121,17 +136,23 @@
                 </td>
                 {% for month in monthly_data %}
                 <td class="data-cell positive-value">
-                  <span class="currency-value">GHC {{ month.revenue|floatformat:2 }}</span>
+                  <span class="currency-value"
+                    >GHC {{ month.revenue|floatformat:2 }}</span
+                  >
                 </td>
                 {% endfor %}
-                <td class="total-cell">
-                  <span class="total-value">GHC {{ total_revenue|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-bold">
+                  <span class="total-value"
+                    >GHC {{ total_revenue|floatformat:2 }}</span
+                  >
                 </td>
-                <td class="average-cell">
-                  <span class="average-value">GHC {{ avg_monthly_revenue|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-semibold">
+                  <span class="average-value"
+                    >GHC {{ avg_monthly_revenue|floatformat:2 }}</span
+                  >
                 </td>
               </tr>
-              
+
               <!-- COST OF GOODS SOLD SECTION -->
               <tr class="section-header cost-section">
                 <td colspan="{{ monthly_count|add:3 }}" class="section-title">
@@ -149,16 +170,22 @@
               <tr>
                 <td class="ps-4 fw-semibold">Product Costs</td>
                 {% for month in monthly_data %}
-                <td class="text-end px-2 fw-semibold" style="color: #FF0000;">GHC {{ month.cogs|floatformat:2 }}</td>
-                {% endfor %}
-                <td class="total-cell">
-                  <span class="total-value">GHC {{ total_cogs|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-semibold" style="color: #ff0000">
+                  GHC {{ month.cogs|floatformat:2 }}
                 </td>
-                <td class="average-cell">
-                  <span class="average-value">GHC {{ total_cogs|div:monthly_count|floatformat:2 }}</span>
+                {% endfor %}
+                <td class="text-end px-2 fw-bold">
+                  <span class="total-value"
+                    >GHC {{ total_cogs|floatformat:2 }}</span
+                  >
+                </td>
+                <td class="text-end px-2 fw-semibold">
+                  <span class="average-value"
+                    >GHC {{ total_cogs|div:monthly_count|floatformat:2 }}</span
+                  >
                 </td>
               </tr>
-              
+
               <!-- GROSS PROFIT SECTION -->
               <tr class="section-header gross-profit-section">
                 <td colspan="{{ monthly_count|add:3 }}" class="section-title">
@@ -176,19 +203,25 @@
               <tr class="border-bottom border-2">
                 <td class="ps-4 fw-bold">Gross Profit</td>
                 {% for month in monthly_data %}
-                <td class="text-end px-2 fw-semibold {% if month.gross_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+                <td
+                  class="text-end px-2 fw-semibold {% if month.gross_profit >= 0 %}profit-positive{% else %}profit-negative{% endif %}"
+                >
                   GHC {{ month.gross_profit|floatformat:2 }}
                 </td>
                 {% endfor %}
-                <td class="total-cell">
-                  <span class="total-value">GHC {{ total_gross_profit|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-bold">
+                  <span class="total-value"
+                    >GHC {{ total_gross_profit|floatformat:2 }}</span
+                  >
                 </td>
-                <td class="average-cell">
-                  <span class="average-value">GHC {{ total_gross_profit|div:monthly_count|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-semibold">
+                  <span class="average-value"
+                    >GHC {{ total_gross_profit|div:monthly_count|floatformat:2
+                    }}</span
+                  >
                 </td>
               </tr>
-              
-            
+
               <!-- PERFORMANCE RATIOS SECTION -->
               <tr class="section-header performance-section">
                 <td colspan="{{ monthly_count|add:3 }}" class="section-title">
@@ -207,15 +240,19 @@
                 <td class="ps-4">Gross Profit Margin %</td>
                 {% for month in monthly_data %}
                 <td class="text-center px-2">
-                  <span class="badge {% if month.gross_margin >= 30 %}badge-excellent{% elif month.gross_margin >= 15 %}badge-good{% else %}badge-poor{% endif %}">
+                  <span
+                    class="badge {% if month.gross_margin >= 30 %}badge-excellent{% elif month.gross_margin >= 15 %}badge-good{% else %}badge-poor{% endif %}"
+                  >
                     {{ month.gross_margin|floatformat:1 }}%
                   </span>
                 </td>
                 {% endfor %}
-                <td class="total-cell text-center">
-                  <span class="badge badge-total">{{ overall_gross_margin|floatformat:1 }}%</span>
+                <td class="text-center px-2 fw-bold">
+                  <span class="badge badge-total"
+                    >{{ overall_gross_margin|floatformat:1 }}%</span
+                  >
                 </td>
-                <td class="average-cell text-center">
+                <td class="text-center px-2 fw-semibold">
                   <span class="average-value">-</span>
                 </td>
               </tr>
@@ -223,19 +260,23 @@
                 <td class="ps-4">Net Profit Margin %</td>
                 {% for month in monthly_data %}
                 <td class="text-center px-2">
-                  <span class="badge {% if month.profit_margin >= 20 %}badge-excellent{% elif month.profit_margin >= 10 %}badge-good{% else %}badge-poor{% endif %}">
+                  <span
+                    class="badge {% if month.profit_margin >= 20 %}badge-excellent{% elif month.profit_margin >= 10 %}badge-good{% else %}badge-poor{% endif %}"
+                  >
                     {{ month.profit_margin|floatformat:1 }}%
                   </span>
                 </td>
                 {% endfor %}
-                <td class="total-cell text-center">
-                  <span class="badge badge-total">{{ overall_profit_margin|floatformat:1 }}%</span>
+                <td class="text-center px-2 fw-bold">
+                  <span class="badge badge-total"
+                    >{{ overall_profit_margin|floatformat:1 }}%</span
+                  >
                 </td>
-                <td class="average-cell text-center">
+                <td class="text-center px-2 fw-semibold">
                   <span class="average-value">-</span>
                 </td>
               </tr>
-              
+
               <!-- SALES STATISTICS SECTION -->
               <tr class="section-header statistics-section">
                 <td colspan="{{ monthly_count|add:3 }}" class="section-title">
@@ -245,7 +286,9 @@
                     </div>
                     <div class="section-text">
                       <span class="section-name">SALES STATISTICS</span>
-                      <small class="section-desc">Volume & customer metrics</small>
+                      <small class="section-desc"
+                        >Volume & customer metrics</small
+                      >
                     </div>
                   </div>
                 </td>
@@ -253,41 +296,51 @@
               <tr>
                 <td class="ps-4 fw-semibold">Number of Sales</td>
                 {% for month in monthly_data %}
-                <td class="text-center px-2 fw-semibold">{{ month.sales_count }}</td>
+                <td class="text-center px-2 fw-semibold">
+                  {{ month.sales_count }}
+                </td>
                 {% endfor %}
-                <td class="total-cell text-center">
+                <td class="text-center px-2 fw-bold">
                   <span class="total-value">{{ total_sales }}</span>
                 </td>
-                <td class="average-cell text-center">
-                  <span class="average-value">{{ avg_sales_per_month|floatformat:0 }}</span>
+                <td class="text-center px-2 fw-semibold">
+                  <span class="average-value"
+                    >{{ avg_sales_per_month|floatformat:0 }}</span
+                  >
                 </td>
               </tr>
               <tr>
                 <td class="ps-4 fw-semibold">Unique Customers</td>
                 {% for month in monthly_data %}
-                <td class="text-center px-2 fw-semibold">{{ month.unique_customers }}</td>
+                <td class="text-center px-2 fw-semibold">
+                  {{ month.unique_customers }}
+                </td>
                 {% endfor %}
-                <td class="total-cell text-center">
+                <td class="text-center px-2 fw-bold">
                   <span class="total-value">{{ total_customers }}</span>
                 </td>
-                <td class="average-cell text-center">
-                  <span class="average-value">{{ avg_customers_per_month|floatformat:0 }}</span>
+                <td class="text-center px-2 fw-semibold">
+                  <span class="average-value"
+                    >{{ avg_customers_per_month|floatformat:0 }}</span
+                  >
                 </td>
               </tr>
               <tr>
                 <td class="ps-4 fw-semibold">Avg Order Value</td>
                 {% for month in monthly_data %}
-                <td class="text-end px-2 fw-semibold">GHC {{ month.avg_order_value|floatformat:2 }}</td>
-                {% endfor %}
-                <td class="total-cell">
-                  <span class="total-value">GHC {{ avg_order_value|floatformat:2 }}</span>
+                <td class="text-end px-2 fw-semibold">
+                  GHC {{ month.avg_order_value|floatformat:2 }}
                 </td>
-                <td class="average-cell">
+                {% endfor %}
+                <td class="text-end px-2 fw-bold">
+                  <span class="total-value"
+                    >GHC {{ avg_order_value|floatformat:2 }}</span
+                  >
+                </td>
+                <td class="text-end px-2 fw-semibold">
                   <span class="average-value">-</span>
                 </td>
               </tr>
-
-
             </tbody>
           </table>
         </div>
@@ -297,759 +350,778 @@
             <i class="ti ti-chart-line text-muted"></i>
           </div>
           <h5>No Financial Data Available</h5>
-          <p class="text-muted mb-3">No sales data found for the selected date range.</p>
-          <p class="text-muted"><strong>{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</strong></p>
-          <button class="btn btn-primary" onclick="$('#dateRangePicker').focus()">
+          <p class="text-muted mb-3">
+            No sales data found for the selected date range.
+          </p>
+          <p class="text-muted">
+            <strong
+              >{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y"
+              }}</strong
+            >
+          </p>
+          <button
+            class="btn btn-primary"
+            onclick="$('#dateRangePicker').focus()"
+          >
             <i class="ti ti-calendar me-1"></i>Select Different Date Range
           </button>
         </div>
         {% endif %}
       </div>
     </div>
-
-
   </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize date range picker
-  const dateRangePicker = document.getElementById('dateRangePicker');
-  
-  // Date range picker functionality
-  if (dateRangePicker) {
-    $(dateRangePicker).daterangepicker({
-      startDate: moment('{{ start_date|date:"Y-m-d" }}'),
-      endDate: moment('{{ end_date|date:"Y-m-d" }}'),
-      locale: {
-        format: 'YYYY-MM-DD'
-      },
-      ranges: {
-        'This Month': [moment().startOf('month'), moment().endOf('month')],
-        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-        'This Quarter': [moment().startOf('quarter'), moment().endOf('quarter')],
-        'Last Quarter': [moment().subtract(1, 'quarter').startOf('quarter'), moment().subtract(1, 'quarter').endOf('quarter')],
-        'This Year': [moment().startOf('year'), moment().endOf('year')],
-        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
-      }
-    }, function(start, end, label) {
-      updateReport(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-    });
-  }
-});
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize date range picker
+    const dateRangePicker = document.getElementById("dateRangePicker");
 
-// Utility functions
-function updateReport(startDate, endDate) {
-  const url = new URL(window.location.href);
-  url.searchParams.set('start_date', startDate);
-  url.searchParams.set('end_date', endDate);
-  window.location.href = url.toString();
-}
-
-function exportReport() {
-  window.print();
-}
-
-function printReport() {
-  window.print();
-}
-
-function exportToExcel() {
-  // Get table element
-  const table = document.getElementById('plTable');
-  
-  // Create a copy of the table for export
-  const tableClone = table.cloneNode(true);
-  
-  // Remove any styling classes that might interfere
-  const rows = tableClone.querySelectorAll('tr');
-  rows.forEach(row => {
-    row.className = '';
-    const cells = row.querySelectorAll('td, th');
-    cells.forEach(cell => {
-      cell.className = '';
-      // Remove any HTML tags and keep only text
-      cell.innerHTML = cell.textContent;
-    });
-  });
-  
-  // Convert table to CSV format
-  let csv = '';
-  const tableRows = tableClone.querySelectorAll('tr');
-  
-  tableRows.forEach(row => {
-    const cells = row.querySelectorAll('td, th');
-    const rowData = [];
-    
-    cells.forEach(cell => {
-      let cellText = cell.textContent.trim();
-      // Handle cells that span multiple columns
-      if (cell.getAttribute('colspan')) {
-        const colspan = parseInt(cell.getAttribute('colspan'));
-        rowData.push(cellText);
-        // Add empty cells for the spanned columns
-        for (let i = 1; i < colspan; i++) {
-          rowData.push('');
+    // Date range picker functionality
+    if (dateRangePicker) {
+      $(dateRangePicker).daterangepicker(
+        {
+          startDate: moment('{{ start_date|date:"Y-m-d" }}'),
+          endDate: moment('{{ end_date|date:"Y-m-d" }}'),
+          locale: {
+            format: "YYYY-MM-DD",
+          },
+          ranges: {
+            "This Month": [moment().startOf("month"), moment().endOf("month")],
+            "Last Month": [
+              moment().subtract(1, "month").startOf("month"),
+              moment().subtract(1, "month").endOf("month"),
+            ],
+            "This Quarter": [
+              moment().startOf("quarter"),
+              moment().endOf("quarter"),
+            ],
+            "Last Quarter": [
+              moment().subtract(1, "quarter").startOf("quarter"),
+              moment().subtract(1, "quarter").endOf("quarter"),
+            ],
+            "This Year": [moment().startOf("year"), moment().endOf("year")],
+            "Last Year": [
+              moment().subtract(1, "year").startOf("year"),
+              moment().subtract(1, "year").endOf("year"),
+            ],
+          },
+        },
+        function (start, end, label) {
+          updateReport(start.format("YYYY-MM-DD"), end.format("YYYY-MM-DD"));
         }
-      } else {
-        rowData.push(cellText);
-      }
-    });
-    
-    csv += rowData.join(',') + '\n';
+      );
+    }
   });
-  
-  // Create and download the file
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.setAttribute('hidden', '');
-  a.setAttribute('href', url);
-  a.setAttribute('download', 'profit-loss-statement.csv');
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
-}
+
+  // Utility functions
+  function updateReport(startDate, endDate) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("start_date", startDate);
+    url.searchParams.set("end_date", endDate);
+    window.location.href = url.toString();
+  }
+
+  function exportReport() {
+    window.print();
+  }
+
+  function printReport() {
+    window.print();
+  }
+
+  function exportToExcel() {
+    // Get table element
+    const table = document.getElementById("plTable");
+
+    // Create a copy of the table for export
+    const tableClone = table.cloneNode(true);
+
+    // Remove any styling classes that might interfere
+    const rows = tableClone.querySelectorAll("tr");
+    rows.forEach((row) => {
+      row.className = "";
+      const cells = row.querySelectorAll("td, th");
+      cells.forEach((cell) => {
+        cell.className = "";
+        // Remove any HTML tags and keep only text
+        cell.innerHTML = cell.textContent;
+      });
+    });
+
+    // Convert table to CSV format
+    let csv = "";
+    const tableRows = tableClone.querySelectorAll("tr");
+
+    tableRows.forEach((row) => {
+      const cells = row.querySelectorAll("td, th");
+      const rowData = [];
+
+      cells.forEach((cell) => {
+        let cellText = cell.textContent.trim();
+        // Handle cells that span multiple columns
+        if (cell.getAttribute("colspan")) {
+          const colspan = parseInt(cell.getAttribute("colspan"));
+          rowData.push(cellText);
+          // Add empty cells for the spanned columns
+          for (let i = 1; i < colspan; i++) {
+            rowData.push("");
+          }
+        } else {
+          rowData.push(cellText);
+        }
+      });
+
+      csv += rowData.join(",") + "\n";
+    });
+
+    // Create and download the file
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.setAttribute("hidden", "");
+    a.setAttribute("href", url);
+    a.setAttribute("download", "profit-loss-statement.csv");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
 </script>
 
 <style>
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-/* Use existing style.css colors */
-:root {
-  --primary-color: #FE9F43;
-  --secondary-color: #092C4C;
-  --success-color: #3EB780;
-  --danger-color: #FF0000;
-  --warning-color: #FFCA18;
-  --info-color: #155EEF;
-  --text-dark: #212B36;
-  --text-light: #646B72;
-  --light-bg: #F7F7F7;
-  --white: #FFFFFF;
-}
-
-.card {
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-}
-
-.table th {
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.table td {
-  vertical-align: middle;
-  font-size: 0.9rem;
-  padding: 12px 8px;
-}
-
-.table tbody tr:hover {
-  background-color: rgba(0,123,255,0.05);
-}
-
-/* Professional Orange Theme Styling */
-.professional-header {
-  margin: 0 -15px 30px -15px;
-}
-
-.header-gradient {
-  background: linear-gradient(135deg, #FE9F43 0%, #E04F16 50%, #FBB034 100%);
-  box-shadow: 0 8px 32px rgba(254, 159, 67, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.header-icon {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: white;
-}
-
-.header-title {
-  color: white;
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.header-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.date-picker-wrapper {
-  position: relative;
-}
-
-.date-range-input {
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  padding: 12px 45px 12px 15px;
-  font-weight: 500;
-  color: var(--text-dark);
-  width: 220px;
-}
-
-.date-picker-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary-color);
-  font-size: 18px;
-}
-
-.btn-header-primary {
-  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%);
-  border: none;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(224, 79, 22, 0.3);
-  transition: all 0.3s ease;
-}
-
-.btn-header-secondary {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.financial-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 15px 50px rgba(254, 159, 67, 0.15);
-  overflow: hidden;
-  border: 2px solid rgba(254, 159, 67, 0.2);
-}
-
-.card-header-professional {
-  background: linear-gradient(135deg, #F9FAFB 0%, #ffffff 100%);
-  padding: 25px 30px;
-  border-bottom: 2px solid rgba(254, 159, 67, 0.2);
-}
-
-.card-icon {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, #092C4C 0%, #155EEF 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-  margin-right: 15px;
-  box-shadow: 0 4px 15px rgba(9, 44, 76, 0.3);
-}
-
-.card-title-main {
-  color: var(--text-dark);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.card-title-sub {
-  color: var(--text-light);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.btn-professional-active {
-  background: linear-gradient(to right, #FE9F43 0%, #8e77fa 100%);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  box-shadow: 0 3px 12px rgba(254, 159, 67, 0.3);
-}
-
-.btn-professional {
-  background: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin-left: 10px;
-}
-
-#plTable {
-  border: none;
-  border-radius: 0;
-  overflow: hidden;
-  box-shadow: none;
-}
-
-.table-header-professional {
-  background: linear-gradient(135deg, #092C4C 0%, #155EEF 50%, #28b7f9 100%);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.table-header-professional th {
-  border: none;
-  padding: 20px 15px;
-  color: white;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.th-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.th-month-content {
-  text-align: center;
-}
-
-.month-name {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.month-year {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.th-total {
-  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%) !important;
-}
-
-.th-average {
-  background: linear-gradient(to right, #155EEF 0%, #00f2fe 100%) !important;
-}
-
-/* Section Headers */
-.section-header {
-  background: linear-gradient(135deg, #3EB780 0%, #5cf9e2 100%);
-  border-top: 3px solid #FE9F43;
-}
-
-.section-title {
-  padding: 20px 25px;
-}
-
-.section-content {
-  display: flex;
-  align-items: center;
-}
-
-.section-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-  margin-right: 18px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.9);
-}
-
-.section-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.section-name {
-  color: #000000;
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  margin-bottom: 2px;
-}
-
-.section-desc {
-  color: #333333;
-  font-size: 0.85rem;
-  font-weight: 600;
-  font-style: italic;
-  opacity: 0.9;
-}
-
-/* Data Rows */
-.data-row {
-  background: white;
-  transition: all 0.3s ease;
-  border-bottom: 1px solid rgba(254, 159, 67, 0.1);
-}
-
-.data-row:hover {
-  background: rgba(254, 159, 67, 0.03);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(254, 159, 67, 0.1);
-}
-
-.account-name {
-  padding: 18px 25px;
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 1rem;
-}
-
-.data-cell {
-  padding: 18px 15px;
-  text-align: right;
-  font-weight: 600;
-}
-
-.positive-value .currency-value {
-  color: var(--success-color);
-  font-weight: 700;
-}
-
-.negative-value .currency-value {
-  color: var(--danger-color);
-  font-weight: 700;
-}
-
-.total-cell {
-  background: linear-gradient(to right, #E04F16 0%, #FBB034 100%);
-  color: white;
-  text-align: right;
-  padding: 18px 15px;
-  font-weight: 700;
-}
-
-.total-value {
-  font-size: 1.05rem;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.average-cell {
-  background: linear-gradient(to right, #155EEF 0%, #00f2fe 100%);
-  color: white;
-  text-align: right;
-  padding: 18px 15px;
-  font-weight: 600;
-}
-
-.average-value {
-  font-size: 1rem;
-}
-
-/* Professional Badge System */
-.badge-excellent {
-  background: linear-gradient(to right, #3EB780 0%, #5cf9e2 100%);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(62, 183, 128, 0.3);
-}
-
-.badge-good {
-  background: linear-gradient(to right, #FFCA18 0%, #fbc434 100%);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(255, 202, 24, 0.3);
-}
-
-.badge-poor {
-  background: linear-gradient(to right, #FF0000 0%, #fd4a68 100%);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
-}
-
-.badge-total {
-  background: white;
-  color: var(--text-dark);
-  border: 2px solid var(--primary-color);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 700;
-}
-
-/* Section Gradient Backgrounds */
-.revenue-section {
-  background: linear-gradient(135deg, #a8e6cf, #88d8a3) !important;
-}
-
-.cost-section {
-  background: linear-gradient(135deg, #ffd93d, #ffcd02) !important;
-}
-
-.gross-profit-section {
-  background: linear-gradient(135deg, #74b9ff, #0084ff) !important;
-}
-
-.net-profit-section {
-  background: linear-gradient(135deg, #fd79a8, #e84393) !important;
-}
-
-.ratio-section {
-  background: linear-gradient(135deg, #a29bfe, #6c5ce7) !important;
-}
-
-.stats-section {
-  background: linear-gradient(135deg, #81ecec, #00cec9) !important;
-}
-
-/* Enhanced Badge Styling */
-.badge {
-  font-size: 0.75rem;
-  padding: 0.4em 0.8em;
-  border-radius: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* Custom Money Colors */
-.money-positive {
-  color: #27ae60 !important;
-  font-weight: 700;
-}
-
-.money-negative {
-  color: #e74c3c !important;
-  font-weight: 700;
-}
-
-.money-neutral {
-  color: #74b9ff !important;
-  font-weight: 600;
-}
-
-/* Hover Effects */
-#plTable tbody tr {
-  transition: all 0.3s ease;
-}
-
-#plTable tbody tr:hover {
-  box-shadow: 0 4px 15px rgba(102,126,234,0.1);
-}
-
-/* Total Column Styling */
-td[style*="background: linear-gradient(135deg, #ff6b6b, #ee5a52)"] {
-  font-weight: 700 !important;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Average Column Styling */
-td[style*="background: linear-gradient(135deg, #4ecdc4, #44b09e)"] {
-  font-weight: 600 !important;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-.avatar-sm {
-  width: 32px;
-  height: 32px;
-}
-
-.avatar-lg {
-  width: 56px;
-  height: 56px;
-}
-
-.avatar-xl {
-  width: 64px;
-  height: 64px;
-}
-
-@media print {
-  .page-header .btn,
-  .card-header .dropdown,
-  .btn-group {
-    display: none !important;
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   }
-  
+
+  /* Use existing style.css colors */
+  :root {
+    --primary-color: #fe9f43;
+    --secondary-color: #092c4c;
+    --success-color: #3eb780;
+    --danger-color: #ff0000;
+    --warning-color: #ffca18;
+    --info-color: #155eef;
+    --text-dark: #212b36;
+    --text-light: #646b72;
+    --light-bg: #f7f7f7;
+    --white: #ffffff;
+  }
+
   .card {
-    box-shadow: none !important;
-    border: 1px solid #dee2e6 !important;
+    transition: all 0.3s ease;
   }
-}
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .table-responsive {
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(254, 159, 67, 0.15);
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
   }
-  
-  .account-name,
-  .data-cell,
-  .total-cell,
-  .average-cell {
-    padding: 12px 15px;
+
+  .table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  .table td {
+    vertical-align: middle;
     font-size: 0.9rem;
+    padding: 12px 8px;
   }
-  
+
+  .table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+
+  /* Professional Orange Theme Styling */
+  .professional-header {
+    margin: 0 -15px 30px -15px;
+  }
+
+  .header-gradient {
+    background: linear-gradient(135deg, #fe9f43 0%, #e04f16 50%, #fbb034 100%);
+    box-shadow: 0 8px 32px rgba(254, 159, 67, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+  }
+
+  .header-title {
+    color: white;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .date-picker-wrapper {
+    position: relative;
+  }
+
+  .date-range-input {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 45px 12px 15px;
+    font-weight: 500;
+    color: var(--text-dark);
+    width: 220px;
+  }
+
+  .date-picker-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    font-size: 18px;
+  }
+
+  .btn-header-primary {
+    background: linear-gradient(to right, #e04f16 0%, #fbb034 100%);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(224, 79, 22, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-header-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .financial-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(254, 159, 67, 0.15);
+    overflow: hidden;
+    border: 2px solid rgba(254, 159, 67, 0.2);
+  }
+
+  .card-header-professional {
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    border-bottom: 2px solid rgba(254, 159, 67, 0.2);
+  }
+
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #092c4c 0%, #155eef 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    margin-right: 15px;
+    box-shadow: 0 4px 15px rgba(9, 44, 76, 0.3);
+  }
+
+  .card-title-main {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .card-title-sub {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .btn-professional-active {
+    background: linear-gradient(to right, #fe9f43 0%, #8e77fa 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(254, 159, 67, 0.3);
+  }
+
+  .btn-professional {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+  }
+
+  #plTable {
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .table-header-professional {
+    background: linear-gradient(135deg, #092c4c 0%, #155eef 50%, #28b7f9 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .table-header-professional th {
+    border: none;
+    padding: 20px 15px;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .th-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .th-content strong {
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 1.2px;
+  }
+
+  .th-month-content {
+    text-align: center;
+  }
+
+  .month-name {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .month-year {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  /* Section Headers */
+  .section-header {
+    background: linear-gradient(135deg, #3eb780 0%, #5cf9e2 100%);
+    border-top: 3px solid #fe9f43;
+  }
+
   .section-title {
-    padding: 15px 20px;
+    padding: 20px 25px;
   }
-  
+
+  .section-content {
+    display: flex;
+    align-items: center;
+  }
+
   .section-icon {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    margin-right: 18px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.9);
   }
-  
+
+  .section-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .section-name {
+    color: #000000;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    margin-bottom: 2px;
+  }
+
+  .section-desc {
+    color: #333333;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  /* Data Rows */
+  .data-row {
+    background: white;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(254, 159, 67, 0.1);
+  }
+
+  .data-row:hover {
+    background: rgba(254, 159, 67, 0.03);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(254, 159, 67, 0.1);
+  }
+
+  .account-name {
+    padding: 18px 25px;
+    font-weight: 600;
+    color: var(--text-dark);
     font-size: 1rem;
   }
-  
-  .page-header-content {
-    padding: 20px;
+
+  .data-cell {
+    padding: 18px 15px;
+    text-align: right;
+    font-weight: 600;
   }
-}
 
-/* Animation Classes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+  .positive-value .currency-value {
+    color: var(--success-color);
+    font-weight: 700;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .negative-value .currency-value {
+    color: var(--danger-color);
+    font-weight: 700;
   }
-}
 
-.animate-fade-in {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.animate-delay-1 {
-  animation-delay: 0.1s;
-}
-
-.animate-delay-2 {
-  animation-delay: 0.2s;
-}
-
-.animate-delay-3 {
-  animation-delay: 0.3s;
-}
-
-/* Loading State */
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 15px;
-  z-index: 10;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(254, 159, 67, 0.3);
-  border-left-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+  .total-cell {
+    background: linear-gradient(to right, #e04f16 0%, #fbb034 100%);
+    color: white;
+    text-align: right;
+    padding: 18px 15px;
+    font-weight: 700;
   }
-}
 
-/* Professional Utility Classes */
-.text-success { 
-  color: var(--success-color) !important; 
-  font-weight: 600;
-}
+  .total-value {
+    font-size: 1.05rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
 
-.text-danger { 
-  color: var(--danger-color) !important; 
-  font-weight: 600;
-}
+  .average-cell {
+    background: linear-gradient(to right, #155eef 0%, #00f2fe 100%);
+    color: white;
+    text-align: right;
+    padding: 18px 15px;
+    font-weight: 600;
+  }
 
-.text-warning { 
-  color: var(--warning-color) !important; 
-  font-weight: 600;
-}
+  .average-value {
+    font-size: 1rem;
+  }
 
-.text-info { 
-  color: var(--info-color) !important; 
-  font-weight: 600;
-}
+  /* Professional Badge System */
+  .badge-excellent {
+    background: linear-gradient(to right, #3eb780 0%, #5cf9e2 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(62, 183, 128, 0.3);
+  }
 
-.text-primary { 
-  color: var(--primary-color) !important; 
-  font-weight: 600;
-}
+  .badge-good {
+    background: linear-gradient(to right, #ffca18 0%, #fbc434 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 202, 24, 0.3);
+  }
 
-.currency-value {
-  font-family: 'Courier New', monospace;
-  font-size: 1.05rem;
-  letter-spacing: 0.5px;
-}
+  .badge-poor {
+    background: linear-gradient(to right, #ff0000 0%, #fd4a68 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+  }
 
-.percentage-badge {
-  background: linear-gradient(to right, #FE9F43 0%, #8e77fa 100%);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-left: 8px;
-}
+  .badge-total {
+    background: white;
+    color: var(--text-dark);
+    border: 2px solid var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
 
+  /* Section Gradient Backgrounds */
+  .revenue-section {
+    background: linear-gradient(135deg, #a8e6cf, #88d8a3) !important;
+  }
+
+  .cost-section {
+    background: linear-gradient(135deg, #ffd93d, #ffcd02) !important;
+  }
+
+  .gross-profit-section {
+    background: linear-gradient(135deg, #74b9ff, #0084ff) !important;
+  }
+
+  .net-profit-section {
+    background: linear-gradient(135deg, #fd79a8, #e84393) !important;
+  }
+
+  .ratio-section {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7) !important;
+  }
+
+  .stats-section {
+    background: linear-gradient(135deg, #81ecec, #00cec9) !important;
+  }
+
+  /* Enhanced Badge Styling */
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Custom Money Colors */
+  .money-positive {
+    color: #27ae60 !important;
+    font-weight: 700;
+  }
+
+  .money-negative {
+    color: #e74c3c !important;
+    font-weight: 700;
+  }
+
+  .money-neutral {
+    color: #74b9ff !important;
+    font-weight: 600;
+  }
+
+  /* Hover Effects */
+  #plTable tbody tr {
+    transition: all 0.3s ease;
+  }
+
+  #plTable tbody tr:hover {
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+  }
+
+  /* Total Column Styling */
+  td[style*="background: linear-gradient(135deg, #ff6b6b, #ee5a52)"] {
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Average Column Styling */
+  td[style*="background: linear-gradient(135deg, #4ecdc4, #44b09e)"] {
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .avatar-sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  .avatar-lg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .avatar-xl {
+    width: 64px;
+    height: 64px;
+  }
+
+  @media print {
+    .page-header .btn,
+    .card-header .dropdown,
+    .btn-group {
+      display: none !important;
+    }
+
+    .card {
+      box-shadow: none !important;
+      border: 1px solid #dee2e6 !important;
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .table-responsive {
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(254, 159, 67, 0.15);
+    }
+
+    .account-name,
+    .data-cell,
+    .total-cell,
+    .average-cell {
+      padding: 12px 15px;
+      font-size: 0.9rem;
+    }
+
+    .section-title {
+      padding: 15px 20px;
+    }
+
+    .section-icon {
+      width: 35px;
+      height: 35px;
+      font-size: 16px;
+    }
+
+    .section-name {
+      font-size: 1rem;
+    }
+
+    .page-header-content {
+      padding: 20px;
+    }
+  }
+
+  /* Animation Classes */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-delay-1 {
+    animation-delay: 0.1s;
+  }
+
+  .animate-delay-2 {
+    animation-delay: 0.2s;
+  }
+
+  .animate-delay-3 {
+    animation-delay: 0.3s;
+  }
+
+  /* Loading State */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    z-index: 10;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(254, 159, 67, 0.3);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Professional Utility Classes */
+  .text-success {
+    color: var(--success-color) !important;
+    font-weight: 600;
+  }
+
+  .text-danger {
+    color: var(--danger-color) !important;
+    font-weight: 600;
+  }
+
+  .text-warning {
+    color: var(--warning-color) !important;
+    font-weight: 600;
+  }
+
+  .text-info {
+    color: var(--info-color) !important;
+    font-weight: 600;
+  }
+
+  .text-primary {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+  }
+
+  .currency-value {
+    font-family: "Courier New", monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+  }
+
+  .percentage-badge {
+    background: linear-gradient(to right, #fe9f43 0%, #8e77fa 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 8px;
+  }
 </style>
 
 {% endblock %}
