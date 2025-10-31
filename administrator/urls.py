@@ -64,6 +64,7 @@ urlpatterns = [
     path('sales/',views.sales,name='sales'),
     path('add-sales/',views.addSales,name='add-sales'),
     path('sales/<int:sale_id>/detail/', views.saleDetail, name='sale-detail'),
+    path('sales/<int:sale_id>/receipt/', views.sale_receipt, name='sale-receipt'),
     path('sales/<int:sale_id>/delete/', views.delete_sale, name='delete-sale'),
 
     # MANAGE STOCKS

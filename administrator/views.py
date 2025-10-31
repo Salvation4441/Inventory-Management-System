@@ -1284,7 +1284,7 @@ def addSales(request):
             )
             
             messages.success(request, f"Sale added successfully! Created sale #{sale.reference} with {created_items_count} items.")
-            return redirect('sales')
+            return redirect('sale-receipt', sale_id=sale.id)
 
         except Exception as e:
             messages.error(request, f"Error adding sale: {e}")
@@ -1347,6 +1347,40 @@ def saleDetail(request, sale_id):
     }
 
     return JsonResponse(sale_data)
+
+@login_required
+def sale_receipt(request, sale_id):
+    """Display receipt for a completed sale"""
+    sale = get_object_or_404(Sales, id=sale_id)
+    items = SalesItem.objects.filter(sale=sale).select_related('product')
+    
+    # Calculate totals
+    subtotal = sale.total_amount
+    tax_rate = 0.0  # You can adjust this or make it configurable
+    tax_amount = subtotal * (tax_rate / 100)
+    total_amount = subtotal + tax_amount
+    
+    # Company info (you can make this configurable)
+    company_info = {
+        'name': 'DreamsPOS',
+        'address': 'Your Business Address',
+        'phone': '+233 XX XXX XXXX',
+        'email': 'info@dreamspos.com',
+        'website': 'www.dreamspos.com'
+    }
+    
+    context = {
+        'sale': sale,
+        'items': items,
+        'subtotal': subtotal,
+        'tax_rate': tax_rate,
+        'tax_amount': tax_amount,
+        'total_amount': total_amount,
+        'company_info': company_info,
+        'isSalesPerson': getattr(request.user, 'role', '').upper() == 'SALESPERSON',
+    }
+    
+    return render(request, 'screens/administrator/sale-receipt.html', context)
 
 @login_required
 @transaction.atomic
