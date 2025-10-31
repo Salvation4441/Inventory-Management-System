@@ -138,6 +138,7 @@
       </li>
 
       <!-- Notifications -->
+       {% if not isSalesPerson %}
       <li class="nav-item dropdown nav-item-box position-relative">
         <a
           href="javascript:void(0);"
@@ -174,8 +175,7 @@
                     <div class="flex-grow-1">
                       <p class="noti-details">
                         <span class="noti-title">New Sales Activity</span>
-                        You have {{ notification_count }} new notification{{
-                        notification_count|pluralize }}
+                        You have {{ notification_count }} new notification{{ notification_count|pluralize }}
                       </p>
                       <p class="noti-time">Click to view details</p>
                     </div>
@@ -204,7 +204,7 @@
         </div>
       </li>
       <!-- /Notifications -->
-
+      {%endif%}
       <!-- <li class="nav-item nav-item-box">
         <a href="{% url 'settings' %}"><i class="ti ti-settings"></i></a>
       </li> -->

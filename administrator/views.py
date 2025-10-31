@@ -769,6 +769,74 @@ def profit_and_loss(request):
 def error_404(request):
     return render(request,'screens/core/error-404.html')
 
+# Custom 404 handler
+def custom_404(request, exception):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.http import HttpResponseNotFound
+    
+    # If it's an AJAX request, return JSON response
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'error': 'Page not found'}, status=404)
+    
+    # Check if user is authenticated and redirect accordingly
+    if request.user.is_authenticated:
+        # Add error message
+        messages.error(request, "The page you're looking for doesn't exist. You've been redirected to the dashboard.")
+        
+        if hasattr(request.user, 'role') and request.user.role == 'SALESPERSON':
+            return redirect('employee-dashboard')
+        else:
+            return redirect('admin-dashboard')
+    else:
+        # For unauthenticated users, show the 404 page instead of redirecting to login
+        return render(request, 'screens/core/error-404.html', status=404)
+
+# Custom 500 handler
+def custom_500(request):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    from django.http import HttpResponseServerError
+    
+    # If it's an AJAX request, return JSON response
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'error': 'Server error'}, status=500)
+    
+    # Check if user is authenticated and redirect accordingly
+    if request.user.is_authenticated:
+        # Add error message
+        messages.error(request, "Something went wrong on our end. Please try again.")
+        
+        if hasattr(request.user, 'role') and request.user.role == 'SALESPERSON':
+            return redirect('employee-dashboard')
+        else:
+            return redirect('admin-dashboard')
+    else:
+        # For unauthenticated users, show a generic error page instead of redirecting
+        return render(request, 'screens/core/error-404.html', {'error_message': 'Server Error'}, status=500)
+
+# Handle invalid URLs
+def handle_invalid_url(request, invalid_path):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+    
+    # Prevent redirecting login-related paths to avoid loops
+    if 'login' in invalid_path.lower() or 'auth' in invalid_path.lower():
+        return render(request, 'screens/core/error-404.html', status=404)
+    
+    # Check if user is authenticated and redirect accordingly
+    if request.user.is_authenticated:
+        # Add specific error message with the invalid path
+        messages.warning(request, f"The page '/{invalid_path}/' was not found. You've been redirected to the dashboard.")
+        
+        if hasattr(request.user, 'role') and request.user.role == 'SALESPERSON':
+            return redirect('employee-dashboard')
+        else:
+            return redirect('admin-dashboard')
+    else:
+        # For unauthenticated users, show 404 page instead of redirecting to login
+        return render(request, 'screens/core/error-404.html', status=404)
+
 
 
 # --------------------------------------------
@@ -1128,6 +1196,42 @@ def addSales(request):
             status = request.POST.get('status', 'Completed')
             payment_mode = request.POST.get('payment_mode', 'Cash')
 
+            # Get all product rows
+            product_ids = request.POST.getlist('product_id[]')
+            quantities = request.POST.getlist('quantity[]')
+            # Note: unit price is not editable (comes from product), selling price is editable by user
+            selling_prices = request.POST.getlist('selling_price[]') or request.POST.getlist('selling_price')
+
+            # Validate that at least one product has been added
+            if not product_ids or len(product_ids) == 0:
+                messages.error(request, "Please add at least one product before submitting the sale.")
+                return redirect('add-sales')
+            
+            # Filter out empty product IDs and validate
+            valid_products = [pid for pid in product_ids if pid and pid.strip()]
+            if len(valid_products) == 0:
+                messages.error(request, "Please add at least one valid product before submitting the sale.")
+                return redirect('add-sales')
+            
+            # Validate quantities and selling prices
+            for i, product_id in enumerate(product_ids):
+                if not product_id or not product_id.strip():
+                    continue
+                    
+                # Check quantity
+                if i >= len(quantities) or not quantities[i] or int(quantities[i]) <= 0:
+                    messages.error(request, f"Invalid quantity for product. All products must have a quantity greater than 0.")
+                    return redirect('add-sales')
+                
+                # Check selling price  
+                if i >= len(selling_prices) or not selling_prices[i] or float(selling_prices[i]) <= 0:
+                    messages.error(request, f"Invalid selling price for product. All products must have a selling price greater than 0.")
+                    return redirect('add-sales')
+
+            print('Products',product_ids)
+            print('Quantities',quantities)
+            print('Selling Prices',selling_prices)
+
             # Check if customer_id exists
             customer = None
             if customer_id:
@@ -1140,38 +1244,47 @@ def addSales(request):
                 user=request.user
             )
 
-            # Get all product rows
-            product_ids = request.POST.getlist('product_id[]')
-            quantities = request.POST.getlist('quantity[]')
-            # Note: unit price is not editable (comes from product), selling price is editable by user
-            selling_prices = request.POST.getlist('selling_price[]') or request.POST.getlist('selling_price')
-
-            print('Products',product_ids)
-            print('Quantities',quantities)
-            print('Selling Prices',selling_prices)
-
+            # Create sales items - only for valid products
+            created_items_count = 0
             for i in range(len(product_ids)):
-                if not product_ids[i]:
+                if not product_ids[i] or not product_ids[i].strip():
                     continue
-                product = Product.objects.get(id=product_ids[i])
-                SalesItem.objects.create(
-                    sale=sale,
-                    product=product,
-                    quantity=int(quantities[i]),
-                    selling_price=float(selling_prices[i]) if i < len(selling_prices) and selling_prices[i] else None
-                )
+                    
+                try:
+                    product = Product.objects.get(id=product_ids[i])
+                    SalesItem.objects.create(
+                        sale=sale,
+                        product=product,
+                        quantity=int(quantities[i]),
+                        selling_price=float(selling_prices[i]) if i < len(selling_prices) and selling_prices[i] else product.product_selling_price
+                    )
+                    created_items_count += 1
+                except Product.DoesNotExist:
+                    messages.warning(request, f"Product with ID {product_ids[i]} not found. Skipping.")
+                    continue
+                except (ValueError, IndexError) as e:
+                    messages.warning(request, f"Invalid data for product {product_ids[i]}. Skipping.")
+                    continue
+            
+            # Double-check that at least one item was created
+            if created_items_count == 0:
+                # Delete the sale if no items were created
+                sale.delete()
+                messages.error(request, "No valid products were added to the sale. Please try again.")
+                return redirect('add-sales')
 
             # Create activity notification
-            total_items = sum(int(q) for q in quantities if q)
+            total_items = sum(int(q) for i, q in enumerate(quantities) if q and i < len(product_ids) and product_ids[i])
             create_activity(
                 user=request.user,
                 activity_type='sale_created',
                 title=f'New Sale Created',
-                description=f"Sale #{sale.reference} created for {f'{customer.first_name} {customer.last_name}' if customer else 'Walk-in customer'} with {total_items} items totaling GHC{sale.total_amount:.2f}",
+                description=f"Sale #{sale.reference} created for {f'{customer.first_name} {customer.last_name}' if customer else 'Walk-in customer'} with {created_items_count} items totaling GHC{sale.total_amount:.2f}",
                 sale=sale
             )
             
-            messages.success(request, "Sale added successfully!")
+            messages.success(request, f"Sale added successfully! Created sale #{sale.reference} with {created_items_count} items.")
+            return redirect('sales')
 
         except Exception as e:
             messages.error(request, f"Error adding sale: {e}")

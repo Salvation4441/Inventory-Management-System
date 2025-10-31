@@ -11,7 +11,7 @@
         </a>
       </div>
     </div>
-    <form method="POST" action="{% url 'add-sales' %}">
+    <form method="POST" action="{% url 'add-sales' %}" id="salesForm">
       {% csrf_token %}
       <div class="card border-0">
         <div class="card-body pb-0">
@@ -154,7 +154,7 @@
         >
           Cancel
         </button>
-        <button type="submit" class="btn btn-primary add-sale">Submit</button>
+        <button type="submit" class="btn btn-primary add-sale" id="submitBtn">Submit</button>
       </div>
     </form>
   </div>
