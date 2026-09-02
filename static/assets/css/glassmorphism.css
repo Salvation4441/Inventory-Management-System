@@ -388,31 +388,49 @@ body.header-collapse #collapse-header svg,
   border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Modal Cancel / Dismiss Buttons for Superior UX */
+/* Universal Cancel, Back, and Secondary Buttons for Superior UI/UX */
+.btn-secondary,
+a.btn-secondary,
+button.btn-secondary,
+.btn-cancel,
+.btn-back,
+.add-cancel,
+.btn-light,
 .modal .btn-secondary,
 .modal [data-bs-dismiss="modal"].btn-secondary,
 .modal .btn-cancel,
 .modal .add-cancel,
-.modal button.close.bg-danger {
-  background: #f1f3f5 !important;
-  color: #495057 !important;
-  border: 1px solid #dee2e6 !important;
+[data-bs-dismiss="modal"] {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 10px !important;
   font-weight: 600 !important;
   padding: 8px 18px !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
 }
 
+.btn-secondary:hover,
+a.btn-secondary:hover,
+button.btn-secondary:hover,
+.btn-cancel:hover,
+.btn-back:hover,
+.add-cancel:hover,
+.btn-light:hover,
 .modal .btn-secondary:hover,
 .modal [data-bs-dismiss="modal"].btn-secondary:hover,
 .modal .btn-cancel:hover,
-.modal .add-cancel:hover,
-.modal button.close.bg-danger:hover {
-  background: #e9ecef !important;
-  color: #212529 !important;
-  border-color: #ced4da !important;
+.modal .add-cancel:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
   transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* Close icon buttons inside modal headers */
@@ -439,7 +457,7 @@ body.header-collapse #collapse-header svg,
   transform: rotate(90deg) !important;
 }
 
-/* 8. Modern Glass Form Inputs */
+/* 8. Modern Glass Form Inputs & Date Icon Fix */
 .form-control,
 .form-select {
   background: rgba(255, 255, 255, 0.8) !important;
@@ -448,6 +466,62 @@ body.header-collapse #collapse-header svg,
   border-radius: 10px !important;
   padding: 10px 14px !important;
   transition: all 0.2s ease !important;
+  color: #0f172a !important;
+}
+
+/* Date Range Inputs & Icon Spacing (Zero overlap with text) */
+.input-icon-start,
+.cal-icon,
+.position-relative:has(.ti-calendar),
+.position-relative:has(.fa-calendar),
+.position-relative:has([data-feather="calendar"]) {
+  position: relative !important;
+}
+
+.input-icon-start .form-control,
+.input-icon-start input,
+.cal-icon input,
+.date-range-input,
+.bookingrange,
+.daterange,
+.form-control.date-range,
+.form-control.datetimepicker {
+  padding-left: 44px !important;
+}
+
+.input-icon-start .input-icon-addon,
+.cal-icon i,
+.cal-icon .ti,
+.position-relative > i.ti-calendar,
+.position-relative > i.fa-calendar,
+.position-relative > [data-feather="calendar"] {
+  position: absolute !important;
+  left: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+  color: #64748b !important;
+  font-size: 17px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.input-icon-end .form-control,
+.input-icon-end input {
+  padding-right: 44px !important;
+}
+
+.input-icon-end .input-icon-addon {
+  position: absolute !important;
+  right: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+  color: #64748b !important;
+  font-size: 17px !important;
 }
 
 .input-group > :not(:first-child):not(.dropdown-menu) {
@@ -770,5 +844,162 @@ body.header-collapse #collapse-header svg,
   border-color: #fe9f43;
   background: rgba(254, 159, 67, 0.08);
   box-shadow: 0 4px 15px rgba(254, 159, 67, 0.2);
+}
+
+/* 13. Consistent Action Button Systems Across The App */
+.btn-primary,
+a.btn-primary,
+button.btn-primary {
+  background: linear-gradient(135deg, #fe9f43 0%, #ff6b6b 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  padding: 9px 20px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 14px rgba(254, 159, 67, 0.35) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-decoration: none !important;
+}
+
+.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
+  background: linear-gradient(135deg, #f5831b 0%, #ee5253 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 22px rgba(254, 159, 67, 0.45) !important;
+}
+
+.btn-outline-primary,
+a.btn-outline-primary,
+button.btn-outline-primary {
+  background: transparent !important;
+  border: 1.5px solid #fe9f43 !important;
+  color: #fe9f43 !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.btn-outline-primary:hover,
+a.btn-outline-primary:hover,
+button.btn-outline-primary:hover {
+  background: #fe9f43 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(254, 159, 67, 0.3) !important;
+}
+
+/* 14. Unified Dashboard & Report KPI Card Widgets */
+.revenue-widget {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(14px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.revenue-widget:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.09) !important;
+  border-color: rgba(254, 159, 67, 0.35) !important;
+}
+
+.revenue-widget .card-body {
+  padding: 20px !important;
+}
+
+.revenue-widget h4,
+.revenue-widget .h4 {
+  font-family: 'Roboto', sans-serif !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  font-size: 1.55rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+.revenue-widget p {
+  color: #64748b !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+}
+
+.revenue-widget .revenue-icon {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  transition: transform 0.3s ease !important;
+}
+
+.revenue-widget:hover .revenue-icon {
+  transform: scale(1.08) rotate(3deg) !important;
+}
+
+/* Color palettes for revenue icon containers */
+.bg-teal-transparent {
+  background-color: rgba(32, 201, 151, 0.12) !important;
+  color: #20c997 !important;
+}
+
+.bg-cyan-transparent {
+  background-color: rgba(13, 202, 240, 0.12) !important;
+  color: #0dcaf0 !important;
+}
+
+.bg-orange-transparent {
+  background-color: rgba(254, 159, 67, 0.15) !important;
+  color: #fe9f43 !important;
+}
+
+.bg-indigo-transparent {
+  background-color: rgba(102, 16, 242, 0.12) !important;
+  color: #6610f2 !important;
+}
+
+.bg-success-transparent {
+  background-color: rgba(40, 199, 111, 0.12) !important;
+  color: #28c76f !important;
+}
+
+.bg-danger-transparent {
+  background-color: rgba(234, 84, 85, 0.12) !important;
+  color: #ea5455 !important;
+}
+
+.bg-warning-transparent {
+  background-color: rgba(255, 159, 67, 0.15) !important;
+  color: #ff9f43 !important;
+}
+
+.bg-info-transparent {
+  background-color: rgba(0, 207, 232, 0.12) !important;
+  color: #00cfe8 !important;
+}
+
+.bg-purple-transparent {
+  background-color: rgba(115, 103, 240, 0.12) !important;
+  color: #7367f0 !important;
+}
+
+.bg-primary-transparent {
+  background-color: rgba(254, 159, 67, 0.15) !important;
+  color: #fe9f43 !important;
 }
 

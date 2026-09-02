@@ -23,3 +23,23 @@ def div(value, arg):
         return safe_value / safe_arg if safe_arg != 0 else 0
     except (ValueError, ZeroDivisionError, TypeError):
         return 0
+
+@register.filter
+def mul(value, arg):
+    """Multiplies the value by the argument."""
+    try:
+        safe_value = safe_float_convert(value)
+        safe_arg = safe_float_convert(arg)
+        return safe_value * safe_arg
+    except (ValueError, TypeError):
+        return 0
+
+@register.filter
+def sub(value, arg):
+    """Subtracts the argument from the value."""
+    try:
+        safe_value = safe_float_convert(value)
+        safe_arg = safe_float_convert(arg)
+        return safe_value - safe_arg
+    except (ValueError, TypeError):
+        return 0

@@ -3,95 +3,129 @@
 
 <div class="page-wrapper">
   <div class="content">
-    <!-- Welcome Banner with Quick POS Launcher -->
-    <div class="card border-0 shadow-lg mb-4 overflow-hidden" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12) !important;">
-      <div class="card-body p-4">
-        <div class="d-md-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div class="d-flex align-items-center">
-            <div class="avatar avatar-xl me-3 rounded-circle border border-warning p-1" style="background: rgba(254, 159, 67, 0.2); width: 56px; height: 56px;">
-              <img src="{% static 'assets/img/icons/hi.svg' %}" alt="img" class="w-100 h-100" />
-            </div>
-            <div>
-              <h3 class="text-white fw-bold mb-1 fs-20">Welcome, {{ user.first_name }} {{ user.last_name }}! 👋</h3>
-              <p class="text-stone-300 mb-0 fs-14" style="color: #cbd5e1 !important;">Your POS terminal is active. Ready to process customer checkouts.</p>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <a href="{% url 'add-sales' %}" class="btn btn-primary btn-lg shadow-lg d-flex align-items-center gap-2 px-4 py-2 text-white fw-bold" style="border-radius: 12px;">
-              <i class="ti ti-scan fs-20"></i> Start New Sale (POS)
-            </a>
-            <ul class="table-top-head mb-0">
-              <li>
-                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="location.reload()" class="bg-dark text-white border-secondary"><i class="ti ti-refresh text-white"></i></a>
-              </li>
-              <li>
-                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header" class="bg-dark text-white border-secondary"><i class="ti ti-chevron-up text-white"></i></a>
-              </li>
-            </ul>
-          </div>
-        </div>
+    <!-- Welcome Header & Quick Action Launcher -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
+      <div class="mb-3">
+        <h1 class="mb-1">Welcome, {{ user.first_name|upper }} {{ user.last_name|upper }}</h1>
+        <p class="fw-medium">You have <span class="text-primary fw-bold">{{ todays_orders }}+</span> Orders, Today</p>
+      </div>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <a href="{% url 'add-sales' %}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-4 py-2 fw-bold text-white" style="border-radius: 10px;">
+          <i class="ti ti-scan fs-18"></i> Start New Sale (POS)
+        </a>
+        <ul class="table-top-head mb-0">
+          <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="location.reload()"><i class="ti ti-refresh"></i></a>
+          </li>
+          <li>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i class="ti ti-chevron-up"></i></a>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <!-- Sales KPI Cards (Glassmorphic with Rich Contrast) -->
-    <div class="row g-3 mb-4">
-      <div class="col-xl-4 col-md-6 col-12 d-flex">
-        <div class="card revenue-widget flex-fill shadow-sm">
-          <div class="card-body p-4">
+    {% if critical_stock_product %}
+    <div class="alert bg-orange-transparent alert-dismissible fade show mb-4">
+      <div>
+        <span><i class="ti ti-info-circle fs-14 text-orange me-2"></i>Product </span> 
+        <span class="text-orange fw-semibold">{{ critical_stock_product.product_name }} is running Low, </span> 
+        only {{ critical_stock_product.product_quantity }} left in inventory.
+      </div>
+      <button type="button" class="btn-close text-gray-9 fs-14" data-bs-dismiss="alert" aria-label="Close"><i class="ti ti-x"></i></button>
+    </div>
+    {% endif %}
+
+    <!-- 4-Card KPI Row Replicating Admin Dashboard Design -->
+    <div class="row">
+      <!-- Today's Sales -->
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
               <div>
-                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ daily_sales_amount|default:0 }}">{{ daily_sales_amount|default:0|floatformat:2 }}</span></h3>
-                <p class="text-muted mb-0 fs-13 fw-medium">Today's Sales</p>
+                <h4 class="mb-1">GHC {{ daily_sales_amount|default:0|floatformat:2 }}</h4>
+                <p>Today's Sales</p>
               </div>
-              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(40, 199, 111, 0.12);">
-                <i class="ti ti-shopping-cart fs-22 text-success"></i>
+              <span class="revenue-icon bg-teal-transparent text-teal">
+                <i class="ti ti-chart-pie fs-16"></i>
               </span>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-              <span class="badge {% if daily_growth >= 0 %}badge-soft-success{% else %}badge-soft-danger{% endif %} fs-12 px-2.5 py-1 fw-bold">
-                {% if daily_growth >= 0 %}<i class="ti ti-trending-up me-1"></i>+{{ daily_growth|default:0|floatformat:0 }}% vs yesterday{% else %}<i class="ti ti-trending-down me-1"></i>{{ daily_growth|default:0|floatformat:0 }}% vs yesterday{% endif %}
-              </span>
-              <a href="{% url 'add-sales' %}" class="fs-13 text-primary fw-bold text-decoration-underline">+ Quick Sale</a>
+              <p class="mb-0">
+                <span class="fs-13 fw-bold {% if daily_growth >= 0 %}text-success{% else %}text-danger{% endif %}">
+                  {% if daily_growth >= 0 %}+{% endif %}{{ daily_growth|default:0|floatformat:1 }}%
+                </span> vs Yesterday
+              </p>
+              <a href="{% url 'add-sales' %}" class="text-decoration-underline fs-13 fw-medium">+ Add Sale</a>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-xl-4 col-md-6 col-12 d-flex">
-        <div class="card revenue-widget flex-fill shadow-sm">
-          <div class="card-body p-4">
+      <!-- Weekly Sales -->
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
               <div>
-                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ weekly_sales_amount|default:0 }}">{{ weekly_sales_amount|default:0|floatformat:2 }}</span></h3>
-                <p class="text-muted mb-0 fs-13 fw-medium">Weekly Total</p>
+                <h4 class="mb-1">GHC {{ weekly_sales_amount|default:0|floatformat:2 }}</h4>
+                <p>Weekly Sales</p>
               </div>
-              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(0, 207, 232, 0.12);">
-                <i class="ti ti-calendar-event fs-22 text-info"></i>
+              <span class="revenue-icon bg-cyan-transparent text-cyan">
+                <i class="fa-solid fa-layer-group fs-16"></i>
               </span>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-              <span class="badge badge-soft-info fs-12 px-2.5 py-1 fw-bold"><i class="ti ti-chart-line me-1"></i>7-Day Pace</span>
-              <span class="text-muted fs-12 fw-medium">Rolling Period</span>
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-info">7-Day Rolling</span> Total
+              </p>
+              <a href="{% url 'add-sales' %}" class="text-decoration-underline fs-13 fw-medium">View POS</a>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-xl-4 col-md-6 col-12 d-flex">
-        <div class="card revenue-widget flex-fill shadow-sm">
-          <div class="card-body p-4">
+      <!-- Monthly Sales -->
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
               <div>
-                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ monthly_sales_amount|default:0 }}">{{ monthly_sales_amount|default:0|floatformat:2 }}</span></h3>
-                <p class="text-muted mb-0 fs-13 fw-medium">This Month's Sales</p>
+                <h4 class="mb-1">GHC {{ monthly_sales_amount|default:0|floatformat:2 }}</h4>
+                <p>This Month's Sales</p>
               </div>
-              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(254, 159, 67, 0.12);">
-                <i class="ti ti-receipt-2 fs-22" style="color: #fe9f43;"></i>
+              <span class="revenue-icon bg-orange-transparent text-orange">
+                <i class="ti ti-receipt-2 fs-16"></i>
               </span>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-              <span class="badge badge-soft-warning fs-12 px-2.5 py-1 fw-bold"><i class="ti ti-trophy me-1"></i>Month to Date</span>
-              <span class="text-muted fs-12 fw-medium">Cumulative</span>
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-warning">Current Month</span> Total
+              </p>
+              <span class="text-muted fs-13 fw-medium">Month to Date</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Orders -->
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1">{{ total_sales_count|default:0 }}</h4>
+                <p>Total Orders</p>
+              </div>
+              <span class="revenue-icon bg-indigo-transparent text-indigo">
+                <i class="ti ti-shopping-cart fs-16"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <p class="mb-0">
+                <span class="fs-13 fw-bold text-indigo">{{ todays_orders|default:0 }} Today</span>
+              </p>
+              <span class="text-muted fs-13 fw-medium">Lifetime Sales</span>
             </div>
           </div>
         </div>

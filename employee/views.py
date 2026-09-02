@@ -44,8 +44,19 @@ def employee_dashboard(request):
         sale_date__date__gte=week_ago
     ).aggregate(total=Sum('total_amount'))['total'] or 0
     
-    # Total number of sales
+    # Today's orders count and items sold
+    today_orders_count = user_sales.filter(sale_date__date=today).count()
+    today_items_sold = SalesItem.objects.filter(
+        sale__user=user, 
+        sale__sale_date__date=today, 
+        sale__status='Completed'
+    ).aggregate(total=Sum('quantity'))['total'] or 0
+    
+    # Total number of completed sales
     total_sales_count = user_sales.count()
+    
+    # Critical low stock product alert
+    critical_stock_product = Product.objects.filter(product_quantity__lte=5).order_by('product_quantity').first()
     
     # Recent transactions (last 5 sales)
     recent_transactions = Sales.objects.filter(
@@ -62,6 +73,9 @@ def employee_dashboard(request):
         'monthly_sales_amount': monthly_sales_amount,
         'weekly_sales_amount': weekly_sales_amount,
         'total_sales_count': total_sales_count,
+        'todays_orders': today_orders_count,
+        'today_items_sold': today_items_sold,
+        'critical_stock_product': critical_stock_product,
         'recent_transactions': recent_transactions,
     }
     
