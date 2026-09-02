@@ -121,6 +121,62 @@ body {
   color: #ffffff !important;
 }
 
+/* 4.1 Header Collapse Mode Fixes */
+body.header-collapse .header {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.header-collapse .header .header-left {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+body.header-collapse .page-wrapper {
+  padding-top: 24px !important;
+  transition: padding 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.header-collapse .sidebar {
+  top: 0 !important;
+  height: 100vh !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#collapse-header {
+  transition: all 0.25s ease !important;
+}
+
+#collapse-header i,
+#collapse-header svg {
+  transition: transform 0.3s ease, color 0.2s ease !important;
+  display: inline-block !important;
+}
+
+#collapse-header.active,
+body.header-collapse #collapse-header,
+.table-top-head li #collapse-header.active {
+  background: #fe9f43 !important;
+  border-color: #fe9f43 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px var(--brand-primary-glow) !important;
+}
+
+#collapse-header.active i,
+#collapse-header.active svg,
+body.header-collapse #collapse-header i,
+body.header-collapse #collapse-header svg,
+.table-top-head li #collapse-header.active i {
+  color: #ffffff !important;
+  transform: rotate(180deg) !important;
+  -webkit-transform: rotate(180deg) !important;
+  display: inline-block !important;
+}
+
 /* 5. Modern DataTables Styling */
 .table.datatable,
 .table.dataTable {

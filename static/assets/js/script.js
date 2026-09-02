@@ -1178,12 +1178,23 @@ function toggleFullscreen(elem) {
 
 $(document).ready(function(){
 	
-	if($('#collapse-header').length > 0) {
-		document.getElementById('collapse-header').onclick = function() {
-		    this.classList.toggle('active');
-		    document.body.classList.toggle('header-collapse');
+	$(document).off('click', '#collapse-header').on('click', '#collapse-header', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).toggleClass('active');
+		$('body').toggleClass('header-collapse');
+
+		const isCollapsed = $('body').hasClass('header-collapse');
+		const newTitle = isCollapsed ? 'Expand' : 'Collapse';
+		$(this).attr('data-bs-original-title', newTitle).attr('title', newTitle);
+
+		if (window.bootstrap && bootstrap.Tooltip) {
+			const tip = bootstrap.Tooltip.getInstance(this);
+			if (tip) {
+				tip.hide();
+			}
 		}
-	}
+	});
 
 	if($('#file-delete').length > 0) {
 		$("#file-delete").on("click", function () {
