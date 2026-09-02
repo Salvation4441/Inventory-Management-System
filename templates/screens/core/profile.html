@@ -10,8 +10,7 @@
 					<h6>User Profile</h6>
 				</div>
 				<div class="page-btn mt-0">
-					<a href="{%url 'admin-dashboard' %}" class="btn btn-secondary"><i data-feather="arrow-left" class="me-2"></i>Back to
-					Dashboard</a>
+					<a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="btn btn-primary text-white shadow-sm"><i data-feather="arrow-left" class="me-2"></i>Back to Dashboard</a>
 				</div>
 			</div>
 			<!-- /product list -->

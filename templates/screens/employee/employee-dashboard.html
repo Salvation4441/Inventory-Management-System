@@ -1,124 +1,99 @@
+
 {% extends 'base.html' %} {% block content %} {% load static %}
 
 <div class="page-wrapper">
   <div class="content">
-    <div class="welcome d-lg-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center welcome-text">
-        <h3 class="d-flex align-items-center">
-          <img src="{%static 'assets/img/icons/hi.svg' %}" alt="img" />&nbsp;Hi
-          {{ user.first_name }} {{user.last_name}},
-        </h3>
-        &nbsp;
-        <h6>here's what's happening with your store today.</h6>
-      </div>
-      <div class="d-flex align-items-center">
-        <ul class="table-top-head">
-          <li>
-            <a
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Refresh"
-              onclick="location.reload()"
-              ><i class="ti ti-refresh"></i
-            ></a>
-          </li>
-          <li>
-            <a
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Collapse"
-              id="collapse-header"
-              ><i class="ti ti-chevron-up"></i
-            ></a>
-          </li>
-        </ul>
+    <!-- Welcome Banner with Quick POS Launcher -->
+    <div class="card border-0 shadow-lg mb-4 overflow-hidden" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12) !important;">
+      <div class="card-body p-4">
+        <div class="d-md-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div class="d-flex align-items-center">
+            <div class="avatar avatar-xl me-3 rounded-circle border border-warning p-1" style="background: rgba(254, 159, 67, 0.2); width: 56px; height: 56px;">
+              <img src="{% static 'assets/img/icons/hi.svg' %}" alt="img" class="w-100 h-100" />
+            </div>
+            <div>
+              <h3 class="text-white fw-bold mb-1 fs-20">Welcome, {{ user.first_name }} {{ user.last_name }}! 👋</h3>
+              <p class="text-stone-300 mb-0 fs-14" style="color: #cbd5e1 !important;">Your POS terminal is active. Ready to process customer checkouts.</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'add-sales' %}" class="btn btn-primary btn-lg shadow-lg d-flex align-items-center gap-2 px-4 py-2 text-white fw-bold" style="border-radius: 12px;">
+              <i class="ti ti-scan fs-20"></i> Start New Sale (POS)
+            </a>
+            <ul class="table-top-head mb-0">
+              <li>
+                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="location.reload()" class="bg-dark text-white border-secondary"><i class="ti ti-refresh text-white"></i></a>
+              </li>
+              <li>
+                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header" class="bg-dark text-white border-secondary"><i class="ti ti-chevron-up text-white"></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row sales-cards">
-      <div class="col-xl-6 col-sm-12 col-12 d-flex">
-        <div
-          class="card d-flex align-items-center justify-content-between flex-fill mb-4"
-        >
-          <div>
-            <h6>Today's Sales</h6>
-            <h3>
-              GHC<span
-                class="counters"
-                data-count="{{ daily_sales_amount|default:0 }}"
-                >{{ daily_sales_amount|default:0|floatformat:2 }}</span
-              >
-            </h3>
-            <p class="sales-range">
-              {% if daily_growth >= 0 %}
-              <span class="text-success"
-                ><i data-feather="chevron-up" class="feather-16"></i>
-                {{daily_growth|default:0|floatformat:0 }}%&nbsp;</span
-              >increase compare to yesterday {% else %}
-              <span class="text-danger"
-                ><i data-feather="chevron-down" class="feather-16"></i>
-                {{daily_growth|default:0|floatformat:0 }}%&nbsp;</span
-              >decrease compare to yesterday {% endif %}
-            </p>
-          </div>
-          <img
-            src="{% static 'assets/img/icons/weekly-earning.svg' %}"
-            alt="img"
-          />
-        </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 col-12 d-flex">
-        <div class="card color-info bg-primary flex-fill mb-4">
-          <div class="mb-2">
-            <img
-              src="{% static 'assets/img/icons/total-sales.svg' %}"
-              alt="img"
-            />
-          </div>
-          <div style="display: flex; gap: 2px">
-            <h3>GHC</h3>
-            <h3
-              class="counters"
-              data-count="{{ weekly_sales_amount|default:0 }}"
-            >
-              {{ weekly_sales_amount|default:0|floatformat:0 }}
-            </h3>
-          </div>
-          <p>Weekly Sales</p>
-          <i
-            data-feather="rotate-ccw"
-            class="feather-16"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="Refresh"
-          ></i>
-        </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 col-12 d-flex">
-        <div class="card color-info bg-secondary flex-fill mb-4">
-          <div class="mb-2">
-            <img
-              src="{%static 'assets/img/icons/purchased-earnings.svg' %}"
-              alt="img"
-            />
-          </div>
 
-          <div style="display: flex; gap: 2px">
-            <h3>GHC</h3>
-            <h3
-              class="counters"
-              data-count="{{ monthly_sales_amount|default:0 }}"
-            >
-              {{ monthly_sales_amount|default:0|floatformat:0 }}
-            </h3>
+    <!-- Sales KPI Cards (Glassmorphic with Rich Contrast) -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-4 col-md-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ daily_sales_amount|default:0 }}">{{ daily_sales_amount|default:0|floatformat:2 }}</span></h3>
+                <p class="text-muted mb-0 fs-13 fw-medium">Today's Sales</p>
+              </div>
+              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(40, 199, 111, 0.12);">
+                <i class="ti ti-shopping-cart fs-22 text-success"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge {% if daily_growth >= 0 %}badge-soft-success{% else %}badge-soft-danger{% endif %} fs-12 px-2.5 py-1 fw-bold">
+                {% if daily_growth >= 0 %}<i class="ti ti-trending-up me-1"></i>+{{ daily_growth|default:0|floatformat:0 }}% vs yesterday{% else %}<i class="ti ti-trending-down me-1"></i>{{ daily_growth|default:0|floatformat:0 }}% vs yesterday{% endif %}
+              </span>
+              <a href="{% url 'add-sales' %}" class="fs-13 text-primary fw-bold text-decoration-underline">+ Quick Sale</a>
+            </div>
           </div>
-          <p>This Month's Sales</p>
-          <i
-            data-feather="rotate-ccw"
-            class="feather-16"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="Refresh"
-          ></i>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-md-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ weekly_sales_amount|default:0 }}">{{ weekly_sales_amount|default:0|floatformat:2 }}</span></h3>
+                <p class="text-muted mb-0 fs-13 fw-medium">Weekly Total</p>
+              </div>
+              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(0, 207, 232, 0.12);">
+                <i class="ti ti-calendar-event fs-22 text-info"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge badge-soft-info fs-12 px-2.5 py-1 fw-bold"><i class="ti ti-chart-line me-1"></i>7-Day Pace</span>
+              <span class="text-muted fs-12 fw-medium">Rolling Period</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-md-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h3 class="mb-1 text-dark fw-bold fs-22">GHC <span class="counters" data-count="{{ monthly_sales_amount|default:0 }}">{{ monthly_sales_amount|default:0|floatformat:2 }}</span></h3>
+                <p class="text-muted mb-0 fs-13 fw-medium">This Month's Sales</p>
+              </div>
+              <span class="revenue-icon" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(254, 159, 67, 0.12);">
+                <i class="ti ti-receipt-2 fs-22" style="color: #fe9f43;"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge badge-soft-warning fs-12 px-2.5 py-1 fw-bold"><i class="ti ti-trophy me-1"></i>Month to Date</span>
+              <span class="text-muted fs-12 fw-medium">Cumulative</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

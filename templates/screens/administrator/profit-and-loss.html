@@ -15,45 +15,123 @@
 <div class="page-wrapper">
   <div class="content">
     <!-- Professional Financial Data Table -->
-    <div class="financial-card">
-      <div class="card-header-professional">
-        <div class="header-gradient p-4 rounded-3 mb-3">
-          <div class="row align-items-center">
-            <div class="col-lg-8">
-              <div class="header-content">
-                <div class="d-flex align-items-center mb-2">
-                  <div class="header-icon me-3">
-                    <i class="ti ti-chart-line"></i>
-                  </div>
-                  <div>
-                    <h1 class="header-title mb-1">Profit & Loss Statement</h1>
-                    <p class="header-subtitle mb-0">
-                      {{ date_range }} • Generated {{ report_generated }}
-                    </p>
-                  </div>
-                </div>
-              </div>
+    <div class="page-header mb-4">
+      <div class="row align-items-center">
+        <div class="col-lg-7">
+          <div class="page-title">
+            <h4 class="fw-bold d-flex align-items-center"><i class="ti ti-chart-arrows text-primary me-2 fs-24"></i>Profit & Loss Statement</h4>
+            <h6 class="text-muted">{{ date_range }} • Generated {{ report_generated }}</h6>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="d-flex justify-content-lg-end align-items-center gap-2 flex-wrap">
+            <div class="position-relative" style="min-width: 220px;">
+              <input type="text" class="form-control date-range-input ps-4" placeholder="Select Date Range" id="dateRangePicker" />
+              <i class="ti ti-calendar position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
             </div>
-            <div class="col-lg-4">
-              <div class="header-controls d-flex justify-content-end align-items-center gap-2">
-                <div class="date-picker-wrapper">
-                  <input type="text" class="form-control date-range-input" placeholder="Select Date Range"
-                    id="dateRangePicker" />
-                  <i class="ti ti-calendar date-picker-icon"></i>
-                </div>
-                <div class="btn-group">
-                  <button class="btn btn-header-primary" onclick="exportReport()">
-                    <i class="ti ti-download me-1"></i>Export
-                  </button>
-                  <button class="btn btn-header-secondary" onclick="printReport()">
-                    <i class="ti ti-printer me-1"></i>Print
-                  </button>
-                </div>
-              </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="exportReport()">
+                <i class="ti ti-download me-1"></i>Export
+              </button>
+              <button class="btn btn-secondary" onclick="printReport()">
+                <i class="ti ti-printer me-1"></i>Print
+              </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
+    <!-- Financial KPI Summary Cards -->
+    <div class="row mb-3">
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1 text-dark fw-bold">GHC {{ total_revenue|floatformat:2 }}</h4>
+                <p class="text-muted mb-0 fs-13">Total Revenue</p>
+              </div>
+              <span class="revenue-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(40, 199, 111, 0.12);">
+                <i class="ti ti-trending-up fs-20 text-success"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge badge-soft-success fs-12 px-2 py-1"><i class="ti ti-arrow-up-right me-1"></i>Sales Inflow</span>
+              <span class="text-muted fs-12">Gross Inflow</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1 text-dark fw-bold">GHC {{ total_cogs|floatformat:2 }}</h4>
+                <p class="text-muted mb-0 fs-13">Cost of Goods (COGS)</p>
+              </div>
+              <span class="revenue-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(234, 84, 85, 0.12);">
+                <i class="ti ti-shopping-cart-discount fs-20 text-danger"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge badge-soft-danger fs-12 px-2 py-1"><i class="ti ti-arrow-down-right me-1"></i>Product Cost</span>
+              <span class="text-muted fs-12">Inventory</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1 {% if total_gross_profit >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">GHC {{ total_gross_profit|floatformat:2 }}</h4>
+                <p class="text-muted mb-0 fs-13">Gross Profit</p>
+              </div>
+              <span class="revenue-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(0, 207, 232, 0.12);">
+                <i class="ti ti-calculator fs-20 text-info"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge badge-soft-info fs-12 px-2 py-1">Revenue − COGS</span>
+              <span class="text-muted fs-12">Margin</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card revenue-widget flex-fill">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h4 class="mb-1 {% if total_net_profit >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">GHC {{ total_net_profit|floatformat:2 }}</h4>
+                <p class="text-muted mb-0 fs-13">Net Profit</p>
+              </div>
+              <span class="revenue-icon" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(254, 159, 67, 0.12);">
+                <i class="ti ti-trophy fs-20" style="color: #fe9f43;"></i>
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge {% if total_net_profit >= 0 %}badge-soft-success{% else %}badge-soft-danger{% endif %} fs-12 px-2 py-1">
+                {% if total_net_profit >= 0 %}<i class="ti ti-check me-1"></i>Profitable{% else %}<i class="ti ti-alert-triangle me-1"></i>Net Loss{% endif %}
+              </span>
+              <span class="text-muted fs-12">Bottom Line</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professional Financial Data Table -->
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title mb-0"><i class="ti ti-table me-2 text-primary"></i>Monthly Performance Matrix</h5>
+        <span class="badge badge-soft-secondary">{{ monthly_count }} Months Period</span>
       </div>
       <div class="card-body p-0">
         {% if monthly_data %}

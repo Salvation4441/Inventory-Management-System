@@ -459,9 +459,20 @@ def deleteProduct(request, product_id):
 # SEARCH PRODUCT
 def searchProducts(request):
     q = request.GET.get('q', '').strip()
-    products = Product.objects.filter(product_name__icontains=q)[:10]
+    from django.db.models import Q
+    products = Product.objects.filter(
+        Q(product_name__icontains=q) | Q(product_sku__icontains=q)
+    )[:15]
     results = [
-        {'id': p.id, 'name': p.product_name, 'price': float(p.product_selling_price),'cost': float(p.product_cost_price)}
+        {
+            'id': p.id,
+            'name': p.product_name,
+            'sku': p.product_sku,
+            'price': float(p.product_selling_price),
+            'cost': float(p.product_cost_price),
+            'quantity': p.product_quantity,
+            'image': p.product_image.url if p.product_image else '/static/assets/img/products/stock-img-01.png'
+        }
         for p in products
     ]
     return JsonResponse(results, safe=False)
