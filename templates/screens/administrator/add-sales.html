@@ -225,21 +225,71 @@
   </div>
 </div>
 
-<!-- Receipt Modal -->
-<div class="modal fade" id="receipt-modal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- Ultra-Modern Glassmorphic A4 Print & Receipt Modal -->
+<div class="modal fade glass-print-modal" id="receipt-modal" tabindex="-1" aria-labelledby="posReceiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="ti ti-receipt me-2 text-primary"></i>Sale Receipt</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      
+      <!-- Glass Modal Header with A4 UI Selector -->
+      <div class="modal-header px-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+          <div class="glass-brand-crest me-3" style="width: 44px; height: 44px; font-size: 22px;">
+            <i class="ti ti-printer"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold text-dark mb-0" id="posReceiptModalLabel">Classic A4 Invoice & Print Preview</h5>
+            <small class="text-muted">Sale completed successfully • Standard A4 invoice ready</small>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="text-muted fs-12 fw-bold text-uppercase me-1">UI/UX Layout:</span>
+          <!-- Soft Capsule Pill Theme Switcher -->
+          <button type="button" class="badge-soft-info pill-btn-info fs-12 py-1.5 px-3 border-0 cursor-pointer fw-bold" id="btnPosThemeClassic" onclick="switchPosA4Theme('classic')" style="transform: scale(1.08);">
+            <i class="ti ti-building me-1"></i>Classic A4
+          </button>
+          <button type="button" class="badge-soft-warning pill-btn-warning fs-12 py-1.5 px-3 border-0 cursor-pointer fw-bold" id="btnPosThemeExecutive" onclick="switchPosA4Theme('executive')">
+            <i class="ti ti-crown me-1"></i>Executive A4
+          </button>
+          <button type="button" class="badge-soft-primary pill-btn-primary fs-12 py-1.5 px-3 border-0 cursor-pointer fw-bold" id="btnPosThemeRetail" onclick="switchPosA4Theme('retail')">
+            <i class="ti ti-receipt-2 me-1"></i>Retail A4
+          </button>
+
+          <!-- Fixed Interactive Close Button -->
+          <button
+            type="button"
+            class="btn-close ms-2"
+            onclick="closePosReceiptModal()"
+            aria-label="Close"
+          ></button>
+        </div>
       </div>
-      <div class="modal-body p-4">
-        <div id="receipt-content" class="receipt-container"></div>
+
+      <!-- Modal Body (Paper Preview Area with Ambient Studio Backdrop) -->
+      <div class="modal-body glass-studio-backdrop p-4 p-md-5">
+        <div id="receipt-content" class="receipt-container mx-auto d-flex justify-content-center"></div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="printReceiptBtn"><i class="ti ti-printer me-1"></i>Print Receipt</button>
+
+      <!-- Glass Modal Footer -->
+      <div class="modal-footer px-4 py-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2 text-muted fs-13">
+          <span class="badge badge-soft-success"><i class="ti ti-check me-1"></i>A4 Classic Ready</span>
+          <span class="d-none d-sm-inline">300 DPI Vector Output</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Fixed Interactive Close / New Sale Button -->
+          <button type="button" class="btn btn-secondary px-3" onclick="closePosReceiptModal()">
+            <i class="ti ti-x me-1"></i>Close
+          </button>
+          <button type="button" class="btn btn-outline-primary px-3" id="copyPosReceiptBtn" onclick="copyPosReceiptText()">
+            <i class="ti ti-copy me-1"></i>Copy Text
+          </button>
+          <button type="button" class="btn btn-primary px-4 fw-bold shadow-sm" id="printReceiptBtn">
+            <i class="ti ti-printer me-1"></i>Print A4 Invoice
+          </button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -634,28 +684,116 @@
       }
     });
 
-    // Print Receipt
+    // Glassmorphic POS A4 Theme Switcher
+    window.currentPosA4Theme = 'classic';
+
+    window.closePosReceiptModal = function() {
+      const modalEl = document.getElementById('receipt-modal');
+      if (modalEl) {
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+          modalInstance.hide();
+        } else {
+          const bsModal = new bootstrap.Modal(modalEl);
+          bsModal.hide();
+        }
+        setTimeout(() => {
+          document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+          document.body.classList.remove('modal-open');
+          document.body.style.removeProperty('overflow');
+          document.body.style.removeProperty('padding-right');
+        }, 150);
+      }
+    };
+
+    window.switchPosA4Theme = function(theme) {
+      window.currentPosA4Theme = theme;
+      
+      const themes = ['classic', 'executive', 'retail'];
+      themes.forEach(t => {
+        const el = document.getElementById('theme-' + t);
+        if (el) el.classList.add('d-none');
+      });
+
+      const activeEl = document.getElementById('theme-' + theme);
+      if (activeEl) activeEl.classList.remove('d-none');
+
+      const btnExec = document.getElementById('btnPosThemeExecutive');
+      const btnClassic = document.getElementById('btnPosThemeClassic');
+      const btnRetail = document.getElementById('btnPosThemeRetail');
+
+      if (btnExec && btnClassic && btnRetail) {
+        btnClassic.style.transform = theme === 'classic' ? 'scale(1.08)' : 'scale(1)';
+        btnExec.style.transform = theme === 'executive' ? 'scale(1.08)' : 'scale(1)';
+        btnRetail.style.transform = theme === 'retail' ? 'scale(1.08)' : 'scale(1)';
+      }
+    };
+
+    window.copyPosReceiptText = function() {
+      const sheet = document.getElementById('printableReceiptArea');
+      if (!sheet) return;
+      navigator.clipboard.writeText(sheet.innerText).then(() => {
+        const btn = document.getElementById('copyPosReceiptBtn');
+        if (btn) {
+          btn.innerHTML = '<i class="ti ti-check me-1"></i>Copied!';
+          btn.classList.replace('btn-outline-primary', 'btn-success');
+          setTimeout(() => {
+            btn.innerHTML = '<i class="ti ti-copy me-1"></i>Copy Text';
+            btn.classList.replace('btn-success', 'btn-outline-primary');
+          }, 2000);
+        }
+      });
+    };
+
+    // Print Receipt Handler
     const printReceiptBtn = document.getElementById("printReceiptBtn");
     if (printReceiptBtn) {
       printReceiptBtn.addEventListener("click", () => {
-        const receiptContent = document.getElementById("receipt-content");
-        if (receiptContent) {
-          const printWindow = window.open("", "_blank");
-          printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>Receipt</title>
-              <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-            </head>
-            <body style="margin:20px;">
-              ${receiptContent.innerHTML}
-            </body>
-            </html>
-          `);
-          printWindow.document.close();
-          setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
-        }
+        const receiptArea = document.getElementById("printableReceiptArea");
+        if (!receiptArea) return;
+
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>A4 Invoice Print</title>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" />
+            <link rel="stylesheet" href="/static/assets/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="/static/assets/plugins/tabler-icons/tabler-icons.min.css" />
+            <style>
+              body { 
+                font-family: 'Roboto', sans-serif !important; 
+                background: #ffffff !important; 
+                margin: 0 !important; 
+                padding: 15px !important;
+                color: #0f172a !important;
+              }
+              .a4-print-sheet { 
+                box-shadow: none !important; 
+                border: none !important; 
+                max-width: 100% !important; 
+                margin: 0 auto !important;
+                padding: 15px !important;
+              }
+              @media print {
+                @page { size: A4 portrait; margin: 10mm; }
+                body { margin: 0; padding: 0; }
+                .a4-print-sheet { box-shadow: none !important; border: none !important; padding: 0 !important; }
+              }
+            </style>
+          </head>
+          <body>
+            ${receiptArea.outerHTML}
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        setTimeout(() => { 
+          printWindow.focus();
+          printWindow.print(); 
+          printWindow.close(); 
+        }, 350);
       });
     }
   });

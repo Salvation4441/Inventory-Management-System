@@ -1,251 +1,325 @@
-<!-- Receipt Card Content Only -->
-<div class="card receipt-card">
-  <div class="card-body">
-    <!-- Receipt Header -->
-    <div class="receipt-header text-center mb-4">
-      <h2 class="company-name">{{ company_info.name }}</h2>
-      <p class="company-details mb-1">{{ company_info.address }}</p>
-      <p class="company-details mb-1">Phone: {{ company_info.phone }}</p>
-      <p class="company-details mb-3">Email: {{ company_info.email }}</p>
-      <hr class="receipt-divider" />
-      <h4 class="receipt-title">SALES RECEIPT</h4>
+<!-- Multi-Layout A4 Print & Invoice Engine -->
+<div class="a4-print-sheet" id="printableReceiptArea">
+  
+  <!-- =========================================================================
+       THEME 1: CLASSIC CORPORATE MINIMALIST (A4 PRIMARY DEFAULT)
+       ========================================================================= -->
+  <div class="a4-theme-container" id="theme-classic">
+    
+    <!-- Letterhead Header -->
+    <div class="row pb-4 border-bottom border-dark border-2 mb-4">
+      <div class="col-7">
+        <h1 class="fw-extrabold text-dark mb-1 text-uppercase" style="letter-spacing: -0.5px; font-size: 1.8rem;">{{ company_info.name }}</h1>
+        <p class="text-muted fs-13 mb-1">{{ company_info.address }}</p>
+        <p class="text-muted fs-12 mb-0">Phone: {{ company_info.phone }} | Email: {{ company_info.email }}</p>
+      </div>
+      <div class="col-5 text-end">
+        <h3 class="fw-bold text-dark text-uppercase letter-spacing-2 mb-1">TAX INVOICE</h3>
+        <div class="fs-13"><strong>Invoice #:</strong> <span class="font-mono">INV-{{ sale.reference }}</span></div>
+        <div class="fs-13"><strong>Date:</strong> {{ sale.sale_date|date:"F d, Y" }}</div>
+        <div class="fs-13"><strong>Status:</strong> <span class="badge badge-soft-success">{{ sale.status }}</span></div>
+      </div>
     </div>
 
-    <!-- Sale Information -->
+    <!-- Client & Dispatch Info -->
     <div class="row mb-4">
-      <div class="col-md-6">
-        <div class="receipt-info">
-          <h6>Receipt Details</h6>
-          <p><strong>Receipt #:</strong> {{ sale.reference }}</p>
-          <p><strong>Date:</strong> {{ sale.sale_date|date:"F d, Y" }}</p>
-          <p><strong>Time:</strong> {{ sale.sale_date|time:"g:i A" }}</p>
-          <p><strong>Payment Method:</strong> {{ sale.payment_mode }}</p>
-          <p>
-            <strong>Status:</strong>
-            <span
-              class="badge {% if sale.status == 'Completed' %}badge-success{% else %}badge-warning{% endif %}"
-            >
+      <div class="col-6">
+        <h6 class="fw-bold text-dark text-uppercase fs-12 pb-1 border-bottom">CLIENT INFORMATION</h6>
+        <div class="fs-14 fw-bold text-dark">
+          {% if sale.customer %}{{ sale.customer.first_name }} {{ sale.customer.last_name }}{% else %}Walk-in Customer{% endif %}
+        </div>
+        {% if sale.customer.phone %}<div class="fs-13 text-muted">Phone: {{ sale.customer.phone }}</div>{% endif %}
+        {% if sale.customer.email %}<div class="fs-13 text-muted">Email: {{ sale.customer.email }}</div>{% endif %}
+      </div>
+      <div class="col-6 text-end">
+        <h6 class="fw-bold text-dark text-uppercase fs-12 pb-1 border-bottom">PAYMENT & DISPATCH</h6>
+        <div class="fs-13"><strong>Payment Method:</strong> {{ sale.payment_mode|default:"Cash" }}</div>
+        <div class="fs-13"><strong>Cashier:</strong> {{ sale.user.first_name }} {{ sale.user.last_name }}</div>
+      </div>
+    </div>
+
+    <!-- Minimal Table -->
+    <table class="table table-striped table-bordered align-middle mb-4 fs-13">
+      <thead class="table-light text-uppercase fs-12">
+        <tr>
+          <th style="width: 50%;">Item & Description</th>
+          <th class="text-center" style="width: 15%;">Qty</th>
+          <th class="text-end" style="width: 15%;">Rate</th>
+          <th class="text-end" style="width: 20%;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            <strong>{{ item.product.product_name }}</strong>
+            {% if item.product.sku %}<span class="text-muted ms-2 fs-11 font-mono">({{ item.product.sku }})</span>{% endif %}
+          </td>
+          <td class="text-center font-mono">{{ item.quantity }}</td>
+          <td class="text-end font-mono">GH₵ {{ item.selling_price|floatformat:2 }}</td>
+          <td class="text-end font-mono fw-bold">GH₵ {{ item.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="row justify-content-end mb-5">
+      <div class="col-5">
+        <div class="d-flex justify-content-between py-1 fs-13"><span>Subtotal:</span><strong class="font-mono">GH₵ {{ subtotal|floatformat:2 }}</strong></div>
+        {% if tax_rate > 0 %}
+        <div class="d-flex justify-content-between py-1 fs-13"><span>Tax ({{ tax_rate }}%):</span><strong class="font-mono">GH₵ {{ tax_amount|floatformat:2 }}</strong></div>
+        {% endif %}
+        <div class="d-flex justify-content-between py-2 border-top border-bottom border-2 border-dark fs-16 mt-2">
+          <strong>GRAND TOTAL:</strong>
+          <strong class="font-mono text-dark">GH₵ {{ total_amount|floatformat:2 }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formal Endorsement Signature Block -->
+    <div class="row pt-5 mt-4 border-top">
+      <div class="col-6 text-center">
+        <div style="border-top: 1px solid #94a3b8; width: 220px; margin: 0 auto; padding-top: 5px;" class="fs-12 text-muted">
+          Customer Signature & Date
+        </div>
+      </div>
+      <div class="col-6 text-center">
+        <div style="border-top: 1px solid #94a3b8; width: 220px; margin: 0 auto; padding-top: 5px;" class="fs-12 text-muted">
+          Authorized Store Stamp
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================================
+       THEME 2: EXECUTIVE DARK LUXURY (A4)
+       ========================================================================= -->
+  <div class="a4-theme-container d-none" id="theme-executive">
+    
+    <!-- Top Brand & Header -->
+    <div class="d-flex justify-content-between align-items-start pb-4 border-bottom border-2 mb-4">
+      <div class="d-flex align-items-center">
+        <div class="glass-brand-crest me-3" style="width: 58px; height: 58px; font-size: 28px;">
+          <i class="ti ti-building-store"></i>
+        </div>
+        <div>
+          <h2 class="fw-extrabold text-dark mb-1 letter-spacing-1" style="font-size: 1.65rem;">{{ company_info.name }}</h2>
+          <div class="text-muted fs-13">{{ company_info.address }}</div>
+          <div class="text-muted fs-12 mt-1">
+            <span>Tel: <strong class="text-dark">{{ company_info.phone }}</strong></span> • 
+            <span>Email: {{ company_info.email }}</span>
+            {% if company_info.website %} • <span>{{ company_info.website }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="text-end">
+        <div class="badge bg-dark text-white px-3 py-2 fs-12 text-uppercase letter-spacing-2 mb-2" style="border-radius: 50px;">OFFICIAL INVOICE</div>
+        <div class="font-mono fs-16 fw-bold text-dark">#{{ sale.reference }}</div>
+        <div class="text-muted fs-12 mt-1">{{ sale.sale_date|date:"d F, Y" }} • {{ sale.sale_date|time:"g:i A" }}</div>
+      </div>
+    </div>
+
+    <!-- Metadata Matrix (Bill To & Sale Info) -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6">
+        <div class="p-3 rounded-4 bg-light border h-100">
+          <div class="text-muted fs-11 fw-bold text-uppercase letter-spacing-1 mb-2">BILLED TO (CUSTOMER)</div>
+          <div class="fw-bold text-dark fs-15">
+            {% if sale.customer %}
+              {{ sale.customer.first_name }} {{ sale.customer.last_name }}
+            {% else %}
+              Walk-in Customer
+            {% endif %}
+          </div>
+          {% if sale.customer.phone %}
+          <div class="text-muted fs-13 mt-1"><i class="ti ti-phone me-1"></i>{{ sale.customer.phone }}</div>
+          {% endif %}
+          {% if sale.customer.email %}
+          <div class="text-muted fs-13"><i class="ti ti-mail me-1"></i>{{ sale.customer.email }}</div>
+          {% endif %}
+          <div class="mt-2">
+            <span class="badge badge-soft-info">Customer Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="p-3 rounded-4 bg-light border h-100">
+          <div class="text-muted fs-11 fw-bold text-uppercase letter-spacing-1 mb-2">TRANSACTION METRICS</div>
+          <div class="d-flex justify-content-between py-1 border-bottom border-light fs-13">
+            <span class="text-muted">Payment Mode:</span>
+            <span class="badge badge-soft-primary">{{ sale.payment_mode|default:"Cash"|upper }}</span>
+          </div>
+          <div class="d-flex justify-content-between py-1 border-bottom border-light fs-13">
+            <span class="text-muted">Order Status:</span>
+            <span class="badge {% if sale.status == 'Completed' %}badge-soft-success{% else %}badge-soft-warning{% endif %}">
               {{ sale.status }}
             </span>
-          </p>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="receipt-info">
-          <h6>Customer Information</h6>
-          {% if sale.customer %}
-          <p>
-            <strong>Name:</strong> {{ sale.customer.first_name }} {{ sale.customer.last_name }}
-          </p>
-          {% if sale.customer.email %}
-          <p><strong>Email:</strong> {{ sale.customer.email }}</p>
-          {% endif %} {% if sale.customer.phone %}
-          <p><strong>Phone:</strong> {{ sale.customer.phone }}</p>
-          {% endif %} {% else %}
-          <p><strong>Name:</strong> Walk-in Customer</p>
-          {% endif %}
-          <p>
-            <strong>Served by:</strong> {{ sale.user.first_name }} {{sale.user.last_name }}
-          </p>
+          </div>
+          <div class="d-flex justify-content-between py-1 fs-13">
+            <span class="text-muted">Cashier / Staff:</span>
+            <strong class="text-dark">{{ sale.user.first_name }} {{ sale.user.last_name }}</strong>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Items Table -->
+    <!-- Purchase Breakdown Table -->
     <div class="table-responsive mb-4">
-      <table class="table table-bordered receipt-table">
-        <thead class="table-dark">
+      <table class="table table-bordered align-middle mb-0" style="border-color: #e2e8f0;">
+        <thead class="table-dark text-uppercase fs-12">
           <tr>
-            <th>Item</th>
-            <th class="text-center">Qty</th>
-            <th class="text-end">Unit Price</th>
-            <th class="text-end">Total</th>
+            <th style="width: 5%;" class="text-center py-2.5">#</th>
+            <th style="width: 45%;" class="ps-3 py-2.5">Item Description</th>
+            <th style="width: 15%;" class="text-center py-2.5">Quantity</th>
+            <th style="width: 15%;" class="text-end py-2.5">Unit Price</th>
+            <th style="width: 20%;" class="text-end pe-3 py-2.5">Total Amount</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="fs-13">
           {% for item in items %}
           <tr>
-            <td>
-              <strong>{{ item.product.product_name }}</strong>
+            <td class="text-center font-mono text-muted">{{ forloop.counter }}</td>
+            <td class="ps-3 py-2.5">
+              <div class="fw-bold text-dark">{{ item.product.product_name }}</div>
               {% if item.product.sku %}
-              <br /><small class="text-muted"
-                >SKU: {{ item.product.sku }}</small
-              >
+              <div class="text-muted fs-11 font-mono">SKU: {{ item.product.sku }}</div>
               {% endif %}
             </td>
-            <td class="text-center">{{ item.quantity }}</td>
-            <td class="text-end">GH₵{{ item.selling_price|floatformat:2 }}</td>
-            <td class="text-end">
-              <strong>GH₵{{ item.total|floatformat:2 }}</strong>
-            </td>
+            <td class="text-center font-mono fw-semibold">{{ item.quantity }}</td>
+            <td class="text-end font-mono">GH₵ {{ item.selling_price|floatformat:2 }}</td>
+            <td class="text-end pe-3 font-mono fw-bold text-dark">GH₵ {{ item.total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">No items recorded in this transaction</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
 
-    <!-- Totals Section -->
-    <div class="row">
-      <div class="col-md-6 offset-md-6">
-        <div class="receipt-totals">
-          <div class="total-row">
-            <span>Subtotal:</span>
-            <span>GH₵{{ subtotal|floatformat:2 }}</span>
+    <!-- Financial Accounting Box -->
+    <div class="row justify-content-end mb-4">
+      <div class="col-md-6 col-lg-5">
+        <div class="p-3 rounded-4 bg-light border">
+          <div class="d-flex justify-content-between py-1 fs-13">
+            <span class="text-muted">Subtotal:</span>
+            <span class="fw-semibold text-dark font-mono">GH₵ {{ subtotal|floatformat:2 }}</span>
           </div>
           {% if tax_rate > 0 %}
-          <div class="total-row">
-            <span>Tax ({{ tax_rate }}%):</span>
-            <span>GH₵{{ tax_amount|floatformat:2 }}</span>
+          <div class="d-flex justify-content-between py-1 fs-13 border-bottom pb-2">
+            <span class="text-muted">VAT / Tax ({{ tax_rate }}%):</span>
+            <span class="fw-semibold text-dark font-mono">GH₵ {{ tax_amount|floatformat:2 }}</span>
           </div>
           {% endif %}
-          <hr />
-          <div class="total-row grand-total">
-            <span><strong>TOTAL:</strong></span>
-            <span><strong>GH₵{{ total_amount|floatformat:2 }}</strong></span>
+          <div class="glass-grand-total-banner mt-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fs-11 fw-bold text-uppercase letter-spacing-1" style="color: #94a3b8;">TOTAL PAID</div>
+                <div class="fs-10 text-light opacity-75">GHANA CEDI (GHS)</div>
+              </div>
+              <div class="fs-22 fw-extrabold font-mono" style="color: #fe9f43;">GH₵ {{ total_amount|floatformat:2 }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Receipt Footer -->
-    <div class="receipt-footer text-center mt-5">
-      <hr class="receipt-divider" />
-      <p class="thank-you">Thank you for your business!</p>
-      <p class="footer-note">This receipt is generated electronically.</p>
-      <p class="footer-note">
-        For any inquiries, please contact us at {{ company_info.phone }}
-      </p>
-
-      <div class="mt-4">
-        <small class="text-muted">
-          Powered by {{ company_info.name }} • {{ company_info.website }}
-        </small>
+    <!-- Executive Footer & Barcode -->
+    <div class="pt-4 border-top border-2 mt-auto text-center">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+        <div class="text-start">
+          <p class="fw-bold text-dark mb-1 fs-13">Thank you for your business!</p>
+          <p class="text-muted fs-11 mb-0">Goods sold are governed by standard store return policies within 7 days.</p>
+        </div>
+        <div class="glass-barcode-box glass-barcode-scanner-line py-2 px-3">
+          <div class="fs-20 letter-spacing-5 text-dark font-mono" style="font-weight: 900; line-height: 1;">
+            ||||| | || |||| ||| | ||||| | || |||| |
+          </div>
+          <div class="fs-10 text-muted font-mono mt-1">TXN-{{ sale.reference }}-IMS</div>
+        </div>
       </div>
     </div>
+
   </div>
+
+  <!-- =========================================================================
+       THEME 3: RETAIL POS DETAILED (A4)
+       ========================================================================= -->
+  <div class="a4-theme-container d-none" id="theme-retail">
+    
+    <div class="text-center pb-3 mb-4 border-bottom">
+      <h2 class="fw-black text-dark mb-0">{{ company_info.name }}</h2>
+      <p class="text-muted fs-13 mb-1">{{ company_info.address }} • Tel: {{ company_info.phone }}</p>
+      <div class="badge badge-soft-warning fs-12 px-3 py-1 font-mono">RETAIL SALES TRANSACTION SLIP</div>
+    </div>
+
+    <div class="row g-2 mb-3 fs-13">
+      <div class="col-4"><strong>Receipt Ref:</strong> <span class="font-mono">#{{ sale.reference }}</span></div>
+      <div class="col-4 text-center"><strong>Date:</strong> {{ sale.sale_date|date:"d-m-Y H:i" }}</div>
+      <div class="col-4 text-end"><strong>Mode:</strong> <span class="badge badge-soft-primary">{{ sale.payment_mode|default:"Cash" }}</span></div>
+      <div class="col-6"><strong>Customer:</strong> {% if sale.customer %}{{ sale.customer.first_name }} {{ sale.customer.last_name }}{% else %}Walk-in Customer{% endif %}</div>
+      <div class="col-6 text-end"><strong>Cashier ID:</strong> {{ sale.user.first_name }}</div>
+    </div>
+
+    <table class="table table-bordered table-sm fs-12 align-middle mb-3">
+      <thead class="bg-light">
+        <tr>
+          <th>SKU</th>
+          <th>Product Name</th>
+          <th class="text-center">Qty</th>
+          <th class="text-end">Price</th>
+          <th class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="font-mono text-muted">{{ item.product.sku|default:"N/A" }}</td>
+          <td><strong>{{ item.product.product_name }}</strong></td>
+          <td class="text-center font-mono">{{ item.quantity }}</td>
+          <td class="text-end font-mono">GH₵ {{ item.selling_price|floatformat:2 }}</td>
+          <td class="text-end font-mono fw-bold">GH₵ {{ item.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="p-3 bg-light rounded-3 mb-4">
+      <div class="d-flex justify-content-between fs-13"><span>Total Items:</span><strong>{{ items|length }} Items</strong></div>
+      <div class="d-flex justify-content-between fs-13"><span>Subtotal:</span><strong class="font-mono">GH₵ {{ subtotal|floatformat:2 }}</strong></div>
+      {% if tax_rate > 0 %}
+      <div class="d-flex justify-content-between fs-13"><span>VAT ({{ tax_rate }}%):</span><strong class="font-mono">GH₵ {{ tax_amount|floatformat:2 }}</strong></div>
+      {% endif %}
+      <hr class="my-2" />
+      <div class="d-flex justify-content-between fs-16 fw-bold text-dark">
+        <span>NET AMOUNT:</span>
+        <span class="font-mono text-primary">GH₵ {{ total_amount|floatformat:2 }}</span>
+      </div>
+    </div>
+
+    <div class="text-center pt-3 border-top">
+      <div class="fs-24 font-mono fw-bold letter-spacing-4 text-dark mb-1">|||| | ||| || |||| | ||||| |||</div>
+      <div class="fs-11 text-muted font-mono">ID: {{ sale.reference }} • THANK YOU FOR SHOPPING WITH US!</div>
+    </div>
+
+  </div>
+
 </div>
 
 <style>
-  .receipt-card {
-    max-width: 100%;
-    margin: 0;
-    box-shadow: none;
-    border: 1px solid #e9ecef;
+  .font-mono {
+    font-family: 'Courier New', Courier, monospace !important;
+    font-variant-numeric: tabular-nums;
   }
-
-  .company-name {
-    color: #2c3e50;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-
-  .company-details {
-    color: #7f8c8d;
-    font-size: 14px;
-  }
-
-  .receipt-divider {
-    border-top: 2px solid #34495e;
-    margin: 20px 0;
-  }
-
-  .receipt-title {
-    color: #2c3e50;
-    font-weight: bold;
-    letter-spacing: 2px;
-  }
-
-  .receipt-info h6 {
-    color: #34495e;
-    font-weight: bold;
-    border-bottom: 1px solid #ecf0f1;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-  }
-
-  .receipt-info p {
-    margin-bottom: 8px;
-    font-size: 14px;
-  }
-
-  .receipt-table {
-    font-size: 14px;
-  }
-
-  .receipt-table th {
-    background-color: #34495e !important;
-    color: white !important;
-    font-weight: bold;
-    padding: 12px 8px;
-  }
-
-  .receipt-table td {
-    padding: 10px 8px;
-    vertical-align: middle;
-  }
-
-  .receipt-totals {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
-    border: 1px solid #e9ecef;
-  }
-
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    font-size: 14px;
-  }
-
-  .grand-total {
-    font-size: 18px;
-    color: #2c3e50;
-    border-top: 2px solid #34495e;
-    padding-top: 10px;
-    margin-top: 10px;
-  }
-
-  .thank-you {
-    font-size: 18px;
-    font-weight: bold;
-    color: #27ae60;
-    margin-bottom: 10px;
-  }
-
-  .footer-note {
-    font-size: 12px;
-    color: #7f8c8d;
-    margin-bottom: 5px;
-  }
-
-  @media print {
-    .receipt-card {
-      box-shadow: none !important;
-      border: none !important;
-    }
-
-    .receipt-divider {
-      border-top: 2px solid #000 !important;
-    }
-
-    .company-name {
-      font-size: 24px !important;
-      font-weight: bold !important;
-    }
-
-    .receipt-title {
-      font-size: 18px !important;
-      font-weight: bold !important;
-    }
-
-    .receipt-table {
-      font-size: 14px !important;
-    }
-
-    .grand-total {
-      font-size: 16px !important;
-      font-weight: bold !important;
-    }
-  }
+  .letter-spacing-1 { letter-spacing: 1px; }
+  .letter-spacing-2 { letter-spacing: 2px; }
+  .letter-spacing-4 { letter-spacing: 4px; }
+  .letter-spacing-5 { letter-spacing: 5px; }
+  .fw-extrabold { font-weight: 800; }
+  .fw-black { font-weight: 900; }
 </style>
