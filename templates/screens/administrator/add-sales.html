@@ -152,12 +152,12 @@
               <div class="table-responsive pos-cart-table-wrapper">
                 <table id="productTableBody" class="table table-hover align-middle mb-0 pos-cart-table">
                   <thead class="table-light">
-                    <tr class="fs-12 text-uppercase text-muted">
-                      <th style="width: 36%;" class="ps-3 py-3">PRODUCT</th>
-                      <th style="width: 22%;" class="py-3">PRICE (GHC)</th>
-                      <th style="width: 22%;" class="text-center py-3">QTY</th>
-                      <th style="width: 14%;" class="text-end py-3">SUBTOTAL</th>
-                      <th style="width: 6%;" class="text-center py-3 pe-2"></th>
+                    <tr class="text-muted">
+                      <th style="width: 34%;" class="ps-3 py-2">PRODUCT</th>
+                      <th style="width: 22%;" class="py-2">PRICE</th>
+                      <th style="width: 22%;" class="text-center py-2">QTY</th>
+                      <th style="width: 14%;" class="text-end py-2">TOTAL</th>
+                      <th style="width: 8%;" class="text-center py-2 pe-2"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -406,10 +406,10 @@
         </div>
       </td>
       <td class="text-end fw-bold subtotal text-dark py-2 fs-13">
-        GH ${product.price.toFixed(2)}
+        ${product.price.toFixed(2)}
       </td>
-      <td class="text-center py-2 pe-2">
-        <button type="button" class="btn btn-link text-danger p-0 removeBtn" title="Remove"><i class="ti ti-trash fs-16"></i></button>
+      <td class="text-center py-2 pe-1">
+        <button type="button" class="btn-remove-item removeBtn" title="Remove"><i class="ti ti-trash fs-15"></i></button>
       </td>
     `;
 
