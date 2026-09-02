@@ -1,0 +1,294 @@
+/**
+ * Modern Glassmorphism & UI Enhancement Design System
+ * Adds frosted glass layers, luminous glows, sleek depth, and modern micro-interactions.
+ */
+
+:root {
+  --glass-bg-light: rgba(255, 255, 255, 0.82);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-dark: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  --glass-shadow-hover: 0 18px 40px -12px rgba(254, 159, 67, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  --brand-primary: #fe9f43;
+  --brand-primary-glow: rgba(254, 159, 67, 0.35);
+  --brand-gradient: linear-gradient(135deg, #fe9f43 0%, #ff6b6b 100%);
+}
+
+/* 1. Body & App Canvas with Subtle Ambient Radial Glow */
+body {
+  background-color: #f8f9fa;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(254, 159, 67, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(115, 103, 240, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(40, 199, 111, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #2b303a;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 2. Frosted Glass Cards */
+.card {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--glass-shadow) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card:hover {
+  box-shadow: var(--glass-shadow-hover) !important;
+  border-color: rgba(254, 159, 67, 0.3) !important;
+}
+
+.card .card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  padding: 1.25rem 1.5rem !important;
+}
+
+.card .card-body {
+  padding: 1.5rem !important;
+}
+
+/* 3. Header & Navigation Glassmorphism */
+.header {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.sidebar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.sidebar .sidebar-menu > ul > li.active > a,
+.sidebar .sidebar-menu > ul > li > a:hover {
+  background: rgba(254, 159, 67, 0.12) !important;
+  color: #fe9f43 !important;
+  border-radius: 10px;
+}
+
+/* 4. Table Top Action Head (PDF, Excel, Refresh, Collapse) */
+.table-top-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 10px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  margin-bottom: 0;
+}
+
+.table-top-head li a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+}
+
+.table-top-head li a:hover {
+  background: #fe9f43 !important;
+  color: #ffffff !important;
+  border-color: #fe9f43 !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px var(--brand-primary-glow) !important;
+}
+
+.table-top-head li a:hover img {
+  filter: brightness(0) invert(1);
+}
+
+.table-top-head li a:hover i {
+  color: #ffffff !important;
+}
+
+/* 5. Modern DataTables Styling */
+.table.datatable,
+.table.dataTable {
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important;
+  margin-top: 8px !important;
+}
+
+.table thead th {
+  background: rgba(248, 249, 250, 0.75) !important;
+  backdrop-filter: blur(8px);
+  color: #555e68 !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border: none !important;
+  padding: 14px 16px !important;
+}
+
+.table tbody tr {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+}
+
+.table tbody tr:hover {
+  background: rgba(254, 159, 67, 0.06) !important;
+  transform: scale-[1.002] translateY(-1px);
+  box-shadow: 0 6px 18px rgba(254, 159, 67, 0.08) !important;
+}
+
+.table tbody td {
+  padding: 14px 16px !important;
+  vertical-align: middle !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.03) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+.table tbody tr td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-left: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+.table tbody tr td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-right: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+/* 6. Modern Buttons with Glow */
+.btn-primary {
+  background: var(--brand-gradient) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  padding: 9px 20px !important;
+  box-shadow: 0 4px 14px var(--brand-primary-glow) !important;
+  transition: all 0.25s ease !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 8px 22px var(--brand-primary-glow) !important;
+  filter: brightness(1.05);
+}
+
+.btn-primary:active {
+  transform: translateY(0) !important;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #4b5563 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.25s ease !important;
+}
+
+.btn-secondary:hover {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-1px);
+}
+
+/* 7. Frosted Glass Modals */
+.modal-content {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 8. Modern Glass Form Inputs */
+.form-control,
+.form-select {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: #ffffff !important;
+  border-color: #fe9f43 !important;
+  box-shadow: 0 0 0 3px rgba(254, 159, 67, 0.2) !important;
+  outline: none !important;
+}
+
+/* 9. Floating Widgets & Badges */
+.badge {
+  border-radius: 20px !important;
+  padding: 5px 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+}
+
+.badge.bg-success, .badge-success {
+  background: linear-gradient(135deg, #28c76f 0%, #48da89 100%) !important;
+  box-shadow: 0 3px 10px rgba(40, 199, 111, 0.25) !important;
+}
+
+.badge.bg-warning, .badge-warning {
+  background: linear-gradient(135deg, #ff9f43 0%, #ffb976 100%) !important;
+  box-shadow: 0 3px 10px rgba(255, 159, 67, 0.25) !important;
+}
+
+.badge.bg-danger, .badge-danger {
+  background: linear-gradient(135deg, #ea5455 0%, #f08182 100%) !important;
+  box-shadow: 0 3px 10px rgba(234, 84, 85, 0.25) !important;
+}
+
+.badge.bg-info, .badge-info {
+  background: linear-gradient(135deg, #00cfe8 0%, #48e2f5 100%) !important;
+  box-shadow: 0 3px 10px rgba(0, 207, 232, 0.25) !important;
+}
+
+/* 10. Smooth Page Transitions */
+.page-wrapper {
+  animation: fadeInContent 0.35s ease-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
