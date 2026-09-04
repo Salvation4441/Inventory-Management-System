@@ -289,92 +289,107 @@
 					</div>
 					<!-- /Recent Sales -->
 
-					<!-- Overall Information -->
+					<!-- Customers Overview -->
 					<div class="col-xxl-4 col-md-12 d-flex">
 						<div class="card flex-fill">
-							<div class="card-header">
+							<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
 								<div class="d-inline-flex align-items-center">
-									<span class="title-icon bg-soft-info fs-16 me-2"><i class="ti ti-info-circle"></i></span>
-									<h5 class="card-title mb-0">Overall Information</h5>
+									<span class="title-icon bg-soft-primary fs-16 me-2"><i class="ti ti-users"></i></span>
+									<h5 class="card-title mb-0">Customers Overview</h5>
+									<span class="badge bg-soft-primary text-primary ms-2 fs-12 fw-semibold">{{ total_customers }} Total</span>
 								</div>
+								<a href="{% url 'customers' %}" class="btn btn-sm btn-white d-inline-flex align-items-center">
+									View All <i class="ti ti-arrow-right ms-1"></i>
+								</a>
 							</div>
-							<div class="card-body">
-								<div class="row g-3">
-									<div class="col-md-4">
-										<div class="info-item border bg-light p-3 text-center">
-											<div class="mb-2 text-info fs-24">
-												<i class="ti ti-package"></i>
-											</div>
-											<p class="mb-1">Products</p>
-											<h5>{{ total_products }}</h5>
-										</div>
+							<div class="card-body pb-2">
+								<!-- Chart & Segment Breakdown -->
+								<div class="row align-items-center mb-3">
+									<div class="col-sm-5 col-5 text-center">
+										<div id="customer-chart" data-first="{{ first_time_pct }}" data-return="{{ returning_pct }}"></div>
 									</div>
-									<div class="col-md-4">
-										<div class="info-item border bg-light p-3 text-center">
-											<div class="mb-2 text-orange fs-24">
-												<i class="ti ti-users"></i>
+									<div class="col-sm-7 col-7">
+										<div class="d-flex flex-column gap-2">
+											<div class="p-2 rounded bg-light border-start border-3 border-orange d-flex align-items-center justify-content-between">
+												<div>
+													<div class="d-flex align-items-center">
+														<span class="badge badge-dot bg-orange me-1"></span>
+														<span class="text-muted fs-12 fw-medium">First Time</span>
+													</div>
+													<h4 class="mb-0 fw-bold fs-16 text-dark mt-1">{{ first_time_customers }} <span class="fs-12 fw-normal text-muted">({{ first_time_pct }}%)</span></h4>
+												</div>
+												<span class="badge bg-soft-orange text-orange fs-11 px-2 py-1"><i class="ti ti-user-plus me-1"></i>New</span>
 											</div>
-											<p class="mb-1">Customers</p>
-											<h5>{{ total_customers }}</h5>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="info-item border bg-light p-3 text-center">
-											<div class="mb-2 text-teal fs-24">
-												<i class="ti ti-shopping-cart"></i>
+											<div class="p-2 rounded bg-light border-start border-3 border-teal d-flex align-items-center justify-content-between">
+												<div>
+													<div class="d-flex align-items-center">
+														<span class="badge badge-dot bg-teal me-1"></span>
+														<span class="text-muted fs-12 fw-medium">Returning</span>
+													</div>
+													<h4 class="mb-0 fw-bold fs-16 text-dark mt-1">{{ returning_customers }} <span class="fs-12 fw-normal text-muted">({{ returning_pct }}%)</span></h4>
+												</div>
+												<span class="badge bg-soft-teal text-teal fs-11 px-2 py-1"><i class="ti ti-refresh me-1"></i>Loyal</span>
 											</div>
-											<p class="mb-1">Orders</p>
-											<h5>{{ total_orders }}</h5>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="card-footer pb-sm-0">
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-									<h5>Customers Overview</h5>
-									<div class="dropdown dropdown-wraper">
-										<a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white"  data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="ti ti-calendar me-1"></i>Today
-										</a>
-										<ul class="dropdown-menu p-3">
-											<li>
-												<a href="javascript:void(0);" class="dropdown-item">Today</a>
-											</li>
-											<li>
-												<a href="javascript:void(0);" class="dropdown-item">Weekly</a>
-											</li>
-											<li>
-												<a href="javascript:void(0);" class="dropdown-item">Monthly</a>
-											</li>
-										</ul>
+
+								<!-- Top Customers Leaderboard -->
+								<div class="border-top pt-3">
+									<div class="d-flex align-items-center justify-content-between mb-2">
+										<h6 class="fs-13 fw-bold text-gray-9 mb-0 d-flex align-items-center">
+											<i class="ti ti-crown text-warning me-1 fs-15"></i>Top Customers
+										</h6>
+										<small class="text-muted fs-11">By total spend</small>
 									</div>
-								</div>
-								<div class="row align-items-center">
-									<div class="col-sm-5">
-										<div id="customer-chart"></div>
-									</div>
-									<div class="col-sm-7">
-										<div class="row gx-0">
-											<div class="col-sm-6">
-												<div class="text-center border-end">
-													<h2 class="mb-1">5.5K</h2>
-													<p class="text-orange mb-2">First Time</p>
-													<span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
+									<div class="top-customers-container" style="max-height: 140px; overflow-y: auto;">
+										{% for cust in top_customers|slice:":3" %}
+										<div class="d-flex align-items-center justify-content-between py-2 {% if not forloop.last %}border-bottom{% endif %}">
+											<div class="d-flex align-items-center">
+												<div class="avatar avatar-sm bg-soft-primary text-primary rounded-circle me-2 fw-bold fs-11 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; min-width: 32px;">
+													{{ cust.first_name|slice:":1"|upper }}{{ cust.last_name|slice:":1"|upper }}
+												</div>
+												<div>
+													<h6 class="fs-13 fw-semibold mb-0">
+														<a href="{% url 'customers' %}" class="text-dark">{{ cust.first_name }} {{ cust.last_name }}</a>
+													</h6>
+													<small class="text-muted fs-11">{{ cust.total_orders|default:0 }} orders placed</small>
 												</div>
 											</div>
-											<div class="col-sm-6">
-												<div class="text-center">
-													<h2 class="mb-1">3.5K</h2>
-													<p class="text-teal mb-2">Return</p>
-													<span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>21%</span>
-												</div>
+											<div class="text-end">
+												<span class="fs-13 fw-bold text-dark">GHC {{ cust.total_purchases|floatformat:2 }}</span>
 											</div>
 										</div>
+										{% empty %}
+										<div class="text-center py-3">
+											<i class="ti ti-users text-muted fs-20 mb-1 d-block"></i>
+											<small class="text-muted">No customer purchases recorded yet</small>
+										</div>
+										{% endfor %}
 									</div>
+								</div>
+							</div>
+
+							<!-- Catalog & Store Quick Overview Bar -->
+							<div class="card-footer py-2 px-3 bg-light border-0 rounded-bottom d-flex justify-content-around text-center mt-auto">
+								<div>
+									<span class="text-muted fs-11 d-block text-uppercase fw-medium">Products</span>
+									<span class="fw-bold fs-13 text-dark">{{ total_products }}</span>
+								</div>
+								<div class="border-end"></div>
+								<div>
+									<span class="text-muted fs-11 d-block text-uppercase fw-medium">Categories</span>
+									<span class="fw-bold fs-13 text-dark">{{ total_categories }}</span>
+								</div>
+								<div class="border-end"></div>
+								<div>
+									<span class="text-muted fs-11 d-block text-uppercase fw-medium">Active Buyers</span>
+									<span class="fw-bold fs-13 text-dark">{{ total_active_buyers }}</span>
 								</div>
 							</div>
 						</div>
 					</div>
+					<!-- /Customers Overview -->
 				</div>
 
 			</div>

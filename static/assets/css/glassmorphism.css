@@ -18,17 +18,17 @@
   --brand-gradient: linear-gradient(135deg, #fe9f43 0%, #ff6b6b 100%);
 }
 
-/* 1. Body & App Canvas with Subtle Ambient Radial Glow & Roboto Typography */
+/* 1. Body & App Canvas with Spruha-Style Canvas (#eaedf7) & Roboto Typography */
 body, html {
   font-family: var(--font-roboto) !important;
-  background-color: #f8f9fa;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(254, 159, 67, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(115, 103, 240, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(40, 199, 111, 0.03) 0px, transparent 50%);
-  background-attachment: fixed;
+  background-color: #eaedf7 !important;
+  background-image: none !important;
   color: #1e293b;
   -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+  background-color: #eaedf7 !important;
 }
 
 /* Global Typography & Text Contrast */
@@ -116,25 +116,335 @@ p, span, label, input, button, select, textarea, table, td, th {
 
 /* 3. Header & Navigation Glassmorphism */
 .header {
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03) !important;
+  left: 252px !important;
+  width: calc(100% - 252px) !important;
+  z-index: 1001 !important;
 }
 
+@media (max-width: 991.96px) {
+  .header {
+    left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* ============================================================
+   SPRUHA-INSPIRED DARK SIDEBAR & HIGH-CONTRAST NAVIGATION
+   ============================================================ */
+
+/* 1. Header-Left Dark Branding Container (Hidden on desktop as sidebar extends to top: 0) */
+.header .header-left,
+.header.pos-header .header-left {
+  display: none !important;
+}
+
+@media (max-width: 991.96px) {
+  .header .header-left,
+  .header.pos-header .header-left {
+    display: flex !important;
+    background: #14162e !important;
+  }
+}
+
+/* Ensure crisp white logo is shown on dark branding background */
+.header .header-left .logo.logo-normal,
+.sidebar .sidebar-logo .logo.logo-normal {
+  display: none !important;
+}
+
+.header .header-left .logo.logo-white,
+.sidebar .sidebar-logo .logo.logo-white {
+  display: flex !important;
+  align-items: center;
+}
+
+.header-left #toggle_btn svg,
+.header-left #toggle_btn {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* 2. Sidebar Container: Extends to top: 0 (No space above sidebar) */
 .sidebar {
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: #14162e !important;
+  border-right: none !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 252px !important;
+  z-index: 1002 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.sidebar .sidebar-menu > ul > li.active > a,
-.sidebar .sidebar-menu > ul > li > a:hover {
-  background: rgba(254, 159, 67, 0.12) !important;
-  color: #fe9f43 !important;
-  border-radius: 10px;
+.sidebar .sidebar-logo {
+  height: 65px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 24px !important;
+  background: #14162e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.sidebar .sidebar-inner {
+  height: calc(100vh - 65px) !important;
+  max-height: calc(100vh - 65px) !important;
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+  padding: 0 !important;
+}
+
+.sidebar .sidebar-menu {
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+  padding: 4px 0 12px 0 !important;
+}
+
+/* Ensure no scrollbars exist anywhere in the sidebar */
+.sidebar,
+.sidebar-inner,
+.sidebar-menu,
+.sidebar .slimScrollDiv {
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.sidebar-inner::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar,
+.sidebar-menu::-webkit-scrollbar,
+.sidebar .slimScrollBar,
+.sidebar .slimScrollRail {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Allow overflow on menu list and items for the inverted rounded corner pseudo-elements */
+.sidebar .sidebar-menu ul,
+.sidebar .sidebar-menu ul li,
+.sidebar .sidebar-menu > ul > li.submenu-open,
+.sidebar .sidebar-menu > ul > li.submenu-open ul,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li {
+  overflow: visible !important;
+}
+
+/* 3. Section Headers (Submenu Headers) - Spacious & Clean */
+.sidebar .sidebar-menu > ul > li.submenu-open {
+  margin-bottom: 8px !important;
+  border: none !important;
+}
+
+.sidebar .sidebar-menu > ul > li.submenu-open .submenu-hdr {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.9px !important;
+  color: #697292 !important;
+  padding: 10px 18px 4px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border: none !important;
+}
+
+.sidebar .sidebar-menu > ul > li.submenu-open ul {
+  border: none !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  list-style: none !important;
+  padding-left: 0 !important;
+}
+
+.sidebar .sidebar-menu > ul > li.submenu-open:last-of-type ul {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* 4. Menu Items (Inactive State: High-Legibility Slate-Silver, Spacious) */
+.sidebar .sidebar-menu ul li a,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li a,
+.sidebar .sidebar-menu ul li a span,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li a span {
+  color: #a8b1c7 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar .sidebar-menu ul li a {
+  padding: 9px 14px !important;
+  border-radius: 9px !important;
+  margin: 2px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  text-decoration: none !important;
+  background: transparent !important;
+}
+
+.sidebar .sidebar-menu ul li a i.menu-icon,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li a i.menu-icon {
+  font-size: 17px !important;
+  margin-right: 11px !important;
+  color: #8b95b5 !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+}
+
+/* Completely remove chevron icons & arrows */
+.sidebar .sidebar-menu ul li a .menu-chevron,
+.sidebar .sidebar-menu ul li a .menu-arrow,
+.sidebar .sidebar-menu ul li a .menu-arrow::before,
+.sidebar .sidebar-menu ul li a .menu-arrow::after {
+  display: none !important;
+}
+
+/* 5. Hover State */
+.sidebar .sidebar-menu ul li:not(.active) a:hover,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li:not(.active) a:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar .sidebar-menu ul li:not(.active) a:hover span,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li:not(.active) a:hover span {
+  color: #ffffff !important;
+}
+
+.sidebar .sidebar-menu ul li:not(.active) a:hover i.menu-icon,
+.sidebar .sidebar-menu > ul > li.submenu-open ul li:not(.active) a:hover i.menu-icon {
+  color: #ffffff !important;
+}
+
+/* 6. Active Item State: Inverted Rounded Corner Tab (Spruha Signature) */
+.sidebar .sidebar-menu ul li.active,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.sidebar .sidebar-menu ul li.active > a,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a {
+  box-sizing: border-box !important;
+  background: #eaedf7 !important;
+  color: #6259ca !important;
+  font-weight: 700 !important;
+  margin: 2px 0 2px 14px !important;
+  padding: 9px 14px !important;
+  border-top-left-radius: 24px !important;
+  border-bottom-left-radius: 24px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  box-shadow: none !important;
+  width: calc(100% - 14px) !important;
+  max-width: calc(100% - 14px) !important;
+}
+
+/* Inverted Top Concave Curve (Zero-spill radial-gradient) */
+.sidebar .sidebar-menu ul li.active > a::before,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -20px !important;
+  right: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  background: radial-gradient(circle 20px at 0 0, transparent 19.5px, #eaedf7 20px) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+/* Inverted Bottom Concave Curve (Zero-spill radial-gradient) */
+.sidebar .sidebar-menu ul li.active > a::after,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -20px !important;
+  right: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  background: radial-gradient(circle 20px at 0 100%, transparent 19.5px, #eaedf7 20px) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+.sidebar .sidebar-menu ul li.active > a span,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a span {
+  color: #6259ca !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+.sidebar .sidebar-menu ul li.active > a i.menu-icon,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a i.menu-icon {
+  color: #6259ca !important;
+  background: rgba(98, 89, 202, 0.15) !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 10px !important;
+  font-size: 14px !important;
+}
+
+.sidebar .sidebar-menu ul li.active > a .menu-chevron,
+.sidebar .sidebar-menu > ul > li.submenu-open ul > li.active > a .menu-chevron {
+  display: none !important;
+}
+
+/* 7. Spruha Badges */
+.spruha-badge {
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1 !important;
+}
+
+.spruha-badge.badge-warning {
+  background: #fe9f43 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(254, 159, 67, 0.35) !important;
+}
+
+/* 10. Mini Sidebar Handling */
+body.mini-sidebar:not(.expand-menu) .sidebar-user-card,
+body.mini-sidebar:not(.expand-menu) .submenu-hdr,
+body.mini-sidebar:not(.expand-menu) .menu-chevron,
+body.mini-sidebar:not(.expand-menu) .spruha-badge {
+  display: none !important;
 }
 
 /* 4. Table Top Action Head (PDF, Excel, Refresh, Collapse) */
@@ -1435,4 +1745,46 @@ button.btn-outline-primary:hover {
     display: none !important;
   }
 }
+
+/* Customers Overview Widget Polish */
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.bg-orange {
+  background-color: #E04F16 !important;
+}
+.bg-teal {
+  background-color: #0E9384 !important;
+}
+.text-orange {
+  color: #E04F16 !important;
+}
+.text-teal {
+  color: #0E9384 !important;
+}
+.border-orange {
+  border-color: #E04F16 !important;
+}
+.border-teal {
+  border-color: #0E9384 !important;
+}
+.bg-soft-orange {
+  background-color: rgba(224, 79, 22, 0.12) !important;
+  color: #E04F16 !important;
+}
+.bg-soft-teal {
+  background-color: rgba(14, 147, 132, 0.12) !important;
+  color: #0E9384 !important;
+}
+.top-customers-container::-webkit-scrollbar {
+  width: 4px;
+}
+.top-customers-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
 

@@ -4,13 +4,13 @@
   <div class="main-header">
     <!-- Logo -->
     <div class="header-left active">
-      <a href="" class="logo logo-normal">
+      <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo logo-normal">
         <img src="{%static  'assets/img/logo.svg' %}" alt="Img" />
       </a>
-      <a href="" class="logo logo-white">
+      <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo logo-white">
         <img src="{%static  'assets/img/logo-white.svg' %}" alt="Img" />
       </a>
-      <a href="" class="logo-small">
+      <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo-small">
         <img src="{%static  'assets/img/logo-small.png' %}" alt="Img" />
       </a>
     </div>

@@ -172,6 +172,21 @@ def admin_dashboard(request):
     total_categories = Category.objects.count()
     total_products = Product.objects.count()
     
+    # Customer breakdown (first time vs returning)
+    customer_stats = Customer.objects.annotate(
+        completed_orders=Count('sales', filter=Q(sales__status='Completed'))
+    )
+    first_time_customers = customer_stats.filter(completed_orders=1).count()
+    returning_customers = customer_stats.filter(completed_orders__gt=1).count()
+    total_active_buyers = first_time_customers + returning_customers
+
+    if total_active_buyers > 0:
+        first_time_pct = round((first_time_customers / total_active_buyers) * 100)
+        returning_pct = round((returning_customers / total_active_buyers) * 100)
+    else:
+        first_time_pct = 70
+        returning_pct = 30
+
     context = {
         # Financial metrics
         'total_sales': total_sales,
@@ -196,6 +211,13 @@ def admin_dashboard(request):
         'total_categories': total_categories,
         'total_products': total_products,
         
+        # Customer breakdown metrics
+        'first_time_customers': first_time_customers,
+        'returning_customers': returning_customers,
+        'total_active_buyers': total_active_buyers,
+        'first_time_pct': first_time_pct,
+        'returning_pct': returning_pct,
+
         # Data for widgets
         'top_selling_products': top_selling_products,
         'low_stock_products': low_stock_products,

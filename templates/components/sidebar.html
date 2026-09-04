@@ -1,136 +1,124 @@
-{%load static%}
+{% load static %}
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <!-- Logo -->
-  <div class="sidebar-logo active">
-    <a href="" class="logo logo-normal">
-      <img src="{%static 'assets/img/logo.svg' %}" alt="Img" />
+  <div class="sidebar-logo">
+    <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo logo-normal">
+      <img src="{% static 'assets/img/logo.svg' %}" alt="Dreams POS" />
     </a>
-    <a href="" class="logo logo-white">
-      <img src="{%static 'assets/img/logo-white.svg' %}" alt="Img" />
+    <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo logo-white">
+      <img src="{% static 'assets/img/logo-white.svg' %}" alt="Dreams POS" />
     </a>
-    <a href="" class="logo-small">
-      <img src="{%static 'assets/img/logo-small.png' %}" alt="Img" />
+    <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo-small">
+      <img src="{% static 'assets/img/logo-small.png' %}" alt="Dreams POS" />
     </a>
   </div>
   <!-- /Logo -->
-  <div class="modern-profile p-3 pb-0">
-    <div class="text-center rounded bg-light p-3 mb-4 user-profile">
-      <div class="avatar avatar-lg online mb-3">
-        <img src="{%static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
-      </div>
-      <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
-      <p class="fs-12 mb-0">System Admin</p>
-    </div>
-    <div class="sidebar-nav mb-3">
-      <ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link active border-0" href="#">Menu</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link border-0" href="chat.html">Chats</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link border-0" href="email.html">Inbox</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <!-- <div class="sidebar-header p-3 pb-0 pt-2">
-    <div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
-      <div class="avatar avatar-md onlin">
-        <img src="{% static 'assets/img/customer/customer15.jpg'%}" alt="Img" class="img-fluid rounded-circle" />
-      </div>
-      <div class="text-start sidebar-profile-info ms-2">
-        <h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
-        <p class="fs-12">System Admin</p>
-      </div>
-    </div>
-    <div class="d-flex align-items-center justify-content-between menu-item mb-3">
-      <div>
-        <a href="" class="btn btn-sm btn-icon bg-light">
-          <i class="ti ti-layout-grid-remove"></i>
-        </a>
-      </div>
-      <div>
-        <a href="chat.html" class="btn btn-sm btn-icon bg-light">
-          <i class="ti ti-brand-hipchat"></i>
-        </a>
-      </div>
-      <div>
-        <a href="email.html" class="btn btn-sm btn-icon bg-light position-relative">
-          <i class="ti ti-message"></i>
-        </a>
-      </div>
-      <div class="notification-item">
-        <a href="activities.html" class="btn btn-sm btn-icon bg-light position-relative">
-          <i class="ti ti-bell"></i>
-          <span class="notification-status-dot"></span>
-        </a>
-      </div>
-      <div class="me-0">
-        <a href="general-settings.html" class="btn btn-sm btn-icon bg-light">
-          <i class="ti ti-settings"></i>
-        </a>
-      </div>
-    </div>
-  </div> -->
-  <div class="sidebar-inner slimscroll">
+
+  <div class="sidebar-inner">
     <div id="sidebar-menu" class="sidebar-menu">
       <ul>
+        <!-- Dashboard -->
         <li class="submenu-open">
-
+          <h6 class="submenu-hdr">Dashboard</h6>
           <ul>
-            <li class="{% if request.resolver_match.url_name == 'admin-dashboard' %}active{% endif %}">
-              <a href="{%url 'admin-dashboard' %}" class="subdrop"><i
-                  class="ti ti-layout-grid fs-16 me-2"></i>Dashboard</a>
+            <li class="{% if request.resolver_match.url_name == 'admin-dashboard' or request.resolver_match.url_name == 'employee-dashboard' %}active{% endif %}">
+              <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}">
+                <i class="ti ti-layout-grid menu-icon"></i><span>Dashboard</span>
+              </a>
             </li>
-            <li
-              class="{% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'addProduct' or request.resolver_match.url_name == 'editProduct' or request.resolver_match.url_name == 'productDetails' %}active{% endif %}">
-              <a href="{%url 'products' %}" class="subdrop"><i data-feather="box"></i>Products</a>
-            </li>
-
-
-            <li
-              class="{% if request.resolver_match.url_name == 'category' or request.resolver_match.url_name == 'addCategory' or request.resolver_match.url_name == 'editCategory' %}active{% endif %}">
-              <a href="{%url 'category' %}" class="subdrop"><i class="ti ti-list-details fs-16 me-2"></i>Category</a>
-            </li>
-
-            <li
-              class="{% if request.resolver_match.url_name == 'sales' or request.resolver_match.url_name == 'add-sales' %}active{% endif %}">
-              <a href="{%url 'sales'%}" class="subdrop">
-                <i class="ti ti-stack-3 fs-16 me-2"></i>Sales </a>
-            </li>
-            <li
-              class="{% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
-              <a href="{%url 'customers'%}" class="subdrop">
-                <i class="ti ti-users-group fs-16 me-2"></i>Customers</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'sales-report' %}active{% endif %}">
-              <a href="{%url 'sales-report'%}" class="subdrop">
-                <i class="ti ti-chart-bar fs-16 me-2"></i>Sales Report</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'manage-stocks' %}active{% endif %}">
-              <a href="{%url 'manage-stocks' %}" class="subdrop">
-                <i class="ti ti-stack-3 fs-16 me-2"></i></i>Manage Stock</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'profit-and-loss' %}active{% endif %}">
-              <a href="{%url 'profit-and-loss'%}" class="subdrop">
-                <i class="ti ti-chart-donut fs-16 me-2"></i>Profit & Loss</a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'annual-report' %}active{% endif %}">
-              <a href="{%url 'annual-report'%}" class="subdrop">
-                <i class="ti ti-report-search fs-16 me-2"></i>Annual Report</a>
-            </li>
-            <li
-              class="{% if request.resolver_match.url_name == 'users' or request.resolver_match.url_name == 'addUser' or request.resolver_match.url_name == 'editUser' %}active{% endif %}">
-              <a href="{%url 'users'%}" class="subdrop">
-                <i class="ti ti-shield-up fs-16 me-2"></i>Users</a>
-            </li>
-
           </ul>
         </li>
+
+        <!-- Inventory -->
+        {% if not isSalesPerson %}
+        <li class="submenu-open">
+          <h6 class="submenu-hdr">Inventory</h6>
+          <ul>
+            <li class="{% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'addProduct' or request.resolver_match.url_name == 'editProduct' or request.resolver_match.url_name == 'productDetails' %}active{% endif %}">
+              <a href="{% url 'products' %}">
+                <i class="ti ti-box menu-icon"></i><span>Products</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'category' or request.resolver_match.url_name == 'addCategory' or request.resolver_match.url_name == 'editCategory' %}active{% endif %}">
+              <a href="{% url 'category' %}">
+                <i class="ti ti-list-details menu-icon"></i><span>Category</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'manage-stocks' %}active{% endif %}">
+              <a href="{% url 'manage-stocks' %}">
+                <i class="ti ti-packages menu-icon"></i><span>Manage Stock</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {% endif %}
+
+        <!-- Sales & POS -->
+        <li class="submenu-open">
+          <h6 class="submenu-hdr">Sales & Orders</h6>
+          <ul>
+            <li class="{% if request.resolver_match.url_name == 'sales' %}active{% endif %}">
+              <a href="{% url 'sales' %}">
+                <i class="ti ti-shopping-cart menu-icon"></i><span>Sales</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'add-sales' %}active{% endif %}">
+              <a href="{% url 'add-sales' %}">
+                <i class="ti ti-device-laptop menu-icon"></i><span>POS Terminal</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_create' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
+              <a href="{% url 'customers' %}">
+                <i class="ti ti-users-group menu-icon"></i><span>Customers</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Reports & Finance -->
+        {% if not isSalesPerson %}
+        <li class="submenu-open">
+          <h6 class="submenu-hdr">Reports & Finance</h6>
+          <ul>
+            <li class="{% if request.resolver_match.url_name == 'sales-report' %}active{% endif %}">
+              <a href="{% url 'sales-report' %}">
+                <i class="ti ti-chart-bar menu-icon"></i><span>Sales Report</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'profit-and-loss' %}active{% endif %}">
+              <a href="{% url 'profit-and-loss' %}">
+                <i class="ti ti-chart-donut menu-icon"></i><span>Profit & Loss</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'annual-report' %}active{% endif %}">
+              <a href="{% url 'annual-report' %}">
+                <i class="ti ti-report-search menu-icon"></i><span>Annual Report</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {% endif %}
+
+        <!-- Management & Settings -->
+        {% if not isSalesPerson %}
+        <li class="submenu-open">
+          <h6 class="submenu-hdr">Management</h6>
+          <ul>
+            <li class="{% if request.resolver_match.url_name == 'users' or request.resolver_match.url_name == 'addUser' or request.resolver_match.url_name == 'editUser' %}active{% endif %}">
+              <a href="{% url 'users' %}">
+                <i class="ti ti-shield-check menu-icon"></i><span>Users</span>
+              </a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+              <a href="{% url 'profile' %}">
+                <i class="ti ti-user-circle menu-icon"></i><span>Profile</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
