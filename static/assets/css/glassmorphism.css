@@ -354,19 +354,21 @@ body.header-collapse #collapse-header svg,
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  color: #4b5563 !important;
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
   border-radius: 10px !important;
   font-weight: 600 !important;
   transition: all 0.25s ease !important;
 }
 
 .btn-secondary:hover {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
   transform: translateY(-1px);
 }
 
@@ -389,6 +391,9 @@ body.header-collapse #collapse-header svg,
 }
 
 /* Universal Cancel, Back, and Secondary Buttons for Superior UI/UX */
+.btn.btn-secondary,
+a.btn.btn-secondary,
+button.btn.btn-secondary,
 .btn-secondary,
 a.btn-secondary,
 button.btn-secondary,
@@ -402,8 +407,10 @@ button.btn-secondary,
 .modal .add-cancel,
 [data-bs-dismiss="modal"] {
   background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
   color: #1e293b !important;
   border: 1px solid #cbd5e1 !important;
+  border-color: #cbd5e1 !important;
   border-radius: 10px !important;
   font-weight: 600 !important;
   padding: 8px 18px !important;
@@ -415,6 +422,9 @@ button.btn-secondary,
   text-decoration: none !important;
 }
 
+.btn.btn-secondary:hover,
+a.btn.btn-secondary:hover,
+button.btn.btn-secondary:hover,
 .btn-secondary:hover,
 a.btn-secondary:hover,
 button.btn-secondary:hover,
@@ -427,10 +437,23 @@ button.btn-secondary:hover,
 .modal .btn-cancel:hover,
 .modal .add-cancel:hover {
   background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
   color: #0f172a !important;
   border-color: #94a3b8 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+.btn.btn-secondary i,
+.btn.btn-secondary svg,
+a.btn.btn-secondary i,
+a.btn.btn-secondary svg,
+button.btn.btn-secondary i,
+button.btn.btn-secondary svg,
+.btn-secondary i,
+.btn-secondary svg {
+  color: inherit !important;
+  stroke: currentColor !important;
 }
 
 /* Close icon buttons inside modal headers */
@@ -749,6 +772,86 @@ button.btn-secondary:hover,
 }
 
 /* 11. POS & Barcode/QR Scanner Styling */
+#scannerPanel,
+.card#scannerPanel,
+div#scannerPanel.card {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.45) !important;
+  color: #ffffff !important;
+}
+
+#scannerPanel .card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+#scannerPanel h6,
+#scannerPanel .text-white {
+  color: #ffffff !important;
+}
+
+#scannerPanel .scanner-feature-list {
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+#scannerPanel .scanner-feature-list li {
+  color: #e2e8f0 !important;
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+#scannerPanel .scanner-feature-list li span,
+#scannerPanel .scanner-feature-list li .feature-text {
+  color: #e2e8f0 !important;
+}
+
+#scannerPanel .scanner-feature-list li i {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+#scannerPanel #manualBarcodeInput {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-radius: 0 8px 8px 0;
+}
+
+#scannerPanel #manualBarcodeInput:focus {
+  border-color: #fe9f43 !important;
+  box-shadow: 0 0 0 2px rgba(254, 159, 67, 0.3) !important;
+}
+
+#scannerPanel #manualBarcodeInput::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+#scannerPanel .input-group-text {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+#scannerPanel #closeScannerTopBtn {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.2s ease;
+}
+
+#scannerPanel #closeScannerTopBtn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
 .scanner-container {
   position: relative;
   background: #0f172a;

@@ -16,8 +16,8 @@
         <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-1" id="toggleScannerBtn">
           <i class="ti ti-scan fs-18"></i> <span id="scannerBtnText">Open Camera Scanner</span>
         </button>
-        <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'sales' %}{% endif %}" class="btn btn-secondary">
-          <i data-feather="arrow-left" class="me-1"></i> Back
+        <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'sales' %}{% endif %}" class="btn btn-secondary d-flex align-items-center gap-1">
+          <i class="ti ti-arrow-left fs-16"></i> <span>Back</span>
         </a>
       </div>
     </div>
@@ -25,11 +25,11 @@
     <!-- Scanner Dropdown Viewfinder -->
     <div id="scannerPanel" class="card border-0 mb-4 shadow-lg overflow-hidden" style="display: none; background: #0f172a;">
       <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between text-white pb-0">
-        <h6 class="text-white mb-0 d-flex align-items-center">
-          <i class="ti ti-camera me-2 text-warning"></i> Live Barcode & QR Code Scanner
+        <h6 class="text-white mb-0 d-flex align-items-center fw-bold">
+          <i class="ti ti-camera me-2 text-warning fs-18"></i> Live Barcode & QR Code Scanner
         </h6>
-        <button type="button" class="btn btn-sm btn-outline-light" id="closeScannerTopBtn">
-          <i class="ti ti-x"></i>
+        <button type="button" class="btn btn-sm btn-outline-light d-flex align-items-center justify-content-center" id="closeScannerTopBtn" style="width: 32px; height: 32px; border-radius: 8px;">
+          <i class="ti ti-x fs-16"></i>
         </button>
       </div>
       <div class="card-body">
@@ -48,16 +48,25 @@
             </div>
           </div>
           <div class="col-md-5 text-white mt-3 mt-md-0">
-            <h6 class="text-warning mb-2"><i class="ti ti-sparkles me-1"></i> Instant Scan Features</h6>
-            <ul class="list-unstyled text-stone-300 fs-13 space-y-2 mb-3">
-              <li class="mb-1"><i class="ti ti-check text-success me-1"></i> Scan product barcode/SKU to auto-add +1 to cart</li>
-              <li class="mb-1"><i class="ti ti-check text-success me-1"></i> Supports QR codes for customer/MoMo payments</li>
-              <li class="mb-1"><i class="ti ti-volume text-info me-1"></i> Audio beep confirmation on successful scan</li>
+            <h6 class="text-warning mb-2 fw-bold"><i class="ti ti-sparkles me-1"></i> Instant Scan Features</h6>
+            <ul class="list-unstyled scanner-feature-list fs-13 space-y-2 mb-3">
+              <li class="mb-2 d-flex align-items-center">
+                <i class="ti ti-check text-success me-2 fs-16"></i>
+                <span class="text-white">Scan product barcode/SKU to auto-add +1 to cart</span>
+              </li>
+              <li class="mb-2 d-flex align-items-center">
+                <i class="ti ti-check text-success me-2 fs-16"></i>
+                <span class="text-white">Supports QR codes for customer/MoMo payments</span>
+              </li>
+              <li class="mb-2 d-flex align-items-center">
+                <i class="ti ti-volume text-info me-2 fs-16"></i>
+                <span class="text-white">Audio beep confirmation on successful scan</span>
+              </li>
             </ul>
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-dark border-secondary text-white"><i class="ti ti-barcode"></i></span>
               <input type="text" id="manualBarcodeInput" class="form-control bg-dark border-secondary text-white" placeholder="Manual barcode/SKU enter..." />
-              <button class="btn btn-warning" type="button" id="manualBarcodeSubmit">Add</button>
+              <button class="btn btn-warning fw-bold px-3" type="button" id="manualBarcodeSubmit">Add</button>
             </div>
           </div>
         </div>
