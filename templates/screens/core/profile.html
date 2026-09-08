@@ -1,83 +1,153 @@
 {% extends 'base.html' %}
-    {% block content %} 
-     {% load static %}
+{% block content %} 
+{% load static %}
 
-     <div class="page-wrapper">
-		<div class="content">
-			<div class="page-header">
-				<div class="page-title">
-					<h4>Profile</h4>
-					<h6>User Profile</h6>
-				</div>
-				<div class="page-btn mt-0">
-					<a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="btn btn-primary text-white shadow-sm"><i data-feather="arrow-left" class="me-2"></i>Back to Dashboard</a>
-				</div>
+<div class="page-wrapper">
+	<div class="content">
+		<div class="page-header">
+			<div class="page-title">
+				<h4>User Profile</h4>
+				<h6>Manage your personal information and security settings</h6>
 			</div>
-			<!-- /product list -->
-			<div class="card">
-				<div class="card-header">
-				<h4>Profile</h4>
-				</div>
-				<div class="card-body profile-body">
-					<h5 class="mb-2"><i class="ti ti-user text-primary me-1"></i>Basic Information</h5>
-						<div class="profile-pic-upload image-field">
-							<div class="profile-pic p-2">
-								<img src="{% static 'assets/img/users/user-49.png'  %}" class="object-fit-cover h-100 rounded-1" alt="user">
-								<button type="button" class="close rounded-1">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="mb-3">
-								<div class="image-upload mb-0 d-inline-flex">
-									<input type="file" disabled>
-									<div class="btn btn-primary fs-13">Change Image</div>
-								</div>
-								<p class="mt-2">Upload an image below 2 MB, Accepted File format JPG, PNG</p>
-							</div>
-						</div>
-					<form action="" method="POST">
-						{% csrf_token %}
-						<div class="row">
-						<div class="col-lg-6 col-sm-12">
-							<div class="mb-3">
-								<label class="form-label">First Name<span class="text-danger ms-1">*</span></label>
-								<input type="text" name="first_name" class="form-control" disabled value="{{ user.first_name }}">
-							</div>
-						</div>
-						<div class="col-lg-6 col-sm-12">
-							<div class="mb-3">
-								<label class="form-label">Last Name<span class="text-danger ms-1">*</span></label>
-								<input type="text" name="last_name" class="form-control" disabled value="{{ user.last_name }}">
-							</div>
-						</div>
-						<div class="col-lg-6 col-sm-12">
-							<div class="mb-3">
-								<label>Email<span class="text-danger ms-1">*</span></label>
-								<input type="email" name="email" class="form-control" disabled value="{{ user.email }}">
-							</div>
-						</div>
-						<div class="col-lg-6 col-sm-12">
-							<div class="mb-3">
-								<label class="form-label">Phone Number<span class="text-danger ms-1">*</span></label>
-								<input type="text" name="phone" class="form-control" disabled value="{{ user.phone }}">
-							</div>
-						</div>
-						<div class="col-lg-6 col-sm-12">
-							<div class="mb-3">
-								<label class="form-label">User Name<span class="text-danger ms-1">*</span></label>
-								<input type="text" name="username" class="form-control" disabled value="{{ user.username }}">
-							</div>
-						</div>
-						<!-- <div class="col-12 d-flex justify-content-end">
-							<button type="submit" class="btn btn-primary shadow-none">Save Changes</button>
-						</div> -->
-					</div>
-					</form>
-				</div>
+			<div class="page-btn mt-0">
+				<a href="{% if user.role == 'salesperson' or isSalesPerson or user.role == 'SALESPERSON' %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="btn btn-primary text-white shadow-sm">
+					<i data-feather="arrow-left" class="me-2"></i>Back to Dashboard
+				</a>
 			</div>
-			<!-- /product list -->
 		</div>
 
-	 </div>
+		<form action="{% url 'profile' %}" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="card mb-4">
+				<div class="card-header">
+					<h4 class="card-title mb-0"><i class="ti ti-user text-primary me-2"></i>Basic Information</h4>
+				</div>
+				<div class="card-body profile-body">
+					<div class="profile-pic-upload image-field mb-4">
+						<div class="profile-pic p-2 me-3" style="width: 100px; height: 100px; position: relative; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; background: #f9fafb;">
+							<img id="profile-avatar-preview" 
+								src="{% if user.photo %}{{ user.photo.url }}{% else %}{% static 'assets/img/users/user-49.png' %}{% endif %}" 
+								class="object-fit-cover w-100 h-100 rounded-1" 
+								alt="Profile Photo">
+						</div>
+						<div class="mb-3">
+							<div class="image-upload mb-0 d-inline-flex align-items-center">
+								<input type="file" name="photo" id="profile-photo-input" accept="image/*" style="display: none;">
+								<label for="profile-photo-input" class="btn btn-primary fs-13 mb-0" style="cursor: pointer;">
+									<i class="ti ti-photo-up me-1"></i>Change Image
+								</label>
+							</div>
+							<p class="mt-2 text-muted mb-0" style="font-size: 13px;">Upload an image below 2 MB. Accepted formats: JPG, PNG, WEBP</p>
+						</div>
+					</div>
 
-    {% endblock %}
+					<div class="row">
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">First Name</label>
+								<input type="text" name="first_name" class="form-control" value="{{ user.first_name|default:'' }}" placeholder="First Name">
+							</div>
+						</div>
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Last Name</label>
+								<input type="text" name="last_name" class="form-control" value="{{ user.last_name|default:'' }}" placeholder="Last Name">
+							</div>
+						</div>
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
+								<input type="email" name="email" class="form-control" value="{{ user.email }}" required placeholder="email@example.com">
+							</div>
+						</div>
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Phone Number</label>
+								<input type="text" name="phone" class="form-control" value="{{ user.phone|default:'' }}" placeholder="+1234567890">
+							</div>
+						</div>
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Username</label>
+								<input type="text" class="form-control bg-light" value="{{ user.username }}" readonly disabled>
+							</div>
+						</div>
+						<div class="col-lg-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Role</label>
+								<input type="text" class="form-control bg-light" value="{{ user.role }}" readonly disabled>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="card mb-4">
+				<div class="card-header">
+					<h4 class="card-title mb-0"><i class="ti ti-lock text-primary me-2"></i>Change Password (Optional)</h4>
+				</div>
+				<div class="card-body">
+					<p class="text-muted mb-3" style="font-size: 13px;">Leave password fields blank if you do not want to change your password.</p>
+					<div class="row">
+						<div class="col-lg-4 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Current Password</label>
+								<div class="pass-group">
+									<input type="password" name="current_password" class="pass-input form-control" placeholder="Current password">
+									<span class="ti toggle-password ti-eye-off"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">New Password</label>
+								<div class="pass-group">
+									<input type="password" name="new_password" class="pass-inputs form-control" placeholder="Min 6 characters">
+									<span class="ti toggle-passwords ti-eye-off"></span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Confirm New Password</label>
+								<div class="pass-group">
+									<input type="password" name="confirm_new_password" class="pass-inputa form-control" placeholder="Confirm new password">
+									<span class="ti toggle-passworda ti-eye-off"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex align-items-center justify-content-end mb-4 gap-2">
+				<a href="{% if user.role == 'salesperson' or isSalesPerson or user.role == 'SALESPERSON' %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="btn btn-light px-4">Cancel</a>
+				<button type="submit" class="btn btn-primary px-4 shadow-sm">
+					<i class="ti ti-device-floppy me-1"></i>Save Changes
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	const photoInput = document.getElementById('profile-photo-input');
+	const avatarPreview = document.getElementById('profile-avatar-preview');
+
+	if (photoInput && avatarPreview) {
+		photoInput.addEventListener('change', function(e) {
+			const file = e.target.files[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(evt) {
+					avatarPreview.src = evt.target.result;
+				};
+				reader.readAsDataURL(file);
+			}
+		});
+	}
+});
+</script>
+
+{% endblock %}

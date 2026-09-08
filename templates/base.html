@@ -59,7 +59,7 @@
 	<!-- Main CSS -->
 	<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
 	<!-- Modern Glassmorphic Design System -->
-	<link rel="stylesheet" href="{% static 'assets/css/glassmorphism.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/glassmorphism.css' %}?v=2.2">
 	<!-- Owl JS -->
 	<script src="{% static 'assets/plugins/owlcarousel/owl.carousel.min.js'%}" type="78b23f2e324f3700e9bc5b75-text/javascript"></script>
 
@@ -145,7 +145,7 @@
 
 </head>
 
-<body>
+<body class="{% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' %}salesperson-view menu-horizontal{% endif %}">
     <div id="global-loader">
         <div class="whirly-loader"></div>
     </div>
@@ -239,6 +239,27 @@
 	<script src="{% static 'assets/js/jspdf.umd.min.js' %}"></script>
 	<script src="{% static 'assets/js/jspdf.plugin.autotable.min.js' %}"></script>
 	<script src="{% static 'assets/js/table-export.js' %}"></script>
+
+	<!-- SweetAlert2 Core & Global Modern Alert Bridge -->
+	<script src="{% static 'assets/plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+	<script>
+		// Global custom alert wrapper using SweetAlert2
+		window.originalAlert = window.alert;
+		window.alert = function(message) {
+			if (typeof Swal !== 'undefined') {
+				Swal.fire({
+					text: message,
+					confirmButtonColor: '#fe9f43',
+					confirmButtonText: 'OK',
+					customClass: {
+						confirmButton: 'btn btn-primary px-4 py-2'
+					}
+				});
+			} else {
+				window.originalAlert(message);
+			}
+		};
+	</script>
 
     <!-- Message Auto-dismiss Script -->
     <script>

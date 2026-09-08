@@ -85,7 +85,20 @@
 											</td>
 											<td class="action-table-data">
 												<div class="edit-delete-action">
-													<a class="me-2 p-2 mb-0" href="javascript:void(0);">
+													<a class="me-2 p-2 mb-0 btn-view-user" data-bs-toggle="modal" data-bs-target="#view-user"
+													   data-user-id="{{ user.id }}"
+													   data-username="{{ user.username }}"
+													   data-full-name="{{ user.get_full_name|default:user.username }}"
+													   data-first-name="{{ user.first_name }}"
+													   data-last-name="{{ user.last_name }}"
+													   data-email="{{ user.email|default:'N/A' }}"
+													   data-phone="{{ user.phone|default:'N/A' }}"
+													   data-role="{{ user.role|title }}"
+													   data-status="{{ user.is_active|yesno:'Active,Inactive' }}"
+													   data-status-active="{{ user.is_active|yesno:'true,false' }}"
+													   data-date-joined="{{ user.date_joined|date:'M d, Y, h:i A' }}"
+													   data-avatar="{% if user.photo %}{{ user.photo.url }}{% else %}{% static 'assets/img/users/user-47.png' %}{% endif %}"
+													   href="javascript:void(0);" title="View User Details">
 														<i data-feather="eye" class="action-eye"></i>
 													</a>
 													<a class="me-2 p-2 mb-0 btn-edit-user" data-bs-toggle="modal" data-bs-target="#edit-user"
@@ -309,18 +322,18 @@
 									
 										<div class="col-lg-6">
 											<div class="mb-3">
-												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
+												<label class="form-label">New Password <span class="text-muted fs-11">(Leave blank to keep unchanged)</span></label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" name="password" value="{{user.password}}">
+													<input type="password" class="pass-input form-control" name="password" placeholder="Leave blank to keep unchanged" autocomplete="new-password">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
 										</div>
 										<div class="col-lg-6">
 											<div class="mb-3">
-												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
+												<label class="form-label">Confirm New Password</label>
 												<div class="pass-group">
-													<input type="password" class="pass-input form-control" value="{{user.password}}">
+													<input type="password" class="pass-input form-control" name="confirm_password" placeholder="Confirm new password" autocomplete="new-password">
 													<i class="ti ti-eye-off toggle-password"></i>
 												</div>
 											</div>
@@ -411,8 +424,119 @@
 							roleSelect.options[i].selected = (roleSelect.options[i].value === role);
 						}
 					}
+					// Always clear password inputs so passwords are never disclosed or accidentally updated
+					var passInput = modal.querySelector('input[name="password"]');
+					var confirmPassInput = modal.querySelector('input[name="confirm_password"]');
+					if (passInput) passInput.value = '';
+					if (confirmPassInput) confirmPassInput.value = '';
 				});
 			});
 		});
+		</script>
+
+		<!-- View User Modal -->
+		<div class="modal fade" id="view-user" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+					<div class="modal-header border-0 bg-light py-3 px-4 d-flex align-items-center justify-content-between">
+						<div class="d-flex align-items-center gap-2">
+							<div class="rounded-circle d-flex align-items-center justify-content-center bg-primary-transparent" style="width: 36px; height: 36px;">
+								<i class="ti ti-user-circle fs-20 text-primary"></i>
+							</div>
+							<h5 class="modal-title fw-bold text-dark mb-0" id="viewUserModalLabel">User Profile Details</h5>
+						</div>
+						<button type="button" class="close rounded-circle d-flex align-items-center justify-content-center p-0" data-bs-dismiss="modal" aria-label="Close" style="width: 32px; height: 32px; border: none; background: rgba(0,0,0,0.06); color: #495057; transition: all 0.2s ease;">
+							<i class="ti ti-x fs-18"></i>
+						</button>
+					</div>
+					<div class="modal-body p-4">
+						<!-- User Header Card -->
+						<div class="text-center pb-3 border-bottom mb-3">
+							<div class="position-relative d-inline-block mb-3">
+								<img id="view-user-avatar" src="{% static 'assets/img/users/user-47.png' %}" alt="User Avatar" class="rounded-circle shadow-sm border border-3 border-white" style="width: 84px; height: 84px; object-fit: cover;">
+								<span id="view-user-status-dot" class="position-absolute bottom-0 end-0 p-2 bg-success border border-2 border-white rounded-circle"></span>
+							</div>
+							<h5 id="view-user-full-name" class="fw-bold mb-1 text-dark">User Name</h5>
+							<p id="view-user-username" class="text-muted fs-13 mb-2">@username</p>
+							<div class="d-flex align-items-center justify-content-center gap-2">
+								<span id="view-user-role-badge" class="badge bg-soft-orange px-3 py-1 fw-bold fs-12">Role</span>
+								<span id="view-user-status-badge" class="badge bg-success px-3 py-1 fw-bold fs-12">Active</span>
+							</div>
+						</div>
+
+						<!-- User Information List -->
+						<div class="row g-3">
+							<div class="col-sm-6">
+								<div class="p-3 bg-light rounded-3">
+									<span class="text-muted fs-11 text-uppercase fw-semibold d-block mb-1"><i class="ti ti-mail me-1"></i>Email Address</span>
+									<span id="view-user-email" class="fw-semibold text-dark fs-13 text-break">email@example.com</span>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="p-3 bg-light rounded-3">
+									<span class="text-muted fs-11 text-uppercase fw-semibold d-block mb-1"><i class="ti ti-phone me-1"></i>Phone Number</span>
+									<span id="view-user-phone" class="fw-semibold text-dark fs-13">+123456789</span>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="p-3 bg-light rounded-3">
+									<span class="text-muted fs-11 text-uppercase fw-semibold d-block mb-1"><i class="ti ti-id me-1"></i>System User ID</span>
+									<span id="view-user-id" class="fw-bold text-primary fs-13">#0</span>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="p-3 bg-light rounded-3">
+									<span class="text-muted fs-11 text-uppercase fw-semibold d-block mb-1"><i class="ti ti-calendar me-1"></i>Date Joined</span>
+									<span id="view-user-date-joined" class="fw-semibold text-dark fs-13">Jan 01, 2026</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer border-0 bg-light py-2 px-4 d-flex justify-content-end">
+						<button type="button" class="btn btn-secondary fs-13 fw-medium px-4" data-bs-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- View User Modal Script -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				document.querySelectorAll('.btn-view-user').forEach(function(btn) {
+					btn.addEventListener('click', function() {
+						var userId = btn.getAttribute('data-user-id') || 'N/A';
+						var username = btn.getAttribute('data-username') || 'N/A';
+						var fullName = btn.getAttribute('data-full-name') || username;
+						var email = btn.getAttribute('data-email') || 'N/A';
+						var phone = btn.getAttribute('data-phone') || 'N/A';
+						var role = btn.getAttribute('data-role') || 'User';
+						var status = btn.getAttribute('data-status') || 'Active';
+						var isActive = btn.getAttribute('data-status-active') === 'true';
+						var dateJoined = btn.getAttribute('data-date-joined') || 'N/A';
+						var avatar = btn.getAttribute('data-avatar');
+
+						document.getElementById('view-user-id').textContent = '#' + userId;
+						document.getElementById('view-user-username').textContent = '@' + username;
+						document.getElementById('view-user-full-name').textContent = fullName;
+						document.getElementById('view-user-email').textContent = email;
+						document.getElementById('view-user-phone').textContent = phone;
+						document.getElementById('view-user-date-joined').textContent = dateJoined;
+						
+						var roleBadge = document.getElementById('view-user-role-badge');
+						roleBadge.textContent = role;
+
+						var statusBadge = document.getElementById('view-user-status-badge');
+						statusBadge.textContent = status;
+						statusBadge.className = 'badge px-3 py-1 fw-bold fs-12 ' + (isActive ? 'bg-success' : 'bg-danger');
+
+						var statusDot = document.getElementById('view-user-status-dot');
+						statusDot.className = 'position-absolute bottom-0 end-0 p-2 border border-2 border-white rounded-circle ' + (isActive ? 'bg-success' : 'bg-danger');
+
+						if (avatar) {
+							document.getElementById('view-user-avatar').src = avatar;
+						}
+					});
+				});
+			});
 		</script>
 	{%endblock%}

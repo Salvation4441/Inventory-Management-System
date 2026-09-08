@@ -133,6 +133,63 @@ p, span, label, input, button, select, textarea, table, td, th {
   }
 }
 
+/* Salesperson View & Horizontal Layout Mode: Header extends 100% across screen, eliminates 252px gap */
+body.salesperson-view .header,
+body.menu-horizontal .header {
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body.salesperson-view .header .header-left,
+body.menu-horizontal .header .header-left {
+  display: flex !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 180px !important;
+  padding: 0 20px !important;
+  background: transparent !important;
+}
+
+body.salesperson-view .header .header-left .logo.logo-normal,
+body.menu-horizontal .header .header-left .logo.logo-normal {
+  display: block !important;
+}
+
+body.salesperson-view .header .header-left .logo.logo-white,
+body.menu-horizontal .header .header-left .logo.logo-white {
+  display: none !important;
+}
+
+body.salesperson-view .header .main-header,
+body.menu-horizontal .header .main-header {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 24px !important;
+  margin: 0 !important;
+}
+
+body.salesperson-view #sidebar,
+body.menu-horizontal #sidebar {
+  display: none !important;
+}
+
+body.salesperson-view .page-wrapper,
+body.menu-horizontal .page-wrapper {
+  margin: 0 !important;
+  margin-left: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-top: 75px !important;
+}
+
+body.salesperson-view .page-wrapper .content,
+body.menu-horizontal .page-wrapper .content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 24px 30px !important;
+}
+
 /* ============================================================
    SPRUHA-INSPIRED DARK SIDEBAR & HIGH-CONTRAST NAVIGATION
    ============================================================ */
@@ -476,19 +533,22 @@ body.mini-sidebar:not(.expand-menu) .spruha-badge {
 }
 
 .table-top-head li a:hover {
-  background: #fe9f43 !important;
-  color: #ffffff !important;
+  background: rgba(254, 159, 67, 0.15) !important;
+  color: #fe9f43 !important;
   border-color: #fe9f43 !important;
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 16px var(--brand-primary-glow) !important;
+  box-shadow: 0 4px 12px rgba(254, 159, 67, 0.2) !important;
 }
 
 .table-top-head li a:hover img {
-  filter: brightness(0) invert(1);
+  filter: none !important;
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }
 
-.table-top-head li a:hover i {
-  color: #ffffff !important;
+.table-top-head li a:hover i,
+.table-top-head li a:hover svg {
+  color: #fe9f43 !important;
 }
 
 /* 4.1 Header Collapse Mode Fixes */
@@ -556,13 +616,8 @@ body.header-collapse #collapse-header svg,
 }
 
 .table-responsive {
-  overflow-x: visible !important;
-}
-
-@media (max-width: 991.98px) {
-  .table-responsive {
-    overflow-x: auto !important;
-  }
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table thead th {
@@ -1786,5 +1841,187 @@ button.btn-outline-primary:hover {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 4px;
 }
+
+/* ============================================================
+   TOP CUSTOMERS MARQUEE TICKER (ADMIN DASHBOARD)
+   ============================================================ */
+.top-customers-ticker-wrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  height: 52px;
+}
+
+.top-customers-ticker-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #14162e 0%, #1e2246 100%);
+  color: #ffffff;
+  padding: 0 18px;
+  height: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-top-left-radius: 11px;
+  border-bottom-left-radius: 11px;
+  z-index: 2;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.08);
+}
+
+.top-customers-ticker-label .pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #28c76f;
+  box-shadow: 0 0 0 0 rgba(40, 199, 111, 0.7);
+  animation: pulseGreen 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes pulseGreen {
+  to {
+    box-shadow: 0 0 0 8px rgba(40, 199, 111, 0);
+  }
+}
+
+.top-customers-marquee {
+  flex-grow: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+}
+
+.top-customers-track {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marqueeScroll 28s linear infinite;
+  padding-left: 20px;
+}
+
+.top-customers-marquee:hover .top-customers-track {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.top-customer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(248, 249, 250, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 30px;
+  padding: 4px 14px 4px 6px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.top-customer-chip:hover {
+  background: #ffffff;
+  border-color: #fe9f43;
+  box-shadow: 0 3px 8px rgba(254, 159, 67, 0.15);
+  transform: translateY(-1px);
+}
+
+.customer-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.customer-rank-badge.rank-gold {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  box-shadow: 0 2px 6px rgba(247, 151, 30, 0.4);
+}
+
+.customer-rank-badge.rank-silver {
+  background: linear-gradient(135deg, #757f9a, #d7dde8);
+  box-shadow: 0 2px 6px rgba(117, 127, 154, 0.4);
+}
+
+.customer-rank-badge.rank-bronze {
+  background: linear-gradient(135deg, #ca6510, #f6a15c);
+  box-shadow: 0 2px 6px rgba(202, 101, 16, 0.4);
+}
+
+.customer-rank-badge.rank-other {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.customer-chip-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.customer-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.customer-chip-stat {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0e9384;
+}
+
+/* ============================================================
+   PROFIT & LOSS MATRIX TABLE RESPONSIVENESS
+   ============================================================ */
+.matrix-table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.matrix-table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.matrix-table-responsive::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+
+.matrix-table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(254, 159, 67, 0.4);
+  border-radius: 4px;
+}
+
+.matrix-table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(254, 159, 67, 0.7);
+}
+
 
 

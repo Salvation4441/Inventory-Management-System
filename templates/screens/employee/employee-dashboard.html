@@ -1,6 +1,50 @@
 
 {% extends 'base.html' %} {% block content %} {% load static %}
 
+<style>
+  .header {
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .header .header-left {
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    min-width: 180px !important;
+    padding-left: 20px !important;
+    background: transparent !important;
+  }
+  .header .header-left .logo.logo-normal {
+    display: block !important;
+  }
+  .header .header-left .logo.logo-white {
+    display: none !important;
+  }
+  .header .main-header {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 24px !important;
+    margin: 0 !important;
+  }
+  #sidebar {
+    display: none !important;
+  }
+  .page-wrapper {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-top: 75px !important;
+  }
+  .page-wrapper .content,
+  .content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 24px 30px !important;
+  }
+</style>
+
 <div class="page-wrapper">
   <div class="content">
     <!-- Welcome Header & Quick Action Launcher -->
@@ -428,7 +472,12 @@
       })
       .catch((error) => {
         console.error("Error loading sale detail:", error);
-        alert("Error loading sale details. Please try again.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Loading Details',
+          text: 'Unable to load sale details. Please try again.',
+          confirmButtonColor: '#fe9f43'
+        });
       });
   }
 </script>

@@ -32,6 +32,114 @@
 				</div>
 				{% endif %}
 				
+				<!-- Top Customers Marquee Ticker -->
+				<style>
+				.top-customers-ticker-wrap {
+				  display: flex;
+				  align-items: center;
+				  background: rgba(255, 255, 255, 0.95);
+				  backdrop-filter: blur(12px);
+				  -webkit-backdrop-filter: blur(12px);
+				  border: 1px solid rgba(0, 0, 0, 0.08);
+				  border-radius: 12px;
+				  overflow: hidden;
+				  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+				  height: 52px;
+				  margin-bottom: 24px;
+				}
+				.top-customers-ticker-label {
+				  display: flex;
+				  align-items: center;
+				  gap: 8px;
+				  background: linear-gradient(135deg, #14162e 0%, #1e2246 100%);
+				  color: #ffffff;
+				  padding: 0 18px;
+				  height: 100%;
+				  font-size: 11px;
+				  font-weight: 700;
+				  letter-spacing: 0.8px;
+				  text-transform: uppercase;
+				  white-space: nowrap;
+				  flex-shrink: 0;
+				  z-index: 2;
+				  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.08);
+				}
+				.top-customers-marquee {
+				  flex-grow: 1;
+				  overflow: hidden;
+				  position: relative;
+				  display: flex;
+				  align-items: center;
+				  height: 100%;
+				  mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+				  -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+				}
+				.top-customers-track {
+				  display: flex;
+				  align-items: center;
+				  gap: 16px;
+				  white-space: nowrap;
+				  will-change: transform;
+				  animation: marqueeScroll 30s linear infinite;
+				  padding-left: 20px;
+				}
+				.top-customers-marquee:hover .top-customers-track {
+				  animation-play-state: paused;
+				}
+				@keyframes marqueeScroll {
+				  0% { transform: translateX(0); }
+				  100% { transform: translateX(-50%); }
+				}
+				.top-customer-chip {
+				  display: inline-flex;
+				  align-items: center;
+				  gap: 10px;
+				  background: rgba(248, 249, 250, 0.95);
+				  border: 1px solid rgba(0, 0, 0, 0.06);
+				  border-radius: 30px;
+				  padding: 4px 14px 4px 6px;
+				  transition: all 0.2s ease;
+				  cursor: pointer;
+				}
+				.top-customer-chip:hover {
+				  background: #ffffff;
+				  border-color: #fe9f43;
+				  box-shadow: 0 4px 12px rgba(254, 159, 67, 0.2);
+				  transform: translateY(-1px);
+				}
+				</style>
+				{% if top_customers %}
+				<div class="top-customers-ticker-wrap">
+					<div class="top-customers-ticker-label">
+						<i class="ti ti-crown text-warning fs-15"></i> Top Customers
+					</div>
+					<div class="top-customers-marquee">
+						<div class="top-customers-track">
+							{% for cust in top_customers %}
+							<a href="{% url 'customers' %}" class="top-customer-chip text-decoration-none">
+								<div class="avatar avatar-xs bg-soft-primary text-primary rounded-circle fw-bold fs-11 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; min-width: 26px;">
+									{{ cust.first_name|slice:":1"|upper }}{{ cust.last_name|slice:":1"|upper }}
+								</div>
+								<span class="fs-13 fw-semibold text-dark">{{ cust.first_name }} {{ cust.last_name }}</span>
+								<span class="badge bg-soft-secondary text-muted fs-11 px-2 py-0">{{ cust.total_orders|default:0 }} orders</span>
+								<span class="fs-12 fw-bold text-success">GHC {{ cust.total_purchases|floatformat:2 }}</span>
+							</a>
+							{% endfor %}
+							{% for cust in top_customers %}
+							<a href="{% url 'customers' %}" class="top-customer-chip text-decoration-none" aria-hidden="true">
+								<div class="avatar avatar-xs bg-soft-primary text-primary rounded-circle fw-bold fs-11 d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; min-width: 26px;">
+									{{ cust.first_name|slice:":1"|upper }}{{ cust.last_name|slice:":1"|upper }}
+								</div>
+								<span class="fs-13 fw-semibold text-dark">{{ cust.first_name }} {{ cust.last_name }}</span>
+								<span class="badge bg-soft-secondary text-muted fs-11 px-2 py-0">{{ cust.total_orders|default:0 }} orders</span>
+								<span class="fs-12 fw-bold text-success">GHC {{ cust.total_purchases|floatformat:2 }}</span>
+							</a>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+				{% endif %}
+
 				<div class="row">
 
 					<!-- Profit -->
@@ -334,40 +442,6 @@
 									</div>
 								</div>
 
-								<!-- Top Customers Leaderboard -->
-								<div class="border-top pt-3">
-									<div class="d-flex align-items-center justify-content-between mb-2">
-										<h6 class="fs-13 fw-bold text-gray-9 mb-0 d-flex align-items-center">
-											<i class="ti ti-crown text-warning me-1 fs-15"></i>Top Customers
-										</h6>
-										<small class="text-muted fs-11">By total spend</small>
-									</div>
-									<div class="top-customers-container" style="max-height: 140px; overflow-y: auto;">
-										{% for cust in top_customers|slice:":3" %}
-										<div class="d-flex align-items-center justify-content-between py-2 pe-4 {% if not forloop.last %}border-bottom{% endif %}">
-											<div class="d-flex align-items-center">
-												<div class="avatar avatar-sm bg-soft-primary text-primary rounded-circle me-2 fw-bold fs-11 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; min-width: 32px;">
-													{{ cust.first_name|slice:":1"|upper }}{{ cust.last_name|slice:":1"|upper }}
-												</div>
-												<div>
-													<h6 class="fs-13 fw-semibold mb-0">
-														<a href="{% url 'customers' %}" class="text-dark">{{ cust.first_name }} {{ cust.last_name }}</a>
-													</h6>
-													<small class="text-muted fs-11">{{ cust.total_orders|default:0 }} orders placed</small>
-												</div>
-											</div>
-											<div class="text-end">
-												<span class="fs-13 fw-bold text-dark">GHC {{ cust.total_purchases|floatformat:2 }}</span>
-											</div>
-										</div>
-										{% empty %}
-										<div class="text-center py-3">
-											<i class="ti ti-users text-muted fs-20 mb-1 d-block"></i>
-											<small class="text-muted">No customer purchases recorded yet</small>
-										</div>
-										{% endfor %}
-									</div>
-								</div>
 							</div>
 
 							<!-- Catalog & Store Quick Overview Bar -->

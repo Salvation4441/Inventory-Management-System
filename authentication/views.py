@@ -6,7 +6,7 @@ from django.utils import timezone
 from .decorators import admin_only, unauthenticated_user
 from .forms import CustomUserUpdateForm
 from django.contrib.auth.decorators import login_required
-from .models import CustomUser
+from .models import CustomUser, PasswordResetRequest
 
 @unauthenticated_user
 def signin(request):
@@ -106,28 +106,72 @@ def logout_view(request):
 # forgot-password
 @unauthenticated_user
 def forgot_password(request):
-    return render(request,'screens/auth/forgot-password.html')
+    reset_link_url = None
+    if request.method == 'POST':
+        identifier = request.POST.get('email', '').strip()
+        if not identifier:
+            messages.error(request, 'Please provide your email address or username.')
+            return render(request, 'screens/auth/forgot-password.html')
+
+        user = CustomUser.objects.filter(email__iexact=identifier).first()
+        if not user:
+            user = CustomUser.objects.filter(username__iexact=identifier).first()
+
+        if user:
+            # Clear previous reset tokens for this user
+            PasswordResetRequest.objects.filter(user=user).delete()
+            reset_req = PasswordResetRequest.objects.create(
+                user=user,
+                email=user.email or identifier,
+            )
+            try:
+                reset_link_url = reset_req.send_reset_email(request=request)
+            except Exception:
+                reset_link_url = request.build_absolute_uri(f"/reset-password/{reset_req.token}/")
+
+            messages.success(request, f'Password reset link has been created for {user.username}.')
+            return render(request, 'screens/auth/forgot-password.html', {'reset_link_url': reset_link_url, 'reset_user': user})
+        else:
+            messages.error(request, 'No account found with that email address or username.')
+
+    return render(request, 'screens/auth/forgot-password.html')
 
 
+# reset password with token
+@unauthenticated_user
+def reset_password(request, token):
+    reset_req = PasswordResetRequest.objects.filter(token=token).first()
+    if not reset_req or not reset_req.is_valid():
+        messages.error(request, 'The password reset link is invalid or has expired. Please request a new one.')
+        return redirect('forgotpassword')
 
+    user = reset_req.user
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
 
+        if not new_password or not confirm_password:
+            messages.error(request, 'Please fill in both password fields.')
+            return render(request, 'screens/auth/reset-password.html', {'token': token, 'reset_user': user})
+
+        if new_password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'screens/auth/reset-password.html', {'token': token, 'reset_user': user})
+
+        if len(new_password) < 6:
+            messages.error(request, 'Password must be at least 6 characters long.')
+            return render(request, 'screens/auth/reset-password.html', {'token': token, 'reset_user': user})
+
+        user.set_password(new_password)
+        user.save()
+        reset_req.delete()
+        messages.success(request, 'Your password has been reset successfully! Please log in.')
+        return redirect('login')
+
+    return render(request, 'screens/auth/reset-password.html', {'token': token, 'reset_user': user})
 
 
 # edit profile
-@unauthenticated_user
 @login_required(login_url='login')
-def editProfile(request, user_id):
-    user = CustomUser.objects.get(id=user_id)
-    if request.method == 'POST':
-        form = CustomUserUpdateForm(request.POST, request.FILES, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('profile')
-    else:
-        form = CustomUserUpdateForm(instance=user)
-    context = {
-        'form': form,
-        'user': user,
-    }
-    return render(request, 'screens/core/profile.html', context)
+def editProfile(request, user_id=None):
+    return redirect('profile')

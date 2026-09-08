@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.utils.dateparse import parse_date
 from django.db import transaction
 from .models import Category, Product, SalesItem
@@ -157,7 +157,7 @@ def admin_dashboard(request):
     top_customers = Customer.objects.annotate(
         total_purchases=Sum('sales__total_amount', filter=Q(sales__status='Completed')),
         total_orders=Count('sales', filter=Q(sales__status='Completed'))
-    ).filter(total_purchases__isnull=False).order_by('-total_purchases')[:5]
+    ).filter(total_purchases__isnull=False).order_by('-total_purchases')[:10]
     
     # Category statistics
     category_stats = Category.objects.annotate(
@@ -1303,6 +1303,18 @@ def editUser(request, user_id):
             user.photo = photo
         user.role = role
 
+        # Optional password update (if provided)
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        if password:
+            if password != confirm_password:
+                messages.error(request, "Passwords do not match.")
+                return redirect('users')
+            if len(password) < 6:
+                messages.error(request, "Password must be at least 6 characters long.")
+                return redirect('users')
+            user.set_password(password)
+
         if role == 'ADMIN':
             user.is_admin = True
             user.is_staff = True
@@ -1357,11 +1369,60 @@ def viewUser(request,user_id):
 # PROFILE DETAILS
 #------------------------------
 @login_required(login_url='login')
-@admin_only
 def profile(request):
-    user = CustomUser.objects.get(id=request.user.id)
-    context = {'user': user}
-    return render(request,'screens/core/profile.html', context)
+    user = request.user
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        # Validate email uniqueness if changed
+        if email and CustomUser.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, 'This email address is already in use by another account.')
+            return redirect('profile')
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.phone = phone
+
+        # Handle profile picture upload
+        if 'photo' in request.FILES:
+            user.photo = request.FILES['photo']
+
+        # Handle optional password change
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_new_password = request.POST.get('confirm_new_password', '')
+
+        if current_password or new_password or confirm_new_password:
+            if not user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('profile')
+            if new_password != confirm_new_password:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('profile')
+            if len(new_password) < 6:
+                messages.error(request, 'New password must be at least 6 characters long.')
+                return redirect('profile')
+
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Profile and password updated successfully!')
+            return redirect('profile')
+
+        user.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('profile')
+
+    isSalesPerson = getattr(user, 'role', '').upper() == 'SALESPERSON'
+    context = {
+        'user': user,
+        'isSalesPerson': isSalesPerson
+    }
+    return render(request, 'screens/core/profile.html', context)
         
         
 #----------------------------------

@@ -1,9 +1,9 @@
 {%load static%}
 <!-- Header -->
-<div class="header">
-  <div class="main-header">
+<div class="header {% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' or '/employee/' in request.path %}salesperson-header{% endif %}" style="{% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' or '/employee/' in request.path %}left: 0 !important; width: 100% !important; margin: 0 !important;{% endif %}">
+  <div class="main-header" style="{% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' or '/employee/' in request.path %}max-width: 100% !important; width: 100% !important; padding: 0 24px !important; margin: 0 !important;{% endif %}">
     <!-- Logo -->
-    <div class="header-left active">
+    <div class="header-left active" style="{% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' or '/employee/' in request.path %}display: flex !important; align-items: center !important; width: auto !important; padding-left: 20px !important; background: transparent !important;{% endif %}">
       <a href="{% if user.role == 'salesperson' or isSalesPerson %}{% url 'employee-dashboard' %}{% else %}{% url 'admin-dashboard' %}{% endif %}" class="logo logo-normal">
         <img src="{%static  'assets/img/logo.svg' %}" alt="Img" />
       </a>
@@ -214,9 +214,10 @@
           <span class="user-info p-0">
             <span class="user-letter">
               <img
-                src="{%static  'assets/img/profiles/avator1.jpg' %}"
-                alt="Img"
-                class="img-fluid"
+                src="{% if request.user.photo %}{{ request.user.photo.url }}{% else %}{% static 'assets/img/profiles/avator1.jpg' %}{% endif %}"
+                alt="User"
+                class="img-fluid rounded-circle"
+                style="width: 36px; height: 36px; object-fit: cover;"
               />
             </span>
           </span>
@@ -225,8 +226,10 @@
           <div class="profileset d-flex align-items-center">
             <span class="user-img me-2">
               <img
-                src="{%static  'assets/img/profiles/avator1.jpg' %}"
-                alt="Img"
+                src="{% if request.user.photo %}{{ request.user.photo.url }}{% else %}{% static 'assets/img/profiles/avator1.jpg' %}{% endif %}"
+                alt="User"
+                class="rounded-circle"
+                style="width: 36px; height: 36px; object-fit: cover;"
               />
             </span>
             <div>
@@ -236,14 +239,14 @@
               <p style="font-size: 8px">{{request.user.role}}</p>
             </div>
           </div>
-          {% if not isSalesPerson %}
           <a class="dropdown-item" href="{% url 'profile' %}"
             ><i class="ti ti-user-circle me-2"></i>Profile</a
           >
+          {% if not isSalesPerson and request.user.role != 'SALESPERSON' and request.user.role != 'salesperson' %}
           <a class="dropdown-item" href="{% url 'sales-report' %}"
             ><i class="ti ti-file-text me-2"></i>Reports</a
           >
-          {%endif%}
+          {% endif %}
           <hr class="my-2" />
           <a class="dropdown-item logout pb-0" href="{%url 'logout' %}"
             ><i class="ti ti-logout me-2"></i>Logout</a
@@ -275,42 +278,8 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    {% if isSalesPerson %}
-    document.body.classList.add("menu-horizontal");
-    document.body.style = 'margin: 50px 20px;'
-
-    // Align header content with page containers
-    const mainHeader = document.querySelector('.header .main-header');
-    if (mainHeader) {
-      // Set responsive max-width based on viewport
-      function setHeaderWidth() {
-        const width = window.innerWidth;
-
-        if (width <= 991.96) {
-          mainHeader.style.maxWidth = '100%';
-        } else if (width <= 1199.96) {
-          mainHeader.style.maxWidth = '950px';
-        } else if (width <= 1398.98) {
-          mainHeader.style.maxWidth = '1170px';
-        } else {
-          mainHeader.style.maxWidth = '1320px';
-        }
-
-        mainHeader.style.margin = '0 auto';
-      }
-
-      // Set initial width
-      setHeaderWidth();
-
-      // Update on window resize
-      window.addEventListener('resize', setHeaderWidth);
-    }
-
-    // Reduce page-wrapper padding-top to 50px
-    const pageWrapper = document.querySelector('.page-wrapper');
-    if (pageWrapper) {
-      pageWrapper.style.paddingTop = '50px';
-    }
+    {% if isSalesPerson or user.role == 'SALESPERSON' or user.role == 'salesperson' %}
+    document.body.classList.add("menu-horizontal", "salesperson-view");
     {% endif %}
   });
 </script>

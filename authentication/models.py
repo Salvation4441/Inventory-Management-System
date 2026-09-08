@@ -31,11 +31,14 @@ class CustomUser(AbstractUser):
         return f"{self.username} ({self.get_role_display()})"
     
     
+def generate_reset_token():
+    return get_random_string(32)
+
 # reset password
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     email = models.EmailField()
-    token = models.CharField(max_length=32, default=get_random_string, editable=False, unique=True)
+    token = models.CharField(max_length=64, default=generate_reset_token, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     TOKEN_VALIDITY_PERIOD = timezone.timedelta(hours=1)
@@ -43,12 +46,16 @@ class PasswordResetRequest(models.Model):
     def is_valid(self):
         return timezone.now() <= self.created_at + self.TOKEN_VALIDITY_PERIOD
 
-    def send_reset_email(self):
-        reset_link = f"http://localhost:8000/authentication/reset-password/{self.token}/"
+    def send_reset_email(self, request=None):
+        if request:
+            reset_link = request.build_absolute_uri(f"/reset-password/{self.token}/")
+        else:
+            reset_link = f"http://127.0.0.1:8000/reset-password/{self.token}/"
         send_mail(
-            'Password Reset Request',
-            f'Click the following link to reset your password: {reset_link}',
+            'Password Reset Request - Dreams POS',
+            f'Hello,\n\nYou requested a password reset for your account. Click the link below to set a new password:\n{reset_link}\n\nThis link is valid for 1 hour.\nIf you did not make this request, you can safely ignore this email.',
             settings.DEFAULT_FROM_EMAIL,
             [self.email],
             fail_silently=False,
         )
+        return reset_link
