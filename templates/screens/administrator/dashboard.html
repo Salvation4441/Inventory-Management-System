@@ -344,7 +344,7 @@
 									</div>
 									<div class="top-customers-container" style="max-height: 140px; overflow-y: auto;">
 										{% for cust in top_customers|slice:":3" %}
-										<div class="d-flex align-items-center justify-content-between py-2 {% if not forloop.last %}border-bottom{% endif %}">
+										<div class="d-flex align-items-center justify-content-between py-2 pe-4 {% if not forloop.last %}border-bottom{% endif %}">
 											<div class="d-flex align-items-center">
 												<div class="avatar avatar-sm bg-soft-primary text-primary rounded-circle me-2 fw-bold fs-11 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; min-width: 32px;">
 													{{ cust.first_name|slice:":1"|upper }}{{ cust.last_name|slice:":1"|upper }}

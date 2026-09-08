@@ -16540,7 +16540,6 @@ div#global-loader .whirly-loader:not(:required) {
 }
 .sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover:after, .settings-sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover:after {
   background: #FE9F43;
-  border: 2px solid #FDB;
 }
 .sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover span, .sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover i, .settings-sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover span, .settings-sidebar .sidebar-menu > ul > li.submenu-open ul li a:hover i {
   color: #212B36;
