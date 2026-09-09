@@ -124,39 +124,26 @@
 
     <!-- Year Selector -->
     <div class="card mb-4">
-      <div class="card-body">
+      <div class="card-body py-3">
         <form method="GET" action="{% url 'annual-report' %}">
-          <div class="row row-gap-2 align-items-end">
-            <div class="col-md-3">
-              <div>
-                <label class="form-label">Select Year</label>
-                <div class="input-icon position-relative">
-                  <span class="input-icon-addon">
-                    <i class="ti ti-calendar text-gray-9"></i>
-                  </span>
-                  <select name="year" class="form-control" onchange="this.form.submit()">
-                    {% for year in available_years %}
-                      {% now "Y" as current_year %}
-                      {% if year|add:0 <= current_year|add:0 %}
-                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
-                      {% else %}
-                        <option value="{{ year }}" disabled style="color: #999;">{{ year }} (Future)</option>
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-                </div>
+          <div class="row align-items-center">
+            <div class="col-auto d-flex align-items-center gap-3">
+              <label class="form-label mb-0 fw-medium text-muted">Select Fiscal Year:</label>
+              <div class="input-icon position-relative" style="min-width: 160px;">
+                <span class="input-icon-addon" style="left: 10px; top: 50%; transform: translateY(-50%); z-index: 5;">
+                  <i class="ti ti-calendar text-primary"></i>
+                </span>
+                <select name="year" class="form-control" onchange="this.form.submit()" style="border-radius: 8px; border-color: #E5E7EB; cursor: pointer; padding-left: 40px; height: 40px;">
+                  {% for year in available_years %}
+                    {% now "Y" as current_year %}
+                    {% if year|add:0 <= current_year|add:0 %}
+                      <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                    {% else %}
+                      <option value="{{ year }}" disabled style="color: #999;">{{ year }} (Future)</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
               </div>
-            </div>
-            <div class="col-md-9 text-end">
-              <button type="submit" class="btn btn-primary">
-                <i class="ti ti-refresh me-1"></i>Update Report
-              </button>
-              <button type="button" class="btn btn-outline-primary ms-2" onclick="window.print()">
-                <i class="ti ti-printer me-1"></i>Print Report
-              </button>
-              <button type="button" class="btn btn-outline-success ms-2" onclick="exportToExcel()">
-                <i class="ti ti-file-spreadsheet me-1"></i>Export Excel
-              </button>
             </div>
           </div>
         </form>
@@ -165,8 +152,30 @@
 
     <!-- Monthly Performance Chart -->
     <div class="card mb-4">
-      <div class="card-header">
-        <h4 class="card-title">Monthly Performance Trends - {{ selected_year }}</h4>
+      <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+        <div>
+          <h4 class="card-title">Monthly Performance Trends - {{ selected_year }}</h4>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted me-2">Export:</span>
+          <ul class="table-top-head mb-0">
+            <li class="me-2">
+              <a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" onclick="window.print()">
+                <img src="{% static 'assets/img/icons/pdf.svg' %}" alt="PDF">
+              </a>
+            </li>
+            <li class="me-2">
+              <a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Export to Excel" onclick="exportToExcel()">
+                <img src="{% static 'assets/img/icons/excel.svg' %}" alt="Excel">
+              </a>
+            </li>
+            <li>
+              <a href="javascript:void(0);" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Report" onclick="window.print()">
+                <i class="ti ti-printer"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="card-body">
         <div id="monthly-performance-chart" style="height: 400px;"></div>
@@ -535,32 +544,66 @@ document.addEventListener('DOMContentLoaded', function() {
                     pan: false,
                     reset: false
                 }
+            },
+            fontFamily: 'inherit'
+        },
+        colors: ['#4F46E5', '#10B981'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'light',
+                type: "vertical",
+                shadeIntensity: 0.25,
+                gradientToColors: ['#A5B4FC', '#34D399'], 
+                inverseColors: false,
+                opacityFrom: 1,
+                opacityTo: 0.8,
+                stops: [0, 100]
             }
         },
-        colors: ['#3B82F6', '#10B981'],
+        plotOptions: {
+            bar: {
+                borderRadius: 6,
+                columnWidth: '50%',
+                dataLabels: {
+                    position: 'top',
+                },
+            }
+        },
         dataLabels: {
             enabled: false
         },
         stroke: {
-            width: [0, 4]
+            width: [0, 4],
+            curve: 'smooth'
         },
         title: {
             text: 'Revenue vs Profit Trend - {{ selected_year }}',
             align: 'left',
             style: {
-                fontSize: '16px',
+                fontSize: '18px',
                 fontWeight: 600,
-                color: '#333'
+                color: '#1F2937'
             }
         },
         xaxis: {
-            categories: [{% for month in monthly_data %}'{{ month.month_name }}'{% if not forloop.last %},{% endif %}{% endfor %}]
+            categories: [{% for month in monthly_data %}'{{ month.month_name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: {
+                style: {
+                    colors: '#6B7280',
+                    fontSize: '12px'
+                }
+            }
         },
         yaxis: [{
             title: {
-                text: 'Revenue (GHC)'
+                text: 'Revenue (GHC)',
+                style: { color: '#6B7280', fontWeight: 500 }
             },
             labels: {
+                style: { colors: '#6B7280' },
                 formatter: function (val) {
                     return 'GHC ' + val.toLocaleString();
                 }
@@ -568,17 +611,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }, {
             opposite: true,
             title: {
-                text: 'Profit (GHC)'
+                text: 'Profit (GHC)',
+                style: { color: '#6B7280', fontWeight: 500 }
             },
             labels: {
+                style: { colors: '#6B7280' },
                 formatter: function (val) {
                     return 'GHC ' + val.toLocaleString();
                 }
             }
         }],
+        grid: {
+            borderColor: '#E5E7EB',
+            strokeDashArray: 4,
+            xaxis: { lines: { show: false } },
+            yaxis: { lines: { show: true } }
+        },
         tooltip: {
             shared: true,
             intersect: false,
+            theme: 'light',
+            style: {
+                fontSize: '12px',
+                fontFamily: 'inherit'
+            },
             y: [{
                 formatter: function (y) {
                     if (typeof y !== "undefined") {
@@ -597,14 +653,21 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         legend: {
             position: 'top',
-            horizontalAlign: 'right'
+            horizontalAlign: 'right',
+            fontSize: '14px',
+            markers: {
+                radius: 12
+            },
+            itemMargin: {
+                horizontal: 10,
+                vertical: 5
+            }
         },
         grid: {
-            borderColor: '#e7e7e7',
-            row: {
-                colors: ['#f3f3f3', 'transparent'],
-                opacity: 0.5
-            }
+            borderColor: '#E5E7EB',
+            strokeDashArray: 4,
+            xaxis: { lines: { show: false } },
+            yaxis: { lines: { show: true } }
         }
     };
 
