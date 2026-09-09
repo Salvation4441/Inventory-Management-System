@@ -359,12 +359,7 @@
         }, 400);
       }
     } catch (err) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Camera Access Unavailable',
-        text: 'Camera access was denied or not available. You can also use the manual SKU/barcode input.',
-        confirmButtonColor: '#fe9f43'
-      });
+      alert("Camera access was denied or not available. You can also use the manual SKU/barcode input.");
     }
   }
 
@@ -394,13 +389,7 @@
       if (products && products.length > 0) {
         addProductToCart(products[0]);
       } else {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Product Not Found',
-          text: `Product with barcode/SKU "${code}" not found in inventory.`,
-          confirmButtonColor: '#fe9f43',
-          timer: 3000
-        });
+        alert(`Product with barcode/SKU "${code}" not found.`);
       }
     } catch (e) {
       console.error(e);
@@ -667,12 +656,7 @@
       e.preventDefault();
       const rows = document.querySelectorAll("#productTableBody tbody tr:not(#emptyCartRow)");
       if (rows.length === 0) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Cart is Empty',
-          text: 'Please add at least one product to the cart before completing the sale.',
-          confirmButtonColor: '#fe9f43'
-        });
+        alert("Please add at least one product to the cart before completing the sale.");
         return;
       }
 
@@ -695,22 +679,11 @@
             const modal = new bootstrap.Modal(document.getElementById("receipt-modal"));
             modal.show();
           } else {
-            Swal.fire({
-              icon: 'success',
-              title: 'Sale Completed!',
-              text: data.message || 'Sale completed successfully!',
-              confirmButtonColor: '#28c76f'
-            }).then(() => {
-              window.location.reload();
-            });
+            alert(data.message || "Sale completed successfully!");
+            window.location.reload();
           }
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Checkout Failed',
-            text: data.message || 'Error processing sale.',
-            confirmButtonColor: '#ea5455'
-          });
+          alert(data.message || "Error processing sale.");
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
         }
