@@ -652,7 +652,13 @@ if($('#customer-chart').length > 0 ){
         lineCap: 'round', // Rounded stroke ends
       },
       colors: ['#E04F16', '#0E9384'],
-      series: [70, 70],
+      series: (function() {
+        var el = document.querySelector("#customer-chart");
+        if (el && el.dataset.first && el.dataset.return) {
+          return [parseInt(el.dataset.first, 10), parseInt(el.dataset.return, 10)];
+        }
+        return [70, 70];
+      })(),
       labels: ['First Time', 'Return'],    
   }
   
