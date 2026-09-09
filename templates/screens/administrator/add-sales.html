@@ -78,7 +78,7 @@
       {% csrf_token %}
       <div class="row g-4">
         <!-- LEFT COLUMN: Customer + Product Finder -->
-        <div class="col-lg-7 col-12">
+        <div class="col-lg-5 col-12">
           <!-- Customer Selection Card -->
           <div class="card mb-4 pos-customer-card" style="position: relative; z-index: 1060;">
             <div class="card-header pb-2 d-flex align-items-center justify-content-between">
@@ -126,9 +126,9 @@
                     autocomplete="off"
                     autofocus
                   />
-                  <button type="button" id="addProductBtn" class="btn-add">
+                  <!-- <button type="button" id="addProductBtn" class="btn-add">
                     <i class="ti ti-plus"></i> Add
-                  </button>
+                  </button> -->
                 </div>
                 <!-- Product Autocomplete Results -->
                 <div
@@ -148,7 +148,7 @@
         </div>
 
         <!-- RIGHT COLUMN: Interactive Cart & Checkout -->
-        <div class="col-lg-5 col-12">
+        <div class="col-lg-7 col-12">
           <div class="card pos-cart-panel mb-4 shadow-sm">
             <div class="card-header pb-2 d-flex align-items-center justify-content-between">
               <h5 class="card-title mb-0 fs-16 fw-bold d-flex align-items-center">
