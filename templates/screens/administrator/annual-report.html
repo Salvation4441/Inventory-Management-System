@@ -130,9 +130,6 @@
             <div class="col-auto d-flex align-items-center gap-3">
               <label class="form-label mb-0 fw-medium text-muted">Select Fiscal Year:</label>
               <div class="input-icon position-relative" style="min-width: 160px;">
-                <span class="input-icon-addon" style="left: 10px; top: 50%; transform: translateY(-50%); z-index: 5;">
-                  <i class="ti ti-calendar text-primary"></i>
-                </span>
                 <select name="year" class="form-control" onchange="this.form.submit()" style="border-radius: 8px; border-color: #E5E7EB; cursor: pointer; padding-left: 40px; height: 40px;">
                   {% for year in available_years %}
                     {% now "Y" as current_year %}
