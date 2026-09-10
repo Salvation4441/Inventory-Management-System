@@ -420,7 +420,21 @@
     document.getElementById("cartCountBadge").textContent = `${totalItems} Items`;
     document.getElementById("itemCountText").textContent = `${totalItems} items in order`;
 
-    const emptyRow = document.getElementById("emptyCartRow");
+    let emptyRow = document.getElementById("emptyCartRow");
+    if (!emptyRow) {
+      const tbody = document.querySelector("#productTableBody tbody");
+      if (tbody) {
+        emptyRow = document.createElement("tr");
+        emptyRow.id = "emptyCartRow";
+        emptyRow.innerHTML = `
+          <td colspan="5" class="text-center py-5 text-muted">
+            <i class="ti ti-shopping-cart-x fs-36 d-block mb-2 text-stone-300"></i>
+            <span class="fs-14">No items in cart yet. Search or scan a product to add.</span>
+          </td>
+        `;
+        tbody.appendChild(emptyRow);
+      }
+    }
     if (emptyRow) {
       emptyRow.style.display = rows.length === 0 ? "" : "none";
     }
@@ -642,8 +656,11 @@
     });
 
     row.querySelector(".removeBtn").addEventListener("click", () => {
-      row.remove();
-      updateTotals();
+      row.classList.add("pos-cart-row-exit");
+      setTimeout(() => {
+        row.remove();
+        updateTotals();
+      }, 250);
     });
   }
 
@@ -821,7 +838,16 @@
       e.preventDefault();
       const rows = document.querySelectorAll("#productTableBody tbody tr:not(#emptyCartRow)");
       if (rows.length === 0) {
-        alert("Please add at least one product to the cart before completing the sale.");
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Empty Cart',
+            text: 'Please add at least one product to the cart before completing the sale.',
+            confirmButtonColor: '#fe9f43'
+          });
+        } else {
+          alert("Please add at least one product to the cart before completing the sale.");
+        }
         return;
       }
 
@@ -850,62 +876,158 @@
 
         const data = await response.json();
         if (data.success) {
-          if (data.receipt_html) {
-            document.getElementById("receipt-content").innerHTML = data.receipt_html;
-            const modal = new bootstrap.Modal(document.getElementById("receipt-modal"));
-            modal.show();
-            window.resetPosCartAnimated();
+          // 1. Immediately reset cart smoothly so emptyCartRow is restored
+          window.resetPosCartAnimated();
+
+          // 2. Alert & Feedback presentation
+          const successMsg = data.message || "Sale completed successfully!";
+
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Sale Completed!',
+              text: successMsg,
+              confirmButtonColor: '#fe9f43',
+              confirmButtonText: data.receipt_html ? '<i class="ti ti-printer me-1"></i> View Receipt' : 'OK',
+              showCancelButton: Boolean(data.receipt_html),
+              cancelButtonText: 'Done',
+              customClass: {
+                confirmButton: 'btn btn-primary px-4 py-2 me-2',
+                cancelButton: 'btn btn-outline-secondary px-4 py-2'
+              }
+            }).then((result) => {
+              if (result.isConfirmed && data.receipt_html) {
+                document.getElementById("receipt-content").innerHTML = data.receipt_html;
+                const modal = new bootstrap.Modal(document.getElementById("receipt-modal"));
+                modal.show();
+              }
+            });
           } else {
-            if (typeof window.showMotionToast === 'function') {
-              window.showMotionToast(data.message || "Sale completed successfully!", "success", 3000);
-            } else {
-              alert(data.message || "Sale completed successfully!");
+            alert(successMsg);
+            if (data.receipt_html) {
+              document.getElementById("receipt-content").innerHTML = data.receipt_html;
+              const modal = new bootstrap.Modal(document.getElementById("receipt-modal"));
+              modal.show();
             }
-            window.resetPosCartAnimated();
+          }
+
+          if (typeof window.showMotionToast === 'function') {
+            window.showMotionToast(successMsg, "success", 4000);
           }
         } else {
-          if (typeof window.showMotionToast === 'function') {
-            window.showMotionToast(data.message || "Error processing sale.", "danger", 3500);
+          const errorMsg = data.message || "Error processing sale.";
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'error',
+              title: 'Checkout Failed',
+              text: errorMsg,
+              confirmButtonColor: '#fe9f43'
+            });
           } else {
-            alert(data.message || "Error processing sale.");
+            alert(errorMsg);
+          }
+          if (typeof window.showMotionToast === 'function') {
+            window.showMotionToast(errorMsg, "danger", 3500);
           }
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
         }
       } catch (err) {
-        // Fallback standard submit
-        salesForm.submit();
+        console.error("POS Sale Error:", err);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error Processing Sale',
+            text: 'An unexpected network error occurred. Please try again.',
+            confirmButtonColor: '#fe9f43'
+          });
+        } else {
+          alert("An error occurred while completing the sale. Please try again.");
+        }
       }
     });
 
-    // Staggered Cart Reset with Smooth Sliding Animation
+    // Staggered Cart Reset with Smooth Sliding Animation & Guaranteed Empty State Restore
     window.resetPosCartAnimated = function () {
-      const rows = document.querySelectorAll("#productTableBody tbody tr:not(#emptyCartRow)");
+      const tbody = document.querySelector("#productTableBody tbody");
+      const rows = Array.from(document.querySelectorAll("#productTableBody tbody tr:not(#emptyCartRow)"));
+
+      // Function to guarantee #emptyCartRow exists and is 100% visible
+      function restoreEmptyCartRow() {
+        let emptyRow = document.getElementById("emptyCartRow");
+        if (!emptyRow && tbody) {
+          emptyRow = document.createElement("tr");
+          emptyRow.id = "emptyCartRow";
+          emptyRow.innerHTML = `
+            <td colspan="5" class="text-center py-5 text-muted">
+              <i class="ti ti-shopping-cart-x fs-36 d-block mb-2 text-stone-300"></i>
+              <span class="fs-14">No items in cart yet. Search or scan a product to add.</span>
+            </td>
+          `;
+          tbody.appendChild(emptyRow);
+        }
+        if (emptyRow) {
+          emptyRow.style.removeProperty("display");
+          emptyRow.style.display = "";
+        }
+      }
+
+      // Reset form controls & UI counters
+      const custSearch = document.getElementById("customerSearch");
+      if (custSearch) custSearch.value = "";
+      const custId = document.getElementById("customerId");
+      if (custId) custId.value = "";
+      const custBadge = document.getElementById("customerBadge");
+      if (custBadge) custBadge.textContent = "Walk-in Customer";
+
+      const barcodeInput = document.getElementById("manualBarcodeInput");
+      if (barcodeInput) barcodeInput.value = "";
+      const prodSearch = document.getElementById("productSearch");
+      if (prodSearch) prodSearch.value = "";
+
+      // Reset payment mode to Cash
+      const payCashInput = document.querySelector("#payCash input[type='radio']");
+      if (payCashInput) payCashInput.checked = true;
+      document.querySelectorAll(".payment-method-pill").forEach(p => p.classList.remove("active"));
+      const payCashPill = document.getElementById("payCash");
+      if (payCashPill) payCashPill.classList.add("active");
+
+      // Reset submit button state
+      const submitBtn = document.getElementById("submitBtn");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
+      }
+
+      // Reset order summary labels
+      const grandTotalEl = document.getElementById("grandTotal");
+      if (grandTotalEl) grandTotalEl.textContent = "GH 0.00";
+      const cartCountBadge = document.getElementById("cartCountBadge");
+      if (cartCountBadge) cartCountBadge.textContent = "0 Items";
+      const itemCountText = document.getElementById("itemCountText");
+      if (itemCountText) itemCountText.textContent = "0 items in order";
+
+      if (rows.length === 0) {
+        restoreEmptyCartRow();
+        return;
+      }
+
+      // Staggered slide-out animation on exiting rows
       rows.forEach((row, index) => {
         setTimeout(() => {
           row.classList.add("pos-cart-row-exit");
-          setTimeout(() => row.remove(), 280);
-        }, index * 40);
+        }, index * 30);
       });
 
+      // Once all animations finish, remove DOM nodes cleanly and reveal emptyCartRow
+      const exitDelay = rows.length * 30 + 260;
       setTimeout(() => {
-        const emptyRow = document.getElementById("emptyCartRow");
-        if (emptyRow) emptyRow.style.display = "";
+        rows.forEach(r => r.remove());
+        restoreEmptyCartRow();
         updateTotals();
-
-        const custSelect = document.getElementById("customerSelect");
-        if (custSelect) custSelect.selectedIndex = 0;
-        const barcodeInput = document.getElementById("manualBarcodeInput");
-        if (barcodeInput) barcodeInput.value = "";
-        const searchInput = document.getElementById("productSearchInput");
-        if (searchInput) searchInput.value = "";
-
-        const submitBtn = document.getElementById("submitBtn");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
-        }
-      }, Math.max(rows.length * 40 + 150, 300));
+      }, exitDelay);
     };
 
     // Glassmorphic POS A4 Theme Switcher

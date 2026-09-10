@@ -1750,11 +1750,41 @@ def addSales(request):
             
             # Check if this is an AJAX request
             if is_ajax:
+                receipt_html = None
+                try:
+                    receipt_items = SalesItem.objects.filter(sale=sale).select_related('product')
+                    receipt_subtotal = sale.total_amount
+                    receipt_tax_rate = 0.0
+                    receipt_tax_amount = receipt_subtotal * (receipt_tax_rate / 100)
+                    receipt_total_amount = receipt_subtotal + receipt_tax_amount
+                    company_info = {
+                        'name': 'DreamsPOS',
+                        'address': 'Your Business Address',
+                        'phone': '+233 XX XXX XXXX',
+                        'email': 'info@dreamspos.com',
+                        'website': 'www.dreamspos.com'
+                    }
+                    receipt_context = {
+                        'sale': sale,
+                        'items': receipt_items,
+                        'subtotal': receipt_subtotal,
+                        'tax_rate': receipt_tax_rate,
+                        'tax_amount': receipt_tax_amount,
+                        'total_amount': receipt_total_amount,
+                        'company_info': company_info,
+                        'isSalesPerson': getattr(request.user, 'role', '').upper() == 'SALESPERSON',
+                    }
+                    from django.template.loader import render_to_string
+                    receipt_html = render_to_string('screens/administrator/receipt-content.html', receipt_context, request=request)
+                except Exception as receipt_err:
+                    print(f"Error rendering receipt_html in addSales: {receipt_err}")
+
                 return JsonResponse({
                     'success': True,
                     'message': f"Sale added successfully! Created sale #{sale.reference} with {created_items_count} items.",
                     'sale_id': sale.id,
-                    'sale_reference': sale.reference
+                    'sale_reference': sale.reference,
+                    'receipt_html': receipt_html
                 })
             
             return redirect('sale-receipt', sale_id=sale.id)
