@@ -248,7 +248,7 @@
               <!-- SECTION: COST OF GOODS SOLD -->
               <tr class="table-secondary bg-opacity-25">
                 <td colspan="{{ monthly_count|add:2 }}" class="ps-4 py-2 fw-bold text-dark fs-13">
-                  <i class="ti ti-shopping-cart-discount text-danger me-2"></i>2. COST OF GOODS SOLD (COGS)
+                  <bdi><i class="ti ti-shopping-cart-discount text-danger me-2" style="display: inline-block; unicode-bidi: isolate;"></i></bdi>2. COST OF GOODS SOLD (COGS)
                 </td>
               </tr>
               <tr>
@@ -262,7 +262,7 @@
               <!-- SECTION: GROSS PROFIT -->
               <tr class="table-primary bg-opacity-10" style="background: rgba(254, 159, 67, 0.06);">
                 <td class="ps-4 py-3 fw-bold text-dark fs-14">
-                  <i class="ti ti-calculator text-primary me-2"></i>GROSS PROFIT (Revenue − COGS)
+                  <i class="ti ti-calculator text-primary me-2"></i>GROSS PROFIT (Revenue - COGS)
                 </td>
                 {% for month in monthly_data %}
                 <td class="text-end fw-bold py-3 {% if month.gross_profit >= 0 %}text-success{% else %}text-danger{% endif %} fs-13">

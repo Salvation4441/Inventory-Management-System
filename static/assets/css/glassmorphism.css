@@ -43,6 +43,12 @@ p, span, label, input, button, select, textarea, table, td, th {
   font-family: var(--font-roboto) !important;
 }
 
+/* Icon BiDi Isolation - Prevents Arabic Unicode range icons from reordering adjacent numbers/text */
+.ti, [class^="ti-"], [class*=" ti-"] {
+  display: inline-block;
+  unicode-bidi: isolate;
+}
+
 .page-title h4 {
   color: #0f172a !important;
   font-weight: 800 !important;
