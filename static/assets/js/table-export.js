@@ -87,8 +87,8 @@
     return null;
   }
 
-  // Extract Clean Table Data (Headers + Rows)
-  function extractTableData(tableElement) {
+  // Extract Clean Table Data (Headers + Rows, with optional onlySelected filter)
+  function extractTableData(tableElement, onlySelected = false) {
     if (!tableElement || !tableElement.length) return null;
 
     const $table = $(tableElement);
@@ -124,8 +124,15 @@
       const dtRows = dt.rows({ search: 'applied' }).nodes();
 
       $(dtRows).each(function () {
+        const $tr = $(this);
+        // If onlySelected is requested, check if row has checked checkbox or .selected-row
+        if (onlySelected) {
+          const isRowSelected = $tr.find('input[type="checkbox"]:checked').length > 0 || $tr.hasClass('selected-row');
+          if (!isRowSelected) return;
+        }
+
         const rowData = [];
-        const $cells = $(this).find('td');
+        const $cells = $tr.find('td');
 
         colIndices.forEach(function (colIdx) {
           const $cell = $cells.eq(colIdx);
@@ -151,11 +158,17 @@
     } else {
       // Standard HTML table
       $table.find('tbody tr').each(function () {
+        const $tr = $(this);
         // Skip empty table placeholder row
-        if ($(this).find('td.dataTables_empty').length) return;
+        if ($tr.find('td.dataTables_empty').length) return;
+
+        if (onlySelected) {
+          const isRowSelected = $tr.find('input[type="checkbox"]:checked').length > 0 || $tr.hasClass('selected-row');
+          if (!isRowSelected) return;
+        }
 
         const rowData = [];
-        const $cells = $(this).find('td');
+        const $cells = $tr.find('td');
 
         colIndices.forEach(function (colIdx) {
           const $cell = $cells.eq(colIdx);
@@ -182,7 +195,7 @@
   }
 
   // Export to Excel (.xlsx)
-  window.exportTableToExcel = function (triggerElement, customTitle) {
+  window.exportTableToExcel = function (triggerElement, customTitle, onlySelected = false) {
     try {
       const $table = findTargetTable(triggerElement);
       if (!$table || !$table.length) {
@@ -190,13 +203,13 @@
         return;
       }
 
-      const tableData = extractTableData($table);
+      const tableData = extractTableData($table, onlySelected);
       if (!tableData || !tableData.headers.length || !tableData.rows.length) {
-        showExportToast('No records available to export.', 'info');
+        showExportToast(onlySelected ? 'No selected rows found to export.' : 'No records available to export.', 'info');
         return;
       }
 
-      const title = customTitle || getPageTitle($(triggerElement).closest('.modal, .content, .page-wrapper'));
+      const title = (customTitle || getPageTitle($(triggerElement).closest('.modal, .content, .page-wrapper'))) + (onlySelected ? ' (Selected)' : '');
       const dateStr = getFormattedDate();
       const fileName = `${title.replace(/\s+/g, '_')}_${dateStr}`;
 
@@ -232,7 +245,7 @@
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
       XLSX.writeFile(wb, `${fileName}.xlsx`);
-      showExportToast(`Successfully exported ${tableData.rows.length} records to Excel!`, 'success');
+      showExportToast(`Successfully exported ${tableData.rows.length} ${onlySelected ? 'selected ' : ''}records to Excel!`, 'success');
     } catch (err) {
       console.error('Error exporting to Excel:', err);
       showExportToast('Error exporting to Excel. Please check console.', 'info');
@@ -240,7 +253,7 @@
   };
 
   // Export to PDF (.pdf)
-  window.exportTableToPDF = function (triggerElement, customTitle) {
+  window.exportTableToPDF = function (triggerElement, customTitle, onlySelected = false) {
     try {
       const $table = findTargetTable(triggerElement);
       if (!$table || !$table.length) {
@@ -248,13 +261,13 @@
         return;
       }
 
-      const tableData = extractTableData($table);
+      const tableData = extractTableData($table, onlySelected);
       if (!tableData || !tableData.headers.length || !tableData.rows.length) {
-        showExportToast('No records available to export.', 'info');
+        showExportToast(onlySelected ? 'No selected rows found to export.' : 'No records available to export.', 'info');
         return;
       }
 
-      const title = customTitle || getPageTitle($(triggerElement).closest('.modal, .content, .page-wrapper'));
+      const title = (customTitle || getPageTitle($(triggerElement).closest('.modal, .content, .page-wrapper'))) + (onlySelected ? ' (Selected)' : '');
       const dateStr = getFormattedDate();
       const fileName = `${title.replace(/\s+/g, '_')}_${dateStr}`;
 
@@ -329,7 +342,7 @@
         });
 
         doc.save(`${fileName}.pdf`);
-        showExportToast(`Successfully exported ${tableData.rows.length} records to PDF!`, 'success');
+        showExportToast(`Successfully exported ${tableData.rows.length} ${onlySelected ? 'selected ' : ''}records to PDF!`, 'success');
       } else {
         console.error('jsPDF AutoTable plugin not available.');
         showExportToast('PDF AutoTable plugin not loaded.', 'info');
@@ -337,6 +350,68 @@
     } catch (err) {
       console.error('Error exporting to PDF:', err);
       showExportToast('Error exporting to PDF. Please check console.', 'info');
+    }
+  };
+
+  // Print Only Selected Rows
+  window.printSelectedRows = function (triggerElement) {
+    try {
+      const $table = findTargetTable(triggerElement);
+      if (!$table || !$table.length) {
+        showExportToast('No data table found.', 'info');
+        return;
+      }
+
+      const tableData = extractTableData($table, true);
+      if (!tableData || !tableData.headers.length || !tableData.rows.length) {
+        showExportToast('No selected rows found to print.', 'info');
+        return;
+      }
+
+      const title = getPageTitle($(triggerElement).closest('.modal, .content, .page-wrapper')) + ' (Selected Items)';
+      const printWindow = window.open('', '_blank');
+      const theadHtml = `<tr>${tableData.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+      const tbodyHtml = tableData.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${title}</title>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 25px; }
+            h3 { color: #fe9f43; margin-bottom: 5px; font-weight: 700; }
+            .meta-bar { font-size: 12px; color: #64748b; margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+            table { font-size: 12px; width: 100%; border-collapse: collapse; }
+            th { background: #1e293b !important; color: #fff !important; padding: 8px 10px; }
+            td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+            @media print { @page { size: auto; margin: 15mm; } body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <h3>${title}</h3>
+          <div class="meta-bar">
+            <span>Dreams POS System</span> &bull; 
+            <span>Printed on: ${new Date().toLocaleString()}</span> &bull; 
+            <span>Total Selected: ${tableData.rows.length}</span>
+          </div>
+          <table class="table table-bordered table-striped">
+            <thead>${theadHtml}</thead>
+            <tbody>${tbodyHtml}</tbody>
+          </table>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }, 350);
+    } catch (err) {
+      console.error('Error printing selected rows:', err);
+      window.print();
     }
   };
 

@@ -99,15 +99,15 @@
                         alt="user"
                       />
                     </a>
-                    <a href="javascript:void(0);"
-                      >{{ customer.first_name }} {{ customer.last_name}}</a
-                    >
+                    <a href="javascript:void(0);">
+                      {% if customer.first_name and customer.first_name != 'None' %}{{ customer.first_name }}{% endif %}{% if customer.last_name and customer.last_name != 'None' %} {{ customer.last_name }}{% endif %}{% if not customer.first_name or customer.first_name == 'None' %}{% if not customer.last_name or customer.last_name == 'None' %}Customer #{{ customer.id }}{% endif %}{% endif %}
+                    </a>
                   </div>
                 </td>
-                <td>{{ customer.gender }}</td>
-                <td>{{ customer.email }}</td>
-                <td>{{ customer.phone }}</td>
-                <td>{{ customer.address }}</td>
+                <td>{% if customer.gender and customer.gender != 'None' and customer.gender != 'none' %}{{ customer.gender }}{% else %}-{% endif %}</td>
+                <td>{% if customer.email and customer.email != 'None' and customer.email != 'none' %}{{ customer.email }}{% else %}-{% endif %}</td>
+                <td>{% if customer.phone and customer.phone != 'None' and customer.phone != 'none' %}{{ customer.phone }}{% else %}-{% endif %}</td>
+                <td>{% if customer.address and customer.address != 'None' and customer.address != 'none' %}{{ customer.address }}{% else %}-{% endif %}</td>
                 <td>
                   <span
                     class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"

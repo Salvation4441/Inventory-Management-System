@@ -2274,6 +2274,211 @@ button.btn-outline-primary:hover {
   to { width: 0%; }
 }
 
+/* 7. Unresolved Image Guard: Completely hides any image that does not resolve */
+img[data-img-unresolved="true"],
+img.img-unresolved {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 8. Modern Table Checkboxes & Indeterminate State */
+.checkboxs input:indeterminate ~ .checkmarks {
+  background-color: #fe9f43 !important;
+  border-color: #fe9f43 !important;
+}
+
+.checkboxs input:indeterminate ~ .checkmarks:after {
+  content: "" !important;
+  position: absolute !important;
+  display: block !important;
+  left: 3px !important;
+  top: 7px !important;
+  width: 10px !important;
+  height: 2px !important;
+  border: none !important;
+  background-color: #ffffff !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+
+/* Table Row Active / Selected State */
+tr.selected-row,
+tr.selected-row > td {
+  background-color: rgba(254, 159, 67, 0.08) !important;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-theme="dark"] tr.selected-row,
+[data-theme="dark"] tr.selected-row > td {
+  background-color: rgba(254, 159, 67, 0.16) !important;
+}
+
+/* Floating Table Bulk Action Bar */
+.table-bulk-actions-bar {
+  position: fixed !important;
+  bottom: 28px !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(140%) !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  border-radius: 60px !important;
+  padding: 8px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  z-index: 10999 !important;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  max-width: 95vw !important;
+}
+
+.table-bulk-actions-bar.show {
+  transform: translateX(-50%) translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Selected Count Pill */
+.table-bulk-actions-bar .bulk-count-pill,
+.table-bulk-actions-bar #bulk-selected-count {
+  background: rgba(254, 159, 67, 0.22) !important;
+  color: #fe9f43 !important;
+  border: 1px solid rgba(254, 159, 67, 0.5) !important;
+  border-radius: 30px !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1.2 !important;
+}
+
+/* Generic Action Button in Bar */
+.table-bulk-actions-bar .bulk-btn,
+.table-bulk-actions-bar .btn {
+  border-radius: 30px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  padding: 7px 15px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  border: none !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+}
+
+.table-bulk-actions-bar .bulk-btn:hover,
+.table-bulk-actions-bar .btn:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Clear Button: High-contrast white text & crisp semi-transparent white background */
+.table-bulk-actions-bar .bulk-btn-clear,
+.table-bulk-actions-bar #bulk-deselect-btn {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+.table-bulk-actions-bar .bulk-btn-clear:hover,
+.table-bulk-actions-bar #bulk-deselect-btn:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+.table-bulk-actions-bar .bulk-btn-clear i,
+.table-bulk-actions-bar #bulk-deselect-btn i,
+.table-bulk-actions-bar .bulk-btn-clear span,
+.table-bulk-actions-bar #bulk-deselect-btn span {
+  color: #ffffff !important;
+}
+
+/* Excel Export Button */
+.table-bulk-actions-bar .bulk-btn-excel,
+.table-bulk-actions-bar #bulk-excel-btn {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border: 1px solid #059669 !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+}
+.table-bulk-actions-bar .bulk-btn-excel:hover,
+.table-bulk-actions-bar #bulk-excel-btn:hover {
+  background: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.55) !important;
+}
+
+/* PDF Export Button */
+.table-bulk-actions-bar .bulk-btn-pdf,
+.table-bulk-actions-bar #bulk-pdf-btn {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4) !important;
+}
+.table-bulk-actions-bar .bulk-btn-pdf:hover,
+.table-bulk-actions-bar #bulk-pdf-btn:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.55) !important;
+}
+
+/* Print Button */
+.table-bulk-actions-bar .bulk-btn-print,
+.table-bulk-actions-bar #bulk-print-btn {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4) !important;
+}
+.table-bulk-actions-bar .bulk-btn-print:hover,
+.table-bulk-actions-bar #bulk-print-btn:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.55) !important;
+}
+
+/* Close Icon Button */
+.table-bulk-actions-bar .bulk-btn-close,
+.table-bulk-actions-bar #bulk-close-btn {
+  background: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  margin-left: 2px !important;
+}
+.table-bulk-actions-bar .bulk-btn-close:hover,
+.table-bulk-actions-bar #bulk-close-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+.table-bulk-actions-bar .bulk-btn-close i,
+.table-bulk-actions-bar #bulk-close-btn i {
+  color: inherit !important;
+}
+
+
+
 
 
 

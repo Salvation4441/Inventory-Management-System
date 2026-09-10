@@ -710,54 +710,8 @@ $(document).ready(function(){
 		$(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
 	});
 
-		
-	var selectAllItems = "#select-all";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
-
-	var selectAllItems = "#select-all2";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
-
-	var selectAllItems = ".select-all";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
+	// Table Checkboxes are professionally managed with scoped table selection,
+	// indeterminate state, shift+click range, and bulk actions in ui-motion.js.
 		
 	// Tooltip
 	if($('[data-bs-toggle="tooltip"]').length > 0) {
@@ -807,7 +761,7 @@ $(document).ready(function(){
 		if (currentTheme) {
 			app.setAttribute('data-theme', currentTheme);
 		  
-			if (currentTheme === 'dark') {
+			if (currentTheme === 'dark' && toggleSwitch) {
 				toggleSwitch.checked = true;
 			}
 		}
@@ -823,7 +777,9 @@ $(document).ready(function(){
 			}    
 		}
 
-		toggleSwitch.addEventListener('change', switchTheme, false);	
+		if (toggleSwitch) {
+			toggleSwitch.addEventListener('change', switchTheme, false);
+		}
 	}
 	
 	if(window.location.hash == "#LightMode"){

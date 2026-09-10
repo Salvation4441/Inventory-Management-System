@@ -5,6 +5,16 @@
 
 <head>
 
+	<!-- Early Image Resolution Guard: Hides any image that fails to resolve before rendering broken placeholders -->
+	<script>
+		window.addEventListener('error', function (e) {
+			if (e.target && e.target.tagName === 'IMG') {
+				e.target.style.display = 'none';
+				e.target.setAttribute('data-img-unresolved', 'true');
+			}
+		}, true);
+	</script>
+
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -243,6 +253,26 @@
 
 	<!-- Global Glassmorphic Toast Container -->
 	<div id="glass-toast-container" class="glass-toast-container"></div>
+
+	<!-- Global Floating Table Bulk Action Bar -->
+	<div id="table-bulk-actions" class="table-bulk-actions-bar" style="display: none;">
+		<span class="bulk-count-pill" id="bulk-selected-count">0 Selected</span>
+		<button type="button" class="bulk-btn bulk-btn-clear" id="bulk-deselect-btn">
+			<i class="ti ti-x fs-14"></i> <span>Clear</span>
+		</button>
+		<button type="button" class="bulk-btn bulk-btn-excel" id="bulk-excel-btn">
+			<i class="ti ti-file-spreadsheet fs-14"></i> <span>Export Excel</span>
+		</button>
+		<button type="button" class="bulk-btn bulk-btn-pdf" id="bulk-pdf-btn">
+			<i class="ti ti-file-text fs-14"></i> <span>Export PDF</span>
+		</button>
+		<button type="button" class="bulk-btn bulk-btn-print" id="bulk-print-btn">
+			<i class="ti ti-printer fs-14"></i> <span>Print</span>
+		</button>
+		<button type="button" class="bulk-btn-close" id="bulk-close-btn" title="Dismiss" aria-label="Close">
+			<i class="ti ti-x fs-16"></i>
+		</button>
+	</div>
 
 	<!-- SweetAlert2 Core & Global Modern Alert Bridge -->
 	<script src="{% static 'assets/plugins/sweetalert/sweetalert2.all.min.js' %}"></script>

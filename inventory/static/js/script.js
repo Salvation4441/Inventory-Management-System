@@ -710,54 +710,8 @@ $(document).ready(function(){
 		$(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
 	});
 
-		
-	var selectAllItems = "#select-all";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
-
-	var selectAllItems = "#select-all2";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
-
-	var selectAllItems = ".select-all";
-	var checkboxItem = ":checkbox";
-	$(selectAllItems).on('click', function(){
-		
-		if (this.checked) {
-		$(checkboxItem).each(function() {
-			this.checked = true;
-		});
-		} else {
-		$(checkboxItem).each(function() {
-			this.checked = false;
-		});
-		}
-		
-	});
+	// Table Checkboxes are professionally managed with scoped table selection,
+	// indeterminate state, shift+click range, and bulk actions in ui-motion.js.
 		
 	// Tooltip
 	if($('[data-bs-toggle="tooltip"]').length > 0) {
@@ -807,7 +761,7 @@ $(document).ready(function(){
 		if (currentTheme) {
 			app.setAttribute('data-theme', currentTheme);
 		  
-			if (currentTheme === 'dark') {
+			if (currentTheme === 'dark' && toggleSwitch) {
 				toggleSwitch.checked = true;
 			}
 		}
@@ -823,7 +777,9 @@ $(document).ready(function(){
 			}    
 		}
 
-		toggleSwitch.addEventListener('change', switchTheme, false);	
+		if (toggleSwitch) {
+			toggleSwitch.addEventListener('change', switchTheme, false);
+		}
 	}
 	
 	if(window.location.hash == "#LightMode"){
@@ -1178,12 +1134,23 @@ function toggleFullscreen(elem) {
 
 $(document).ready(function(){
 	
-	if($('#collapse-header').length > 0) {
-		document.getElementById('collapse-header').onclick = function() {
-		    this.classList.toggle('active');
-		    document.body.classList.toggle('header-collapse');
+	$(document).off('click', '#collapse-header').on('click', '#collapse-header', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).toggleClass('active');
+		$('body').toggleClass('header-collapse');
+
+		const isCollapsed = $('body').hasClass('header-collapse');
+		const newTitle = isCollapsed ? 'Expand' : 'Collapse';
+		$(this).attr('data-bs-original-title', newTitle).attr('title', newTitle);
+
+		if (window.bootstrap && bootstrap.Tooltip) {
+			const tip = bootstrap.Tooltip.getInstance(this);
+			if (tip) {
+				tip.hide();
+			}
 		}
-	}
+	});
 
 	if($('#file-delete').length > 0) {
 		$("#file-delete").on("click", function () {

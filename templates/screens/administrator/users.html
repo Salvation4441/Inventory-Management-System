@@ -75,8 +75,8 @@
 													<a href="javascript:void(0);">{{ user.get_full_name|default:user.username }}</a>
 												</div>
 											</td>
-											<td>{{ user.phone }}</td>
-											<td>{{ user.email }}</td>
+											<td>{% if user.phone and user.phone != 'None' %}{{ user.phone }}{% else %}-{% endif %}</td>
+											<td>{% if user.email and user.email != 'None' %}{{ user.email }}{% else %}-{% endif %}</td>
 											<td>{{ user.role|title }}</td>
 											<td>
 												<span class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white fs-10 {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
