@@ -56,7 +56,7 @@
             </a>
           </li>
           <li>
-            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="location.reload()">
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="refreshPlReport(this)">
               <i class="ti ti-refresh"></i>
             </a>
           </li>
@@ -211,7 +211,7 @@
         </h5>
         <div class="d-flex align-items-center gap-2">
           <span class="badge badge-soft-primary px-3 py-1 fw-bold fs-12">{{ monthly_count }} Months Period</span>
-          <button class="btn btn-sm btn-light border" onclick="location.reload()" title="Refresh Data">
+          <button class="btn btn-sm btn-light border" onclick="refreshPlReport(this)" title="Refresh Data">
             <i class="ti ti-refresh text-muted"></i>
           </button>
         </div>
@@ -405,7 +405,82 @@
     const url = new URL(window.location.href);
     url.searchParams.set("start_date", startDate);
     url.searchParams.set("end_date", endDate);
-    window.location.href = url.toString();
+    url.searchParams.set("ajax", "1");
+
+    // Animate KPI widgets
+    $('.revenue-widget').addClass('morph-pulse');
+
+    fetch(url.toString(), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // Update URL in browser history without reloading
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.set("start_date", startDate);
+        cleanUrl.searchParams.set("end_date", endDate);
+        window.history.pushState({}, '', cleanUrl.toString());
+
+        // Update KPI card text values
+        const widgets = document.querySelectorAll('.revenue-widget');
+        if (widgets[0]) {
+          const h4 = widgets[0].querySelector('h4');
+          if (h4) h4.textContent = data.total_revenue;
+        }
+        if (widgets[1]) {
+          const h4 = widgets[1].querySelector('h4');
+          if (h4) h4.textContent = data.total_cogs;
+        }
+        if (widgets[2]) {
+          const h4 = widgets[2].querySelector('h4');
+          if (h4) h4.textContent = data.total_gross_profit;
+        }
+        if (widgets[3]) {
+          const h4 = widgets[3].querySelector('h4');
+          if (h4) h4.textContent = data.total_net_profit;
+        }
+
+        // Update period badge
+        const badge = document.querySelector('.card-header .badge-soft-primary');
+        if (badge) badge.textContent = data.monthly_count;
+
+        if (typeof window.showMotionToast === 'function') {
+          window.showMotionToast('Report updated for ' + data.date_range, 'success', 2500);
+        }
+      }
+    })
+    .catch(err => {
+      window.location.href = url.toString().replace('&ajax=1', '');
+    })
+    .finally(() => {
+      setTimeout(() => {
+        $('.revenue-widget').removeClass('morph-pulse');
+      }, 450);
+    });
+  }
+
+  function refreshPlReport(triggerBtn) {
+    const $icon = $(triggerBtn).find('i.ti-refresh');
+    if ($icon.length) {
+      $icon.css({
+        'transition': 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'transform': 'rotate(360deg)',
+        'display': 'inline-block'
+      });
+      setTimeout(() => {
+        $icon.css({ 'transition': 'none', 'transform': 'rotate(0deg)' });
+      }, 650);
+    }
+
+    const picker = $('#dateRangePicker').data('daterangepicker');
+    if (picker) {
+      updateReport(picker.startDate.format('YYYY-MM-DD'), picker.endDate.format('YYYY-MM-DD'));
+    } else {
+      if (typeof window.showMotionToast === 'function') {
+        window.showMotionToast('Profit & Loss metrics synchronized', 'success', 2500);
+      }
+    }
   }
 
   function printReport() {

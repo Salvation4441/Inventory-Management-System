@@ -243,13 +243,62 @@
 </div>
 
 <script>
-  var deleteModal = document.getElementById('delete-modal');
-  deleteModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var productId = button.getAttribute('data-product-id');
-    var form = document.getElementById('deleteProductForm');
-    form.action = '/delete-product/' + productId + '/';
-  });
+  let activeProductRow = null;
+  const deleteModal = document.getElementById('delete-modal');
+  const deleteProductForm = document.getElementById('deleteProductForm');
+
+  if (deleteModal) {
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      if (button) {
+        activeProductRow = button.closest('tr');
+        const productId = button.getAttribute('data-product-id');
+        if (deleteProductForm && productId) {
+          deleteProductForm.action = '/delete-product/' + productId + '/';
+        }
+      }
+    });
+  }
+
+  if (deleteProductForm) {
+    deleteProductForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const submitBtn = deleteProductForm.querySelector("button[type='submit']");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+      }
+
+      fetch(deleteProductForm.action, {
+        method: "POST",
+        body: new FormData(deleteProductForm),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const bsModal = bootstrap.Modal.getInstance(deleteModal) || new bootstrap.Modal(deleteModal);
+        bsModal.hide();
+
+        if (activeProductRow) {
+          const dt = $('.datatable').length && $.fn.DataTable && $.fn.DataTable.isDataTable('.datatable') ? $('.datatable').DataTable() : null;
+          window.animateRowRemoval(activeProductRow, dt, () => {
+            if (typeof window.showMotionToast === 'function') {
+              window.showMotionToast(data.message || "Product deleted successfully", "success");
+            }
+          });
+        }
+      })
+      .catch(err => {
+        deleteProductForm.submit();
+      })
+      .finally(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Yes Delete';
+        }
+      });
+    });
+  }
 </script>
 
 <div class="modal fade" id="product-details-new">

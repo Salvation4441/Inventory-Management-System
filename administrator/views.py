@@ -470,8 +470,11 @@ def editProduct(request, product_id):
 def deleteProduct(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     if request.method == 'POST':
+        product_name = product.product_name
         product.delete()
-        messages.success(request, f"Product '{product.product_name}' deleted successfully.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f"Product '{product_name}' deleted successfully."})
+        messages.success(request, f"Product '{product_name}' deleted successfully.")
         return redirect('products')
     context = {
         'product': product
@@ -627,11 +630,14 @@ def deleteManageStock(request, stock_id):
         quantity_added = stock_record.quantity_added
         stock_record.delete()
         
-        messages.success(request, f"Stock record deleted successfully. {product_name} quantity reverted by {quantity_added} units.")
+        msg = f"Stock record deleted successfully. {product_name} quantity reverted by {quantity_added} units."
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': msg})
+        messages.success(request, msg)
         return redirect('manage-stocks')
     
     # If GET request, redirect back to manage stocks
-    return redirect(request,'screens/administrator/manage-stocks.html')
+    return redirect('manage-stocks')
 
 
 # annual report page
@@ -1102,6 +1108,22 @@ def profit_and_loss(request):
         'avg_customers_per_month': avg_customers_per_month,
     }
     
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        return JsonResponse({
+            'success': True,
+            'total_revenue': f"GH {total_revenue:,.2f}",
+            'total_cogs': f"GH {total_cogs:,.2f}",
+            'total_gross_profit': f"GH {total_gross_profit:,.2f}",
+            'total_net_profit': f"GH {total_net_profit:,.2f}",
+            'overall_gross_margin': f"{overall_gross_margin:.1f}%",
+            'overall_profit_margin': f"{overall_profit_margin:.1f}%",
+            'date_range': f"{start_date.strftime('%B %Y')} - {end_date.strftime('%B %Y')}",
+            'monthly_count': f"{monthly_count} Months Period",
+            'total_sales': total_sales,
+            'total_customers': total_customers,
+            'chart_data': chart_data_json,
+        })
+    
     return render(request,'screens/administrator/profit-and-loss.html', context)
 
 
@@ -1345,10 +1367,15 @@ def deleteUser(request, user_id):
     print('Deleting User:', user)
     if request.method == 'POST':
         if user.role == 'ADMIN':
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': 'Admin users cannot be deleted.'}, status=400)
             messages.error(request, "Admin users cannot be deleted.")
             return redirect('users')
+        username = user.username
         user.delete()
-        messages.success(request, f"User '{user.username}' deleted successfully.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f"User '{username}' deleted successfully."})
+        messages.success(request, f"User '{username}' deleted successfully.")
         return redirect('users')
     context = {'user': user}
     return render(request, 'screens/administrator/users.html', context)
@@ -1504,7 +1531,10 @@ def editCategory(request, category_id):
 def deleteCategory(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     if request.method == 'POST':
+        cat_name = category.category_name
         category.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f"Category '{cat_name}' deleted successfully."})
         messages.success(request, "Category deleted successfully.")
         return redirect('category')
     context = {'category': category}
@@ -1553,7 +1583,10 @@ def customerEdit(request, id):
 def customerDelete(request, id):
     customer = get_object_or_404(Customer, id=id)
     if request.method == 'POST':
+        cust_name = f"{customer.first_name} {customer.last_name}"
         customer.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f"Customer '{cust_name}' deleted successfully."})
         messages.success(request, 'Customer deleted successfully!')
         return redirect('customers')
     customers = Customer.objects.all().order_by('-id')
@@ -1834,9 +1867,14 @@ def sale_receipt(request, sale_id):
 def delete_sale(request, sale_id):
     sale = get_object_or_404(Sales, id=sale_id)
     try:
+        ref = sale.reference
         sale.delete()
-        messages.success(request, f"Sale {sale.reference} deleted successfully.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f"Sale {ref} deleted successfully."})
+        messages.success(request, f"Sale {ref} deleted successfully.")
     except Exception as e:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': f"Error deleting sale: {e}"}, status=400)
         messages.error(request, f"Error deleting sale: {e}")
     return redirect('sales')
 
@@ -1898,8 +1936,9 @@ def activities(request):
 @login_required
 def mark_activities_read(request):
     """Mark all activities as read"""
-    
     Activity.objects.filter(is_read=False).update(is_read=True)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'unread_count': 0, 'message': 'All notifications marked as read.'})
     return redirect('activities')
 
 @login_required
@@ -1914,26 +1953,35 @@ def activity_detail(request, activity_id):
                 'id': activity.id,
                 'title': activity.title,
                 'description': activity.description,
-                'activity_type': activity.get_activity_type_display(),
-                'created_at': activity.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'activity_type': activity.activity_type,
+                'is_read': activity.is_read,
+                'created_at': activity.created_at.strftime('%b %d, %Y at %I:%M %p'),
+                'time_ago': f"{activity.created_at.strftime('%b %d, %Y')}",
                 'user': {
                     'name': f"{activity.user.first_name} {activity.user.last_name}",
                     'username': activity.user.username,
-                    'initials': f"{activity.user.first_name[0]}{activity.user.last_name[0]}" if activity.user.first_name and activity.user.last_name else activity.user.username[0].upper()
+                    'initials': f"{activity.user.first_name[0] if activity.user.first_name else ''}{activity.user.last_name[0] if activity.user.last_name else ''}".upper()
                 },
                 'sale': {
                     'id': activity.sale.id,
                     'reference': activity.sale.reference,
-                    'total_amount': str(activity.sale.total_amount),
-                    'customer_name': f"{activity.sale.customer.first_name} {activity.sale.customer.last_name}"
+                    'total_amount': float(activity.sale.total_amount),
+                    'customer_name': f"{activity.sale.customer.first_name} {activity.sale.customer.last_name}" if activity.sale.customer else "Walk-in Customer"
                 } if activity.sale else None,
                 'product': {
                     'id': activity.product.id,
                     'name': activity.product.product_name,
-                    'sku': activity.product.sku
+                    'sku': activity.product.product_sku,
+                    'quantity': activity.product.product_quantity
                 } if activity.product else None
             }
         }
+        
+        # Mark as read if not already
+        if not activity.is_read:
+            activity.is_read = True
+            activity.save()
+            
     except Activity.DoesNotExist:
         data = {
             'success': False,
@@ -1944,44 +1992,41 @@ def activity_detail(request, activity_id):
 
 @login_required
 def sale_detail_modal(request, sale_id):
-    """Get sale details for modal display"""
+    """Get sale details for modal display in activities"""
     try:
-        sale = Sales.objects.select_related('customer', 'user').prefetch_related('salesitem_set__product').get(id=sale_id)
+        sale = Sales.objects.select_related('customer', 'user').prefetch_related('items__product').get(id=sale_id)
         
-        # Calculate totals
-        sale_items = sale.salesitem_set.all()
-        subtotal = sum(item.quantity * item.unit_price for item in sale_items)
+        items = []
+        for item in sale.items.all():
+            items.append({
+                'product_name': item.product.product_name,
+                'product_sku': item.product.product_sku,
+                'quantity': item.quantity,
+                'unit_price': float(item.unit_price),
+                'total_price': float(item.total_price)
+            })
         
         data = {
             'success': True,
             'sale': {
                 'id': sale.id,
                 'reference': sale.reference,
-                'sale_date': sale.sale_date.strftime('%B %d, %Y at %I:%M %p'),
-                'status': sale.status,
+                'sale_date': sale.sale_date.strftime('%b %d, %Y at %I:%M %p'),
                 'payment_mode': sale.payment_mode,
-                'total_amount': str(sale.total_amount),
-                'subtotal': str(subtotal),
+                'total_amount': float(sale.total_amount),
+                'user_name': f"{sale.user.first_name} {sale.user.last_name}",
                 'customer': {
-                    'id': sale.customer.id,
                     'name': f"{sale.customer.first_name} {sale.customer.last_name}",
-                    'email': getattr(sale.customer, 'email', 'N/A'),
-                    'phone': getattr(sale.customer, 'phone', 'N/A')
+                    'email': sale.customer.email or '',
+                    'phone': sale.customer.phone or '',
+                    'address': sale.customer.address or ''
+                } if sale.customer else {
+                    'name': 'Walk-in Customer',
+                    'email': '',
+                    'phone': '',
+                    'address': ''
                 },
-                'salesperson': {
-                    'name': f"{sale.user.first_name} {sale.user.last_name}",
-                    'username': sale.user.username
-                },
-                'items': [
-                    {
-                        'product_name': item.product.product_name,
-                        'sku': item.product.sku,
-                        'quantity': item.quantity,
-                        'unit_price': str(item.unit_price),
-                        'total': str(item.quantity * item.unit_price)
-                    }
-                    for item in sale_items
-                ]
+                'items': items
             }
         }
     except Sales.DoesNotExist:
@@ -1999,10 +2044,14 @@ def delete_activity(request, activity_id):
     
     # Optional: restrict deletion to admins or specific users
     if not request.user.is_staff:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'You do not have permission to delete activities.'}, status=403)
         messages.error(request, "You do not have permission to delete activities.")
         return redirect('activities')
     
     activity.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': 'Activity deleted successfully.'})
     messages.success(request, "Activity deleted successfully.")
     
     return redirect('activities')

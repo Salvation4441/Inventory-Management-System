@@ -854,12 +854,21 @@
             document.getElementById("receipt-content").innerHTML = data.receipt_html;
             const modal = new bootstrap.Modal(document.getElementById("receipt-modal"));
             modal.show();
+            window.resetPosCartAnimated();
           } else {
-            alert(data.message || "Sale completed successfully!");
-            window.location.reload();
+            if (typeof window.showMotionToast === 'function') {
+              window.showMotionToast(data.message || "Sale completed successfully!", "success", 3000);
+            } else {
+              alert(data.message || "Sale completed successfully!");
+            }
+            window.resetPosCartAnimated();
           }
         } else {
-          alert(data.message || "Error processing sale.");
+          if (typeof window.showMotionToast === 'function') {
+            window.showMotionToast(data.message || "Error processing sale.", "danger", 3500);
+          } else {
+            alert(data.message || "Error processing sale.");
+          }
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
         }
@@ -868,6 +877,36 @@
         salesForm.submit();
       }
     });
+
+    // Staggered Cart Reset with Smooth Sliding Animation
+    window.resetPosCartAnimated = function () {
+      const rows = document.querySelectorAll("#productTableBody tbody tr:not(#emptyCartRow)");
+      rows.forEach((row, index) => {
+        setTimeout(() => {
+          row.classList.add("pos-cart-row-exit");
+          setTimeout(() => row.remove(), 280);
+        }, index * 40);
+      });
+
+      setTimeout(() => {
+        const emptyRow = document.getElementById("emptyCartRow");
+        if (emptyRow) emptyRow.style.display = "";
+        updateTotals();
+
+        const custSelect = document.getElementById("customerSelect");
+        if (custSelect) custSelect.selectedIndex = 0;
+        const barcodeInput = document.getElementById("manualBarcodeInput");
+        if (barcodeInput) barcodeInput.value = "";
+        const searchInput = document.getElementById("productSearchInput");
+        if (searchInput) searchInput.value = "";
+
+        const submitBtn = document.getElementById("submitBtn");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="ti ti-check fs-20"></i> Complete Sale & Checkout';
+        }
+      }, Math.max(rows.length * 40 + 150, 300));
+    };
 
     // Glassmorphic POS A4 Theme Switcher
     window.currentPosA4Theme = 'classic';

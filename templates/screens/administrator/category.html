@@ -221,19 +221,63 @@
  </script>
 
 
-<!-- Delete User Modal -->
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
-		// Set user id on delete modal form
-		document.querySelectorAll('.btn-delete-category').forEach(function(btn) {
-			btn.addEventListener('click', function() {
-				var categoryId = btn.getAttribute('data-category-id');
-				var form = document.getElementById('delete-category-form');
+				let activeCategoryRow = null;
+				const form = document.getElementById('delete-category-form');
+
+				// Set category id on delete modal form
+				document.querySelectorAll('.btn-delete-category').forEach(function(btn) {
+					btn.addEventListener('click', function() {
+						activeCategoryRow = btn.closest('tr');
+						var categoryId = btn.getAttribute('data-category-id');
+						if (form) {
+							form.action = '/delete-category/' + categoryId + '/';
+						}
+					});
+				});
+
 				if (form) {
-					form.action = '/delete-category/' + categoryId + '/';
+					form.addEventListener('submit', function(e) {
+						e.preventDefault();
+						const submitBtn = form.querySelector("button[type='submit']");
+						if (submitBtn) {
+							submitBtn.disabled = true;
+							submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+						}
+
+						fetch(form.action, {
+							method: 'POST',
+							body: new FormData(form),
+							headers: { 'X-Requested-With': 'XMLHttpRequest' }
+						})
+						.then(res => res.json())
+						.then(data => {
+							const modalEl = document.getElementById('delete-modal');
+							if (modalEl) {
+								const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+								bsModal.hide();
+							}
+							if (activeCategoryRow) {
+								const dt = $('.datatable').length && $.fn.DataTable && $.fn.DataTable.isDataTable('.datatable') ? $('.datatable').DataTable() : null;
+								window.animateRowRemoval(activeCategoryRow, dt, () => {
+									if (typeof window.showMotionToast === 'function') {
+										window.showMotionToast(data.message || 'Category deleted successfully', 'success');
+									}
+								});
+							}
+						})
+						.catch(err => {
+							form.submit();
+						})
+						.finally(() => {
+							if (submitBtn) {
+								submitBtn.disabled = false;
+								submitBtn.innerHTML = 'Yes Delete';
+							}
+						});
+					});
 				}
 			});
-		});
-	});
 		</script>
 {%endblock%}

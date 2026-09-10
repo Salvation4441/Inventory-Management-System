@@ -406,17 +406,61 @@
 <!-- Delete Customer Modal -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    let activeCustomerRow = null;
+    const form = document.getElementById("delete-customer-form");
+
     // Set customer id on delete modal form
     document.querySelectorAll(".btn-delete-customer").forEach(function (btn) {
       btn.addEventListener("click", function (e) {
-        e.preventDefault();
+        activeCustomerRow = btn.closest("tr");
         var customerId = btn.getAttribute("data-customer-id");
-        var form = document.getElementById("delete-customer-form");
         if (form && customerId) {
           form.action = "/customers/" + customerId + "/delete/";
         }
       });
     });
+
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const submitBtn = form.querySelector("button[type='submit']");
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+        }
+
+        fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          const modalEl = document.getElementById("delete-modal");
+          if (modalEl) {
+            const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            bsModal.hide();
+          }
+          if (activeCustomerRow) {
+            const dt = $('.datatable').length && $.fn.DataTable && $.fn.DataTable.isDataTable('.datatable') ? $('.datatable').DataTable() : null;
+            window.animateRowRemoval(activeCustomerRow, dt, () => {
+              if (typeof window.showMotionToast === 'function') {
+                window.showMotionToast(data.message || "Customer deleted successfully", "success");
+              }
+            });
+          }
+        })
+        .catch(err => {
+          form.submit();
+        })
+        .finally(() => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Yes Delete';
+          }
+        });
+      });
+    }
   });
 </script>
 

@@ -59,7 +59,7 @@
         </a>
         <ul class="table-top-head mb-0">
           <li>
-            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="location.reload()"><i class="ti ti-refresh"></i></a>
+            <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" onclick="refreshEmployeeDashboard(this)"><i class="ti ti-refresh"></i></a>
           </li>
           <li>
             <a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i class="ti ti-chevron-up"></i></a>
@@ -479,6 +479,41 @@
           confirmButtonColor: '#fe9f43'
         });
       });
+  }
+
+  // Smooth Dashboard Refresh without page reload
+  function refreshEmployeeDashboard(triggerBtn) {
+    const $icon = $(triggerBtn).find('i.ti-refresh');
+    if ($icon.length) {
+      $icon.css({
+        'transition': 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'transform': 'rotate(360deg)',
+        'display': 'inline-block'
+      });
+      setTimeout(() => {
+        $icon.css({ 'transition': 'none', 'transform': 'rotate(0deg)' });
+      }, 650);
+    }
+
+    // Pulse KPI cards
+    $('.revenue-widget').addClass('morph-pulse');
+    setTimeout(() => {
+      $('.revenue-widget').removeClass('morph-pulse');
+    }, 500);
+
+    // Reset transactions search and morph table
+    const searchInput = document.getElementById("searchSales");
+    if (searchInput) searchInput.value = '';
+    const rows = document.querySelectorAll(".recent-transactions tbody tr");
+    rows.forEach(r => r.style.display = "");
+
+    if (typeof window.morphRefreshTable === 'function') {
+      window.morphRefreshTable('.recent-transactions table');
+    } else {
+      if (typeof window.showMotionToast === 'function') {
+        window.showMotionToast('Dashboard synced successfully', 'success', 2500);
+      }
+    }
   }
 </script>
 

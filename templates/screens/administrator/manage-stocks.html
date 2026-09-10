@@ -311,6 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle delete stock button clicks
+    let activeStockRow = null;
     const deleteButtons = document.querySelectorAll('.delete-stock-btn');
     const deleteForm = document.getElementById('delete-stock-form');
     const deleteProductName = document.getElementById('delete-product-name');
@@ -318,6 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
+            activeStockRow = this.closest('tr');
             const stockId = this.getAttribute('data-stock-id');
             const productName = this.getAttribute('data-product-name');
             const quantity = this.getAttribute('data-quantity');
@@ -330,6 +332,48 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteForm.action = `{% url 'delete-stock' 0 %}`.replace('0', stockId);
         });
     });
+
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = deleteForm.querySelector("button[type='submit']");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+            }
+
+            fetch(deleteForm.action, {
+                method: 'POST',
+                body: new FormData(deleteForm),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const modalEl = document.getElementById('delete-stock');
+                if (modalEl) {
+                    const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    bsModal.hide();
+                }
+                if (activeStockRow) {
+                    const dt = $('.datatable').length && $.fn.DataTable && $.fn.DataTable.isDataTable('.datatable') ? $('.datatable').DataTable() : null;
+                    window.animateRowRemoval(activeStockRow, dt, () => {
+                        if (typeof window.showMotionToast === 'function') {
+                            window.showMotionToast(data.message || 'Stock record deleted successfully', 'success');
+                        }
+                    });
+                }
+            })
+            .catch(err => {
+                deleteForm.submit();
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Yes, Delete';
+                }
+            });
+        });
+    }
 
     // DataTable initialization is handled by the base template
 });

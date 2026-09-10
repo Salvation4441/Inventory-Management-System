@@ -362,22 +362,45 @@
       }
     );
 
-    // 3. Refresh Click Handler
+    // 3. Smooth Non-Destructive Refresh Click Handler
     $(document).on(
       'click',
       '.table-top-head a[title*="Refresh"], .table-top-head a[data-bs-original-title*="Refresh"], .table-top-head a:has(.ti-refresh), .btn-refresh, .btn-refresh-list',
       function (e) {
         e.preventDefault();
-        const $icon = $(this).find('i.ti-refresh, .ti-refresh');
+        const $btn = $(this);
+        const $icon = $btn.find('i.ti-refresh, .ti-refresh');
         if ($icon.length) {
-          $icon.addClass('fa-spin').css({
-            'animation': 'spin 0.8s linear infinite',
+          $icon.css({
+            'transition': 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+            'transform': 'rotate(360deg)',
             'display': 'inline-block'
           });
+          setTimeout(function () {
+            $icon.css({ 'transition': 'none', 'transform': 'rotate(0deg)' });
+          }, 650);
         }
-        setTimeout(function () {
-          window.location.reload();
-        }, 150);
+
+        // If a page-specific refresh function is available, run it
+        if (typeof window.refreshPageData === 'function') {
+          window.refreshPageData();
+          return;
+        }
+
+        // Otherwise, perform non-destructive smooth table morph & filter reset
+        if (typeof window.morphRefreshTable === 'function') {
+          window.morphRefreshTable('.datatable, table.table');
+        } else {
+          // Fallback reset without reload
+          try {
+            if ($.fn.DataTable) {
+              $('.datatable').DataTable().search('').columns().search('').draw();
+              $('.search-input input, .dataTables_filter input').val('');
+            }
+          } catch (err) {
+            console.warn('Refresh fallback notice:', err);
+          }
+        }
       }
     );
 

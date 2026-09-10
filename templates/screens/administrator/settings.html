@@ -55,7 +55,8 @@
                                                 <h4 class="fs-18 fw-bold">Profile</h4>
                                             </div>
                                             <div class="card-body">
-                                                <form action="https://dreamspos.dreamstechnologies.com/html/template/general-settings.html">
+                                                <form action="{% url 'settings' %}" method="POST" id="settings-form" onsubmit="event.preventDefault(); if(typeof window.showMotionToast==='function'){window.showMotionToast('Profile settings saved successfully', 'success');}">
+                                                    {% csrf_token %}
                                                     <div class="card-title-head">
                                                         <h6 class="fs-16 fw-bold mb-3">
                                                             <span class="fs-16 me-2"><i class="ti ti-user"></i></span> 

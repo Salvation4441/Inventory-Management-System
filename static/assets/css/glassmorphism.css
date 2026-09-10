@@ -2063,5 +2063,217 @@ button.btn-outline-primary:hover {
   background: rgba(254, 159, 67, 0.7);
 }
 
+/* ============================================================
+   SMOOTH MORPHING, SLIDING & MOTION UX SYSTEM
+   ============================================================ */
+
+/* 1. Sliding Row Exit (Used on dynamic deletion without reload) */
+.row-slide-exit {
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease,
+              background-color 0.2s ease !important;
+  transform: translateX(45px) scale(0.98) !important;
+  opacity: 0 !important;
+  background-color: rgba(239, 68, 68, 0.08) !important;
+  pointer-events: none !important;
+}
+
+.row-collapse-exit {
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              padding-top 0.35s ease,
+              padding-bottom 0.35s ease,
+              margin 0.35s ease,
+              opacity 0.3s ease !important;
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+
+/* 2. Non-Destructive Table Refresh Shimmer & Morph */
+.table-morph-refresh {
+  transition: filter 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease !important;
+}
+
+.table-morph-refresh.table-morph-active {
+  filter: blur(1.5px) !important;
+  opacity: 0.55 !important;
+  transform: scale(0.995) !important;
+}
+
+/* 3. Notification Badge Pop & Morph */
+.badge-pop-out {
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease !important;
+  transform: scale(0) !important;
+  opacity: 0 !important;
+}
+
+.noti-item-slide-exit {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, max-height 0.35s ease !important;
+  transform: translateX(-40px) !important;
+  opacity: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 4. POS Cart Staggered Clearing */
+.pos-cart-row-exit {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease !important;
+  transform: translateX(35px) scale(0.97) !important;
+  opacity: 0 !important;
+  background-color: rgba(254, 159, 67, 0.08) !important;
+}
+
+/* 5. Smooth Value Pulse */
+@keyframes morphValuePulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); color: #fe9f43; }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.morph-pulse {
+  animation: morphValuePulse 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 6. Ultra-Modern Glassmorphic Toast System */
+.glass-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100% - 48px);
+}
+
+.glass-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.14),
+              0 0 0 1px rgba(0, 0, 0, 0.04);
+  color: #1e293b;
+  font-size: 13.5px;
+  font-weight: 500;
+  transform: translateX(120%) scale(0.95);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .glass-toast {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45);
+  color: #f1f5f9;
+}
+
+.glass-toast.glass-toast-show {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+.glass-toast.glass-toast-hide {
+  transform: translateX(120%) scale(0.92);
+  opacity: 0;
+}
+
+.glass-toast-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.glass-toast-success .glass-toast-icon {
+  background: rgba(16, 185, 129, 0.14);
+  color: #10b981;
+}
+
+.glass-toast-danger .glass-toast-icon {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+}
+
+.glass-toast-info .glass-toast-icon {
+  background: rgba(14, 165, 233, 0.14);
+  color: #0ea5e9;
+}
+
+.glass-toast-warning .glass-toast-icon {
+  background: rgba(245, 158, 11, 0.14);
+  color: #f59e0b;
+}
+
+.glass-toast-content {
+  flex-grow: 1;
+  line-height: 1.35;
+}
+
+.glass-toast-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.glass-toast-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+}
+
+[data-theme="dark"] .glass-toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.glass-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: rgba(254, 159, 67, 0.7);
+  animation: glassToastProgress linear forwards;
+}
+
+@keyframes glassToastProgress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+
 
 

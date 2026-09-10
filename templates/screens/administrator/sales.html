@@ -426,10 +426,12 @@
       });
     });
 
+    let activeDeleteRow = null;
     deleteButtons.forEach((button) => {
       button.addEventListener("click", function () {
         const saleId = this.getAttribute("data-sale-id");
         const reference = this.getAttribute("data-sale-reference");
+        activeDeleteRow = this.closest("tr");
 
         // Update modal text
         deleteText.textContent = `Are you sure you want to delete sale ${reference}?`;
@@ -438,6 +440,48 @@
         deleteForm.action = `/sales/${saleId}/delete/`;
       });
     });
+
+    if (deleteForm) {
+      deleteForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const submitBtn = deleteForm.querySelector("button[type='submit']");
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+        }
+
+        fetch(deleteForm.action, {
+          method: "POST",
+          body: new FormData(deleteForm),
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          const modalEl = document.getElementById("delete-sale-modal");
+          if (modalEl) {
+            const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            bsModal.hide();
+          }
+          if (activeDeleteRow) {
+            const dt = $('.datatable').length && $.fn.DataTable && $.fn.DataTable.isDataTable('.datatable') ? $('.datatable').DataTable() : null;
+            window.animateRowRemoval(activeDeleteRow, dt, () => {
+              if (typeof window.showMotionToast === 'function') {
+                window.showMotionToast(data.message || "Sale deleted successfully", "success");
+              }
+            });
+          }
+        })
+        .catch(err => {
+          deleteForm.submit();
+        })
+        .finally(() => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Yes, Delete';
+          }
+        });
+      });
+    }
   });
 </script>
 

@@ -9,7 +9,7 @@
         </h6>
       </div>
       <div class="page-btn">
-        <a href="{% url 'mark-activities-read' %}" class="btn btn-primary">
+        <a href="javascript:void(0);" onclick="markAllActivitiesReadPage(event)" class="btn btn-primary">
           <i class="ti ti-check me-2"></i>Mark All as Read
         </a>
       </div>
@@ -227,13 +227,99 @@
 </div>
 
 <script>
+  let activeActivityCard = null;
   var deleteModal = document.getElementById('deleteActivityModal');
-  deleteModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var activityId = button.getAttribute('data-activity-id');
-    var form = document.getElementById('deleteActivityForm');
-    form.action = '/delete-activity/' + activityId + '/';
-  });
+  var deleteForm = document.getElementById('deleteActivityForm');
+
+  if (deleteModal) {
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var activityId = button.getAttribute('data-activity-id');
+      activeActivityCard = document.querySelector('.activity-card[data-activity-id="' + activityId + '"]');
+      if (deleteForm && activityId) {
+        deleteForm.action = '/delete-activity/' + activityId + '/';
+      }
+    });
+  }
+
+  if (deleteForm) {
+    deleteForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const submitBtn = deleteForm.querySelector("button[type='submit']");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+      }
+
+      fetch(deleteForm.action, {
+        method: 'POST',
+        body: new FormData(deleteForm),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const bsModal = bootstrap.Modal.getInstance(deleteModal) || new bootstrap.Modal(deleteModal);
+        bsModal.hide();
+
+        if (activeActivityCard) {
+          activeActivityCard.classList.add('row-slide-exit');
+          setTimeout(() => {
+            activeActivityCard.classList.add('row-collapse-exit');
+            setTimeout(() => {
+              if (activeActivityCard.parentNode) activeActivityCard.parentNode.removeChild(activeActivityCard);
+            }, 300);
+          }, 280);
+        }
+
+        if (typeof window.showMotionToast === 'function') {
+          window.showMotionToast(data.message || 'Notification deleted successfully', 'success');
+        }
+      })
+      .catch(err => {
+        deleteForm.submit();
+      })
+      .finally(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Delete';
+        }
+      });
+    });
+  }
+
+  function markAllActivitiesReadPage(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    fetch('{% url "mark-activities-read" %}', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      // Morph all cards to read state smoothly
+      document.querySelectorAll('.activity-card').forEach(card => {
+        card.classList.remove('border-primary');
+        const badge = card.querySelector('.badge.bg-primary');
+        if (badge) {
+          badge.classList.add('badge-pop-out');
+          setTimeout(() => badge.remove(), 300);
+        }
+      });
+
+      // Also pop out top nav badge if present
+      const topBadge = document.querySelector('.nav-item.dropdown .nav-link .badge.bg-danger');
+      if (topBadge) {
+        topBadge.classList.add('badge-pop-out');
+        setTimeout(() => topBadge.remove(), 300);
+      }
+
+      if (typeof window.showMotionToast === 'function') {
+        window.showMotionToast('All activities marked as read', 'success');
+      }
+    })
+    .catch(err => {
+      window.location.href = '{% url "mark-activities-read" %}';
+    });
+  }
 </script>
 
 <script>
