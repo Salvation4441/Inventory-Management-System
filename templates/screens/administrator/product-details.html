@@ -29,11 +29,26 @@
       <div class="col-lg-8 col-sm-12">
         <div class="card">
           <div class="card-body">
-            <div class="bar-code-view">
-              <img src="{%static 'assets/img/barcode/barcode1.png'%}" alt="barcode" />
-              <a class="printimg">
-                <img src="{%static 'assets/img/icons/printer.svg'%}" alt="print" />
-              </a>
+            <div class="barcode-card-wrapper mb-4">
+              <div class="bar-code-view">
+                <div class="barcode-graphic-area">
+                  <svg id="product-barcode" class="barcode-svg"></svg>
+                </div>
+                <div class="barcode-actions d-flex align-items-center gap-2">
+                  <a href="javascript:void(0);" class="printimg" id="btnPrintBarcode" title="Print Barcode Label">
+                    <img src="{% static 'assets/img/icons/printer.svg' %}" alt="print" />
+                  </a>
+                  <a href="javascript:void(0);" class="btn-download-barcode" id="btnDownloadBarcode" title="Download Barcode Image (PNG)">
+                    <i class="ti ti-download fs-18"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="barcode-info-strip d-flex align-items-center flex-wrap gap-2 text-muted fs-12 mt-2">
+                <span>Symbology: <strong class="text-dark">Code 128</strong></span>
+                <span>•</span>
+                <span>Value: <strong class="text-dark font-mono">{{ product.product_sku|default:product.id }}</strong></span>
+                <span class="badge badge-soft-success fs-11 px-2 py-1"><i class="ti ti-check me-1"></i>POS Scannable</span>
+              </div>
             </div>
             <div class="productdetails">
               <ul class="product-bar">
@@ -47,7 +62,7 @@
                 </li>
                 <li>
                   <h4>Brand</h4>
-                  <h6>{{ product.product_brand }}</h6>
+                  <h6>{% if product.product_brand and product.product_brand != 'None' %}{{ product.product_brand }}{% else %}-{% endif %}</h6>
                 </li>
                 <li>
                   <h4>Quantity</h4>
@@ -71,19 +86,19 @@
                 </li>
                 <li>
                   <h4>Manufacture</h4>
-                  <h6>{{ product.manufacture_name }}</h6>
+                  <h6>{% if product.manufacture_name and product.manufacture_name != 'None' %}{{ product.manufacture_name }}{% else %}-{% endif %}</h6>
                 </li>
                 <li>
                   <h4>Manufacture Date</h4>
-                  <h6>{{ product.manufacture_date }}</h6>
+                  <h6>{% if product.manufacture_date %}{{ product.manufacture_date }}{% else %}-{% endif %}</h6>
                 </li>
                 <li>
                   <h4>Expiry Date</h4>
-                  <h6>{{ product.expiry_date }}</h6>
+                  <h6>{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</h6>
                 </li>
                 <li>
                   <h4>Description</h4>
-                  <h6>{{ product.product_description }}</h6>
+                  <h6>{% if product.product_description and product.product_description != 'None' %}{{ product.product_description }}{% else %}-{% endif %}</h6>
                 </li>
               </ul>
             </div>
@@ -111,4 +126,256 @@
       <!-- /add -->
     </div>
   </div>
-  {%endblock%}
+
+  <!-- JsBarcode Library for Accurate Optical Barcodes -->
+  <script src="{% static 'assets/plugins/barcode/JsBarcode.all.min.js' %}"></script>
+
+  <script>
+    (function () {
+      const rawSku = "{{ product.product_sku|default:'' }}".trim();
+      const productId = "{{ product.id }}";
+      const productName = "{{ product.product_name|escapejs }}";
+      const productPrice = "GHC {{ product.product_selling_price|floatformat:2 }}";
+      const skuCode = rawSku || ("PROD-" + productId.padStart(4, "0"));
+
+      function renderBarcode() {
+        const svgElement = document.getElementById("product-barcode");
+        if (!svgElement) return;
+
+        if (typeof JsBarcode === "function") {
+          try {
+            JsBarcode(svgElement, skuCode, {
+              format: "CODE128",
+              width: 1.85,
+              height: 58,
+              displayValue: true,
+              font: "monospace",
+              fontSize: 13,
+              textMargin: 5,
+              margin: 8,
+              background: "#ffffff",
+              lineColor: "#000000"
+            });
+            return;
+          } catch (err) {
+            console.warn("JsBarcode error, falling back to SVG generator:", err);
+          }
+        }
+
+        // Standalone SVG Code128 Generator fallback
+        renderCode128SvgFallback(svgElement, skuCode);
+      }
+
+      // High-fidelity Code128 pattern generator (Fallback)
+      function renderCode128SvgFallback(svg, text) {
+        const BARS = [
+          "11011001100","11001101100","11001100110","10010011000","10010001100",
+          "10001001100","10011001000","10011000100","10001100100","11001001000",
+          "11001000100","11000100100","10110011100","10011011100","10011001110",
+          "10111001100","10011101100","10011100110","11001110010","11001011100",
+          "11001001110","11011100100","11001110100","11101101110","11101001100",
+          "11100101100","11100100110","11101100100","11100110100","11100110010",
+          "11011011000","11011000110","11000110110","10100011000","10001011000",
+          "10001000110","10110001000","10001101000","10001100010","11010001000",
+          "11000101000","11000100010","10110111000","10110001110","10001101110",
+          "10111011000","10111000110","10001110110","11101110110","11010001110",
+          "11000101110","11011101000","11011100010","11011101110","11101011000",
+          "11101000110","11100010110","11101101000","11101100010","11100011010",
+          "11101111010","11001000010","11110001010","10100110000","10100001100",
+          "10010110000","10010000110","10000101100","10000100110","10110010000",
+          "10110000100","10011010000","10011000010","10000110100","10000110010",
+          "11000010010","11001010000","11110111010","11000010100","10001111010",
+          "10100111100","10010111100","10010011110","10111100100","10011110100",
+          "10011110010","11110100100","11110010100","11110010010","11011011110",
+          "11011110110","11110110110","10101111000","10100011110","10001011110",
+          "10111101000","10111100010","11110101000","11110100010","10111011110",
+          "10111101110","11101011110","11110101110","11010000100","11010010000",
+          "11010011100","1100011101011"
+        ];
+        const START_B = 104;
+        const STOP = 106;
+
+        let checksum = START_B;
+        let pattern = BARS[START_B];
+
+        for (let i = 0; i < text.length; i++) {
+          const code = text.charCodeAt(i) - 32;
+          const validCode = (code >= 0 && code <= 95) ? code : 0;
+          checksum += validCode * (i + 1);
+          pattern += BARS[validCode];
+        }
+
+        const checkDigit = checksum % 103;
+        pattern += BARS[checkDigit];
+        pattern += BARS[STOP];
+
+        const unitWidth = 2;
+        const barHeight = 55;
+        const margin = 10;
+        const totalWidth = pattern.length * unitWidth + (margin * 2);
+        const totalHeight = barHeight + 25 + margin;
+
+        let rects = '';
+        for (let i = 0; i < pattern.length; i++) {
+          if (pattern[i] === '1') {
+            rects += `<rect x="${margin + i * unitWidth}" y="${margin}" width="${unitWidth}" height="${barHeight}" fill="#000000" />`;
+          }
+        }
+
+        svg.setAttribute("viewBox", `0 0 ${totalWidth} ${totalHeight}`);
+        svg.setAttribute("width", totalWidth);
+        svg.setAttribute("height", totalHeight);
+        svg.innerHTML = `
+          <rect width="100%" height="100%" fill="#ffffff" />
+          ${rects}
+          <text x="${totalWidth / 2}" y="${margin + barHeight + 15}" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#000000">${text}</text>
+        `;
+      }
+
+      // Print Barcode Label
+      function printBarcode() {
+        const svg = document.getElementById("product-barcode");
+        if (!svg) return;
+
+        const svgXml = new XMLSerializer().serializeToString(svg);
+        const printWindow = window.open("", "_blank", "width=520,height=560");
+        if (!printWindow) {
+          window.print();
+          return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Barcode Label - ${skuCode}</title>
+            <style>
+              @page {
+                size: auto;
+                margin: 8mm;
+              }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                color: #111;
+                background: #fff;
+                margin: 0;
+              }
+              .label-card {
+                border: 2px dashed #94a3b8;
+                border-radius: 12px;
+                padding: 20px 24px;
+                text-align: center;
+                max-width: 360px;
+                width: 100%;
+                background: #ffffff;
+              }
+              .store-header {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                color: #64748b;
+                margin-bottom: 6px;
+              }
+              .product-name {
+                font-size: 16px;
+                font-weight: 700;
+                color: #0f172a;
+                margin-bottom: 12px;
+                word-break: break-word;
+              }
+              .barcode-wrap {
+                display: flex;
+                justify-content: center;
+                margin: 10px 0;
+              }
+              .barcode-wrap svg {
+                max-width: 100%;
+                height: auto;
+              }
+              .price-wrap {
+                font-size: 18px;
+                font-weight: 800;
+                color: #0f172a;
+                margin-top: 8px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="label-card">
+              <div class="store-header">Inventory Item Tag</div>
+              <div class="product-name">${productName}</div>
+              <div class="barcode-wrap">${svgXml}</div>
+              <div class="price-wrap">${productPrice}</div>
+            </div>
+            <script>
+              window.onload = function() {
+                window.focus();
+                window.print();
+                setTimeout(function() { window.close(); }, 750);
+              };
+            <\/script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
+
+      // Download Barcode as PNG
+      function downloadBarcode() {
+        const svg = document.getElementById("product-barcode");
+        if (!svg) return;
+
+        const svgXml = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
+        const URL = window.URL || window.webkitURL || window;
+        const blobURL = URL.createObjectURL(svgBlob);
+
+        const image = new Image();
+        image.onload = function () {
+          const canvas = document.createElement("canvas");
+          const scale = 2; // Crisp 2x retina/high-res export
+          const w = (svg.clientWidth || image.width || 300);
+          const h = (svg.clientHeight || image.height || 100);
+          canvas.width = w * scale;
+          canvas.height = h * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+          const pngUrl = canvas.toDataURL("image/png");
+          const downloadLink = document.createElement("a");
+          downloadLink.href = pngUrl;
+          downloadLink.download = `${skuCode}-barcode.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          URL.revokeObjectURL(blobURL);
+        };
+        image.src = blobURL;
+      }
+
+      // Initialize
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", renderBarcode);
+      } else {
+        renderBarcode();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const printBtn = document.getElementById("btnPrintBarcode");
+        if (printBtn) printBtn.addEventListener("click", printBarcode);
+
+        const downloadBtn = document.getElementById("btnDownloadBarcode");
+        if (downloadBtn) downloadBtn.addEventListener("click", downloadBarcode);
+      });
+    })();
+  </script>
+{% endblock %}

@@ -397,9 +397,11 @@ def addProduct(request):
 
 # product details page
 def productDetails(request, product_id):
-    product = Product.objects.get(id=product_id)
+    product = get_object_or_404(Product, id=product_id)
+    if not product.product_sku:
+        product.save()
     context = {'product': product}
-    return render(request,'screens/administrator/product-details.html', context)
+    return render(request, 'screens/administrator/product-details.html', context)
 
 # EDIT PRODUCT
 @admin_only
