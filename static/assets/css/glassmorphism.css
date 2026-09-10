@@ -1015,15 +1015,49 @@ button.btn.btn-secondary svg,
 
 .pos-cart-table input.pos-price-input {
   width: 100% !important;
-  max-width: 68px !important;
-  height: 28px !important;
-  padding: 2px 6px !important;
+  min-width: 95px !important;
+  max-width: 120px !important;
+  height: 32px !important;
+  padding: 4px 8px !important;
   font-size: 13px !important;
   font-weight: 700 !important;
   border-radius: 6px !important;
   border: 1px solid #cbd5e1 !important;
   background: #ffffff !important;
   text-align: right !important;
+  -moz-appearance: textfield !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.pos-cart-table input.pos-price-input::-webkit-outer-spin-button,
+.pos-cart-table input.pos-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+.pos-cart-table input.pos-price-input.border-danger {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.pos-cart-table input.pos-price-input.border-warning {
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+  background-color: #fffbeb !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+}
+
+.pos-cart-table input.pos-price-input.border-success {
+  border-color: #10b981 !important;
+  color: #047857 !important;
+}
+
+.pos-price-wrapper .price-feedback {
+  font-size: 10px !important;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .pos-qty-stepper {

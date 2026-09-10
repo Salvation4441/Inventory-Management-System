@@ -407,7 +407,7 @@
       const priceInput = row.querySelector("input[name='selling_price[]']");
       if (qtyInput && priceInput) {
         const qty = parseInt(qtyInput.value) || 1;
-        const price = parseFloat(priceInput.value) || 0;
+        const price = Math.max(0, parseFloat(priceInput.value) || 0);
         const subtotal = qty * price;
         const subtotalEl = row.querySelector(".subtotal");
         if (subtotalEl) subtotalEl.textContent = `GH ${subtotal.toFixed(2)}`;
@@ -426,6 +426,132 @@
     }
   }
 
+  function handleSellingPriceValidation(input, isBlurOrSubmit = false) {
+    const row = input.closest("tr");
+    if (!row) return true;
+
+    const costPrice = parseFloat(row.dataset.cost) || 0;
+    const unitPrice = parseFloat(row.dataset.price) || 0;
+    const productName = row.querySelector(".fw-bold")?.getAttribute("title") || 
+                        row.querySelector(".fw-bold")?.textContent?.trim() || "Product";
+    const feedbackEl = row.querySelector(".price-feedback");
+
+    const enteredVal = input.value.trim();
+    const enteredPrice = parseFloat(enteredVal);
+
+    const clearStatus = () => {
+      input.classList.remove("border-danger", "border-warning", "border-success");
+      if (feedbackEl) {
+        feedbackEl.textContent = "";
+        feedbackEl.classList.add("d-none");
+      }
+      input.title = `Min: GH ${costPrice.toFixed(2)} | Max: GH ${unitPrice.toFixed(2)}`;
+    };
+
+    // If user is currently typing and input is blank or invalid
+    if (!enteredVal || isNaN(enteredPrice)) {
+      if (isBlurOrSubmit) {
+        input.value = unitPrice.toFixed(2);
+        clearStatus();
+        updateTotals();
+        return true;
+      } else {
+        input.classList.add("border-danger");
+        input.classList.remove("border-success", "border-warning");
+        if (feedbackEl) {
+          feedbackEl.textContent = "Required";
+          feedbackEl.classList.remove("d-none");
+        }
+        return false;
+      }
+    }
+
+    // Invalid zero or negative price
+    if (enteredPrice <= 0) {
+      if (isBlurOrSubmit) {
+        alert(`Selling price for "${productName}" must be greater than 0.`);
+        input.value = unitPrice.toFixed(2);
+        clearStatus();
+        updateTotals();
+        input.focus();
+        return false;
+      } else {
+        input.classList.add("border-danger");
+        input.classList.remove("border-success", "border-warning");
+        if (feedbackEl) {
+          feedbackEl.textContent = "> GH 0";
+          feedbackEl.classList.remove("d-none");
+        }
+        return false;
+      }
+    }
+
+    // Below cost price check (prevent selling at a loss)
+    if (costPrice > 0 && enteredPrice < costPrice) {
+      if (isBlurOrSubmit) {
+        alert(`Selling price for "${productName}" (GH ${enteredPrice.toFixed(2)}) cannot be lower than cost price (GH ${costPrice.toFixed(2)}).`);
+        input.value = costPrice.toFixed(2);
+        input.classList.add("border-warning");
+        input.classList.remove("border-danger", "border-success");
+        if (feedbackEl) {
+          feedbackEl.textContent = `Min GH ${costPrice.toFixed(2)}`;
+          feedbackEl.classList.remove("d-none");
+        }
+        updateTotals();
+        input.focus();
+        return false;
+      } else {
+        input.classList.add("border-danger");
+        input.classList.remove("border-success", "border-warning");
+        input.title = `Selling price cannot be below cost price (GH ${costPrice.toFixed(2)})`;
+        if (feedbackEl) {
+          feedbackEl.textContent = `< Cost (GH ${costPrice.toFixed(0)})`;
+          feedbackEl.classList.remove("d-none");
+        }
+        return false;
+      }
+    }
+
+    // Exceeding unit price check
+    if (unitPrice > 0 && enteredPrice > unitPrice) {
+      if (isBlurOrSubmit) {
+        alert(`Selling price for "${productName}" (GH ${enteredPrice.toFixed(2)}) cannot exceed unit price (GH ${unitPrice.toFixed(2)}).`);
+        input.value = unitPrice.toFixed(2);
+        input.classList.add("border-warning");
+        input.classList.remove("border-danger", "border-success");
+        if (feedbackEl) {
+          feedbackEl.textContent = `Max GH ${unitPrice.toFixed(2)}`;
+          feedbackEl.classList.remove("d-none");
+        }
+        updateTotals();
+        input.focus();
+        return false;
+      } else {
+        input.classList.add("border-warning");
+        input.classList.remove("border-danger", "border-success");
+        input.title = `Selling price exceeds unit price (GH ${unitPrice.toFixed(2)})`;
+        if (feedbackEl) {
+          feedbackEl.textContent = `> Unit (GH ${unitPrice.toFixed(0)})`;
+          feedbackEl.classList.remove("d-none");
+        }
+        return false;
+      }
+    }
+
+    // Valid price
+    if (isBlurOrSubmit) {
+      input.value = enteredPrice.toFixed(2);
+    }
+    input.classList.add("border-success");
+    input.classList.remove("border-danger", "border-warning");
+    input.title = "Valid price";
+    if (feedbackEl) {
+      feedbackEl.textContent = "";
+      feedbackEl.classList.add("d-none");
+    }
+    return true;
+  }
+
   function addProductToCart(product) {
     const tableBody = document.querySelector("#productTableBody tbody");
     const existingRow = document.querySelector(`tr[data-id='${product.id}']`);
@@ -440,8 +566,13 @@
       }
     }
 
+    const costPrice = parseFloat(product.cost) || 0;
+    const unitPrice = parseFloat(product.price) || 0;
+
     const row = document.createElement("tr");
     row.dataset.id = product.id;
+    row.dataset.price = unitPrice;
+    row.dataset.cost = costPrice;
     row.innerHTML = `
       <td class="ps-3 py-2">
         <div class="fw-bold text-dark fs-13 text-truncate" style="max-width: 140px;" title="${product.name}">${product.name}</div>
@@ -449,13 +580,20 @@
         <input type="hidden" name="product_id[]" value="${product.id}" />
       </td>
       <td class="py-2">
-        <input 
-          type="number" 
-          step="0.01" 
-          class="form-control pos-price-input" 
-          name="selling_price[]" 
-          value="${product.price.toFixed(2)}"
-        />
+        <div class="pos-price-wrapper position-relative" style="min-width: 95px; max-width: 120px;">
+          <input 
+            type="number" 
+            step="0.01" 
+            min="${(costPrice > 0 ? costPrice : 0.01).toFixed(2)}"
+            max="${unitPrice.toFixed(2)}"
+            class="form-control pos-price-input" 
+            name="selling_price[]" 
+            value="${unitPrice.toFixed(2)}"
+            title="Min: GH ${costPrice.toFixed(2)} | Max: GH ${unitPrice.toFixed(2)}"
+            style="min-width: 95px; max-width: 120px;"
+          />
+          <small class="price-feedback text-danger d-none" style="font-size: 10px; line-height: 1.1; margin-top: 2px; display: block;"></small>
+        </div>
       </td>
       <td class="py-2 text-center">
         <div class="pos-qty-stepper">
@@ -465,7 +603,7 @@
         </div>
       </td>
       <td class="text-end fw-bold subtotal text-dark py-2 fs-13">
-        ${product.price.toFixed(2)}
+        GH ${unitPrice.toFixed(2)}
       </td>
       <td class="text-center py-2 pe-1">
         <button type="button" class="btn-remove-item removeBtn" title="Remove"><i class="ti ti-trash fs-15"></i></button>
@@ -490,7 +628,18 @@
     });
 
     row.querySelector(".quntity-input").addEventListener("input", updateTotals);
-    row.querySelector("input[name='selling_price[]']").addEventListener("input", updateTotals);
+
+    const priceInput = row.querySelector("input[name='selling_price[]']");
+    priceInput.addEventListener("input", () => {
+      handleSellingPriceValidation(priceInput, false);
+      updateTotals();
+    });
+    priceInput.addEventListener("change", () => {
+      handleSellingPriceValidation(priceInput, true);
+    });
+    priceInput.addEventListener("blur", () => {
+      handleSellingPriceValidation(priceInput, true);
+    });
 
     row.querySelector(".removeBtn").addEventListener("click", () => {
       row.remove();
@@ -580,13 +729,29 @@
       selectedProduct = null;
     });
 
-    addBtn.addEventListener("click", () => {
-      if (selectedProduct) {
-        addProductToCart(selectedProduct);
-        selectedProduct = null;
-        productSearch.value = "";
+    productSearch.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const firstItem = resultsBox.querySelector(".product-item-result");
+        if (firstItem) {
+          firstItem.click();
+        } else if (productSearch.value.trim()) {
+          handleScannedCode(productSearch.value.trim());
+          productSearch.value = "";
+          resultsBox.style.display = "none";
+        }
       }
     });
+
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        if (selectedProduct) {
+          addProductToCart(selectedProduct);
+          selectedProduct = null;
+          productSearch.value = "";
+        }
+      });
+    }
 
     // 6. Customer Search & Autocomplete
     const customerSearch = document.getElementById("customerSearch");
@@ -658,6 +823,17 @@
       if (rows.length === 0) {
         alert("Please add at least one product to the cart before completing the sale.");
         return;
+      }
+
+      // Validate all price inputs before completing checkout
+      for (const row of rows) {
+        const pInput = row.querySelector("input[name='selling_price[]']");
+        if (pInput) {
+          const isValid = handleSellingPriceValidation(pInput, true);
+          if (!isValid) {
+            return;
+          }
+        }
       }
 
       const submitBtn = document.getElementById("submitBtn");
