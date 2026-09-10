@@ -96,7 +96,7 @@ p, span, label, input, button, select, textarea, table, td, th {
 .card:has(#customerSearch),
 .card:has(#customerNameAutocompleteResults:not([style*="display: none"])),
 .pos-customer-card {
-  z-index: 1060 !important;
+  z-index: 100 !important;
   position: relative !important;
 }
 
